@@ -40,41 +40,38 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 func getUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for _, item := range Users {
-		if item.ID == params["id"] {
+		if item.ID == params["ID"] {
 			json.NewEncoder(w).Encode(item)
 			return
 		}
-		json.NewEncoder(w).Encode(&User{})
 
 	}
+	json.NewEncoder(w).Encode(&User{})
 }
-func createUser(w http.ResponseWriter, r *http.Request) {
-	// var newUser User
-	// _ = json.NewDecoder(r.Body).Decode(&newUser)
 
-	// Users = append(Users, newUser)
-	// json.NewEncoder(w).Encode(newUser)
+// Creates a new user
+func createUser(w http.ResponseWriter, r *http.Request) {
+	var newUser User
+	_ = json.NewDecoder(r.Body).Decode(&newUser)
+	Users = append(Users, newUser)
+	json.NewEncoder(w).Encode(newUser)
 }
 
 func updateScore(w http.ResponseWriter, r *http.Request) {
 
-}
-func testUsers(router *mux.Router) {
-
-	router.HandleFunc("/Users", createUser).Methods("POST")
-	router.HandleFunc("/Users", getUsers).Methods("GET")
 }
 
 func handleRequests() {
 	//Creates new mux router
 	router := mux.NewRouter()
 	router.HandleFunc("/", homePage)
-	testUsers(router)
+
 	log.Fatal(http.ListenAndServe(":8081", router))
 
 }
 
 func main() {
 	Users = append(Users, User{ID: "1", University: "Testing University", Username: "test", ProfilePicture: "Picture"})
+	Users = append(Users, User{ID: "2", University: "Testing University2", Username: "test2", ProfilePicture: "Picture2"})
 	handleRequests()
 }
