@@ -33,10 +33,12 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: homePage")
 }
 
+// Gets all Users
 func getUsers(w http.ResponseWriter, r *http.Request) {
-
 	json.NewEncoder(w).Encode(Users)
 }
+
+// Gets specific user based on ID
 func getUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for _, item := range Users {
@@ -57,15 +59,36 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newUser)
 }
 
-func updateScore(w http.ResponseWriter, r *http.Request) {
+// Updates data relating to user
+func updateUser(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	for index, item := range Users {
+		if item.ID == params["ID"] {
+			Users = append(Users[:index], Users[index+1:]...)
+			var user User
+			_ = json.NewDecoder(r.Body).Decode(&user)
+			user.ID = params["ID"]
+			Users = append(Users, user)
+			json.NewEncoder(w).Encode(user)
+			return
+		}
 
+	}
+	json.NewEncoder(w).Encode(Users)
+}
+
+func testUsers(router *mux.Router) {
+	router.HandleFunc("/Users", getUsers).Methods("GET")
+	router.HandleFunc("/Users/{ID}", getUser).Methods("GET")
+	router.HandleFunc("/Users", createUser).Methods("POST")
+	router.HandleFunc("/Users/{ID}", updateUser).Methods("PUT")
 }
 
 func handleRequests() {
 	//Creates new mux router
 	router := mux.NewRouter()
 	router.HandleFunc("/", homePage)
-
+	testUsers(router)
 	log.Fatal(http.ListenAndServe(":8081", router))
 
 }
