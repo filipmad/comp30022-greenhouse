@@ -77,11 +77,25 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(Users)
 }
 
+// Deletes a User
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	for index, item := range Users {
+		if item.ID == params["ID"] {
+			Users = append(Users[:index], Users[index+1:]...)
+			break
+		}
+
+	}
+	json.NewEncoder(w).Encode(Users)
+}
+
 func testUsers(router *mux.Router) {
 	router.HandleFunc("/Users", getUsers).Methods("GET")
 	router.HandleFunc("/Users/{ID}", getUser).Methods("GET")
 	router.HandleFunc("/Users", createUser).Methods("POST")
 	router.HandleFunc("/Users/{ID}", updateUser).Methods("PUT")
+	router.HandleFunc("/Users/{ID}", DeleteUser).Methods("DELETE")
 }
 
 func handleRequests() {
