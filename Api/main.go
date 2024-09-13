@@ -17,21 +17,21 @@ type User struct {
 	ProfilePicture string `json:"ProfilePicture"`
 }
 
-type personalScore struct {
-	HighScoreGame1 *score
-	HighScoreGame2 *score
-	HighScoreGame3 *score
-	HighScoreQuiz1 *score
-	HighScoreQuiz2 *score
-	HighScoreQuiz3 *score
+type PersonalScore struct {
+	HighScoreGame1 *Score
+	HighScoreGame2 *Score
+	HighScoreGame3 *Score
+	HighScoreQuiz1 *Score
+	HighScoreQuiz2 *Score
+	HighScoreQuiz3 *Score
 }
 
-type score struct {
+type Score struct {
 	ID    int
 	score int
 }
 
-type forumPost struct {
+type ForumPost struct {
 	authorID   int
 	postID     int
 	title      string
@@ -59,6 +59,31 @@ type Garden struct {
 	gardenID int
 	treeAge  int
 	userId   int
+}
+
+type Milestone struct {
+	milestoneID int
+	name        string
+	description string
+}
+
+type CommunityMilestone struct {
+	communityMilestoneID int
+	status               int
+	progress             int
+	timeCreated          time.Time
+	finishedAt           time.Time
+	milestoneID          int
+}
+
+type PersonalMilestone struct {
+	personalMilestoneID int
+	status              string
+	progress            int
+	timeCreated         time.Time
+	finishedAt          time.Time
+	userID              int
+	milestoneID         int
 }
 
 var Users []User
