@@ -40,13 +40,25 @@ type forumPost struct {
 	datePosted time.Time
 }
 
-type comment struct {
+type Comment struct {
 	commentID       int
 	text            string
 	datePosted      time.Time
 	postID          int
 	postAuthorID    int
 	commentAuthorID int
+}
+type Plant struct {
+	plantID  int
+	age      int
+	name     string
+	gardenID int
+}
+
+type Garden struct {
+	gardenID int
+	treeAge  int
+	userId   int
 }
 
 var Users []User
