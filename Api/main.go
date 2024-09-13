@@ -40,6 +40,15 @@ type forumPost struct {
 	datePosted time.Time
 }
 
+type comment struct {
+	commentID       int
+	text            string
+	datePosted      time.Time
+	postID          int
+	postAuthorID    int
+	commentAuthorID int
+}
+
 var Users []User
 
 func homePage(w http.ResponseWriter, r *http.Request) {
