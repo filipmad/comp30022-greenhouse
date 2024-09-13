@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -14,15 +15,29 @@ type User struct {
 	University     string `json:"University"`
 	Username       string `json:"Username"`
 	ProfilePicture string `json:"ProfilePicture"`
-	Scores         *personalScore
 }
+
 type personalScore struct {
-	HighScoreGame1 int
-	HighScoreGame2 int
-	HighScoreGame3 int
-	HighScoreQuiz1 int
-	HighScoreQuiz2 int
-	HighScoreQuiz3 int
+	HighScoreGame1 *score
+	HighScoreGame2 *score
+	HighScoreGame3 *score
+	HighScoreQuiz1 *score
+	HighScoreQuiz2 *score
+	HighScoreQuiz3 *score
+}
+
+type score struct {
+	ID    int
+	score int
+}
+
+type forumPost struct {
+	authorID   int
+	postID     int
+	title      string
+	text       string
+	likes      int
+	datePosted time.Time
 }
 
 var Users []User
@@ -90,7 +105,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(Users)
 }
 
-func testUsers(router *mux.Router) {
+func userHandlers(router *mux.Router) {
 	router.HandleFunc("/Users", getUsers).Methods("GET")
 	router.HandleFunc("/Users/{ID}", getUser).Methods("GET")
 	router.HandleFunc("/Users", createUser).Methods("POST")
@@ -102,7 +117,7 @@ func handleRequests() {
 	//Creates new mux router
 	router := mux.NewRouter()
 	router.HandleFunc("/", homePage)
-	testUsers(router)
+	userHandlers(router)
 	log.Fatal(http.ListenAndServe(":8081", router))
 
 }
