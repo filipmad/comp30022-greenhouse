@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -21,9 +24,9 @@ type Plant struct {
 }
 
 var plants []Plant
+var gardens []Garden
 
-var garden Garden
-
+// var garden []Garden
 // Gets all Users
 func getPlants(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(plants)
@@ -83,15 +86,31 @@ func DeletePlant(w http.ResponseWriter, r *http.Request) {
 }
 
 func getGarden(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(garden)
+
+	var err error
+	//Relevant server needs to be put in
+	gardens, err = ReadGardenDB()
+	if err != nil {
+		//Shows relevant error
+	}
+	params := mux.Vars(r)
+	for _, item := range gardens {
+		if strconv.Itoa(item.userID) == params["userID"] {
+			json.NewEncoder(w).Encode(item)
+			return
+		}
+
+	}
+	//Needs to return error of no garden avaliable to user, for front end to display to log in
+	json.NewEncoder(w).Encode(&Garden{})
 }
 
 func createGarden(w http.ResponseWriter, r *http.Request) {
 	var newGarden Garden
 	_ = json.NewDecoder(r.Body).Decode(&newGarden)
 	newGarden.treeAge = 0
-	garden = newGarden
-	json.NewEncoder(w).Encode(garden)
+	gardens = append(gardens, newGarden)
+	json.NewEncoder(w).Encode(gardens)
 
 }
 
@@ -101,4 +120,48 @@ func deleteGarden(w http.ResponseWriter, r *http.Request) {
 
 func updateGarden(w http.ResponseWriter, r *http.Request) {
 
+}
+
+func ReadGardenDB(db *sql.DB) ([]Garden, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Custom SQL Selection Query
+	//Needs to put in server
+	tsql := (`SELECT [gardenID], [treeAge], [userID] FROM ...`)
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return nil, err
+	}
+
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var garden []Garden
+	for rows.Next() {
+		var gID, tAge, uID int
+		var newGarden Garden
+		err := rows.Scan(&gID, &tAge, &uID)
+		if err != nil {
+			return nil, err
+		}
+		newGarden = Garden{gardenID: gID, treeAge: tAge, userID: uID}
+		garden = append(garden, newGarden)
+
+	}
+
+	return garden, nil
 }
