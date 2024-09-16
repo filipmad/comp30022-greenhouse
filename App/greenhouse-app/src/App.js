@@ -20,14 +20,13 @@ import Information from "./pages/Information/Information";
 
 export default function myApp() {
   return (
-    <div>
-      <div className="header">
-        <MainLogo />
-        <Title />
-        <SettingsSection />
-      </div>
-
-      <Router>
+    <Router>
+      <div>
+        <div className="header">
+          <MainLogo />
+          <Title />
+          <SettingsSection />
+        </div>
         <NavBar />
         <Routes>
           <Route path="/" element={<Navigate to="/home" />} />
@@ -37,9 +36,8 @@ export default function myApp() {
           <Route path="/grow" element={<Garden />} />
           <Route path="/news" element={<News />} />
           <Route path="/community" element={<Community />} />
-          </Routes>
-      </Router>
-
-    </div>
+        </Routes>
+      </div>
+    </Router>
   );
 }

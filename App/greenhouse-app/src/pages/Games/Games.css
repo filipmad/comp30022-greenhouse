@@ -1,0 +1,29 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	height: 75vh;
+  }
+  
+.gamesContainer {
+	display: flex;
+	justify-content: space-around;
+	margin: 20px 0;
+	flex-grow: 1;
+  }
+  
+  .quizContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+  }
+
+.quizContainer h1 {
+	margin-bottom: 0px;
+	font-size: 40px;
+  }
+
+  .quizLinks {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+  }
