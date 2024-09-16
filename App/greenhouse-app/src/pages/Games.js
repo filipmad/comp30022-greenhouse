@@ -1,3 +1,7 @@
-export default function games() {
-	return <h1>Hello world</h1>
+export default function Games() {
+  return (
+	<div>
+	  <h1>Games</h1>
+	</div>
+  );
 }

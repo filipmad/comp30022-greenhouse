@@ -1,33 +1,37 @@
 import './App.css';
-import MainNav from './components/MainNav';
-import SettingsSection from './components/SettingsSection';
-import Title from './components/Title';
-import MainLogo from './components/MainLogo';
+import NavBar from './components/NavBar/NavBar';
+import SettingsSection from './components/SettingsSection/SettingsSection';
+import Title from './components/Title/Title';
+import MainLogo from './components/MainLogo/MainLogo';
 
 import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom";
 import Home from "./pages/Home";
-import Games from "./pages/Games"
-import Garden from "./pages/Garden"
-import Community from "./pages/Community"
-import News from "./pages/News"
-import Information from "./pages/Information"
+import Games from "./pages/Games";
+import Garden from "./pages/Garden";
+import Community from "./pages/Community";
+import News from "./pages/News";
+import Information from "./pages/Information";
 
 
 export default function myApp() {
   return (
     <div>
-      <MainLogo />
-      <Title />
-      <SettingsSection />
+      <div className="header">
+        <MainLogo />
+        <Title />
+        <SettingsSection />
+      </div>
 
       <Router>
-        <MainNav />
+        <NavBar />
         <Routes>
-          <Route exact path="/home" element={<Home />} />
+          <Route path="/" element={<Navigate to="/home" />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/discover" element={<Information />} />
           <Route path="/games" element={<Games />} />
           <Route path="/grow" element={<Garden />} />
