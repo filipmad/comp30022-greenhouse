@@ -4,7 +4,7 @@ import GameSelectionBox from "./GamesComponents/GameSelectionBox";
 
 export default function Games() {
   return (
-	<div className="container">
+	<div className="gamesPageContainer">
     	<div className="gamesContainer">
       		<GameSelectionBox game="game1" />
 	  		<GameSelectionBox game="game2" />

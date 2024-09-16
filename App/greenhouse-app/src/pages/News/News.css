@@ -1,0 +1,109 @@
+.newsContainer {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+  }
+  
+  .blogSection {
+	flex: 1;
+	margin: 10px;
+	order: 1;
+  }
+  
+  .rightSection {
+	flex: 2;
+	display: flex;
+	flex-direction: column;
+	margin: 10px;
+	order: 2;
+	margin-left: 100px;
+  }
+  
+  .trendingSection {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 10px;
+	margin-left: 50px;
+  }
+  
+  .trendingItems {
+	display: flex;
+	flex-direction: row;
+  }
+  
+  .trendingItem {
+	flex: 1;
+	margin-right: 120px;
+	height: 300px;
+  }
+  
+  .newsSection {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	margin-top: 100px;
+  }
+
+  .newsSection h1 {
+	margin-left: 50px;
+  }
+  
+  .newsItems {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	flex: 1;
+  }
+  
+  
+  .newsItem {
+	flex: 0 0 auto;
+	width: 22%;
+	margin-right: 5px;
+	margin-top: 5px;
+  }
+  
+  h2 {
+	text-align: center;
+  }
+
+  .newsContainer h1 {
+	text-decoration: underline;
+  }
+  
+  .blog, .trending, .news, .trendingItem, .newsItem {
+	border: 2px solid #000000;
+	padding: 10px;
+  }
+  
+  .blog {
+	min-height: 600px;
+	width: 105%;
+  }
+
+  .newsItemsContainer {
+	display: flex;
+	align-items: center;
+  }
+
+  .arrowButton {
+	background-color: transparent;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  }
+
+  .leftArrow {
+	margin-right: 10px;
+	background-image: url("/public/arrow_left.svg");
+  }
+
+  .rightArrow {
+	background-image: url("/public/arrow_right.svg");
+  }
