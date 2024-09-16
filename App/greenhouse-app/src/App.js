@@ -1,8 +1,8 @@
-import './App.css';
-import NavBar from './components/NavBar/NavBar';
-import SettingsSection from './components/SettingsSection/SettingsSection';
-import Title from './components/Title/Title';
-import MainLogo from './components/MainLogo/MainLogo';
+import "./App.css";
+import NavBar from "./components/NavBar/NavBar";
+import SettingsSection from "./components/SettingsSection/SettingsSection";
+import Title from "./components/Title/Title";
+import MainLogo from "./components/MainLogo/MainLogo";
 
 import {
   BrowserRouter as Router,
@@ -10,12 +10,12 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Home from "./pages/Home";
-import Games from "./pages/Games";
-import Garden from "./pages/Garden";
-import Community from "./pages/Community";
-import News from "./pages/News";
-import Information from "./pages/Information";
+import Home from "./pages/Home/Home";
+import Games from "./pages/Games/Games";
+import Garden from "./pages/Garden/Garden";
+import Community from "./pages/Community/Community";
+import News from "./pages/News/News";
+import Information from "./pages/Information/Information";
 
 
 export default function myApp() {

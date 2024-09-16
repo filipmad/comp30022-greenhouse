@@ -1,5 +1,5 @@
-import React from 'react';
-import './SettingsSection.css'; // Import the CSS file
+import React from "react";
+import "./SettingsSection.css";
 
 function SettingsButton({ type }) {
   let img;
