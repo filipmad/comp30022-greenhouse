@@ -1,0 +1,36 @@
+.pillar {
+	flex: 1 1 33.33%; /* Each Pillar takes up one-third of the width */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border: 1px solid #ccc; /* Optional: for visual separation */
+	border-radius: 10px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	transition: transform 0.3s, box-shadow 0.3s;
+	text-decoration: none;
+  }
+  
+  .pillar:hover {
+	transform: translateY(-10px);
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .pillar .content {
+	text-align: center;
+	font-size: 1.2em;
+	font-weight: bold;
+	color: #333;
+  }
+  
+  /* Specific styles for each category */
+  .pillar.social {
+	background-color: #f76868; /* Light red */
+  }
+  
+  .pillar.economical {
+	background-color: #fcfc6b; /* Light yellow */
+  }
+  
+  .pillar.environmental {
+	background-color: #60ff60; /* Light green */
+  }
