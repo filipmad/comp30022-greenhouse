@@ -133,7 +133,7 @@ func ReadGardenDB(db *sql.DB) ([]Garden, error) {
 
 	// Custom SQL Selection Query
 	//Needs to put in server
-	tsql := (`SELECT [gardenID], [treeAge], [userID] FROM ...`)
+	tsql := (`SELECT [gardenID], [treeAge], [userID] FROM Garden`)
 
 	// Check Validity of the db
 	if db == nil {
@@ -175,7 +175,7 @@ func addGardenDB(userID int, db *sql.DB) (int64, error) {
 		return -1, err
 	}
 
-	tsql := "INSERT INTO garden ('treeAge', 'userID') VALUES(0, ?)"
+	tsql := "INSERT INTO Garden ('treeAge', 'userID') VALUES(0, ?)"
 	insert, err := db.ExecContext(ctx, tsql, userID)
 	if err != nil {
 		return -1, err
@@ -190,7 +190,7 @@ func addGardenDB(userID int, db *sql.DB) (int64, error) {
 }
 
 // Modifies both a userID and age in the DB
-func modifyGardenDB(userID int, age int, db *sql.DB) (int64, error) {
+func modifyGardenDB(age int, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 	// Check if database is alive.
 	err := db.PingContext(ctx)
@@ -199,8 +199,8 @@ func modifyGardenDB(userID int, age int, db *sql.DB) (int64, error) {
 	}
 	//Checks need to be implemented for both invalid values (negative vals, etc...)
 	//SQL statement
-	tsql := "UPDATE INTO garden ('treeAge', 'userID') VALUES(?, ?)"
-	modified, err := db.ExecContext(ctx, tsql, age, userID)
+	tsql := "UPDATE INTO Garden ('treeAge' VALUES(?)"
+	modified, err := db.ExecContext(ctx, tsql, age)
 	if err != nil {
 		return -1, err
 	}
@@ -220,7 +220,7 @@ func deleteGardenDB(userID int, db *sql.DB) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	delete, err := db.ExecContext(ctx, "DELETE FROM garden where userID = ?", userID)
+	delete, err := db.ExecContext(ctx, "DELETE FROM Garden where userID = ?", userID)
 	if err != nil {
 		return -1, err
 	}
@@ -240,7 +240,7 @@ func deletePlantDB(gardenID int, flowerID int, db *sql.DB) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	delete, err := db.ExecContext(ctx, "DELETE FROM plant where gardenID = ?, flowerID  = ?", gardenID, flowerID)
+	delete, err := db.ExecContext(ctx, "DELETE FROM Plant where gardenID = ?, flowerID  = ?", gardenID, flowerID)
 	if err != nil {
 		return -1, err
 	}
@@ -260,7 +260,7 @@ func deleteAllPlantDB(gardenID int, db *sql.DB) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	delete, err := db.ExecContext(ctx, "DELETE FROM plant where gardenID = ?", gardenID)
+	delete, err := db.ExecContext(ctx, "DELETE FROM Plant where gardenID = ?", gardenID)
 	if err != nil {
 		return -1, err
 	}
@@ -269,4 +269,93 @@ func deleteAllPlantDB(gardenID int, db *sql.DB) (int64, error) {
 		return -1, err
 	}
 	return check, nil
+}
+
+func getPlantsDB(gardenID int, db *sql.DB) ([]Plant, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Custom SQL Selection Query
+	//Needs to put in server
+	tsql := (`SELECT [PlantID], [Age], [Name], [GardenID] FROM Plant`)
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return nil, err
+	}
+
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var plants []Plant
+	for rows.Next() {
+		var pID, pAge, gID int
+		var name string
+		var newPlant Plant
+		err := rows.Scan(&pID, &pAge, &name, &gID)
+		if err != nil {
+			return nil, err
+		}
+		newPlant = Plant{PlantID: pID, Age: pAge, Name: name, GardenID: gID}
+		plants = append(plants, newPlant)
+
+	}
+
+	return plants, nil
+
+}
+
+func addPlantsDB(GardenID int, Name string, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+
+	tsql := "INSERT INTO Plant ('Age', 'Name', 'GardenID') VALUES('1', ?, ?)"
+	insert, err := db.ExecContext(ctx, tsql, Name, GardenID)
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := insert.LastInsertId()
+	if err != nil {
+
+	}
+	return id, nil
+
+}
+func UpdatePlantsDB(PlantID int, Age int, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+
+	tsql := "UPDATE INTO Plant ('Age', 'PlantID') VALUES(?, ?)"
+	insert, err := db.ExecContext(ctx, tsql, Age, PlantID)
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := insert.LastInsertId()
+	if err != nil {
+
+	}
+	return id, nil
+
 }
