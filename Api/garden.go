@@ -230,3 +230,43 @@ func deleteGardenDB(userID int, db *sql.DB) (int64, error) {
 	}
 	return check, nil
 }
+
+//Deletes a Specific Plant
+
+func deletePlantDB(gardenID int, flowerID int, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	delete, err := db.ExecContext(ctx, "DELETE FROM plant where gardenID = ?, flowerID  = ?", gardenID, flowerID)
+	if err != nil {
+		return -1, err
+	}
+	check, err := delete.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+	return check, nil
+}
+
+//Deletes All Plants
+
+func deleteAllPlantDB(gardenID int, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	delete, err := db.ExecContext(ctx, "DELETE FROM plant where gardenID = ?", gardenID)
+	if err != nil {
+		return -1, err
+	}
+	check, err := delete.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+	return check, nil
+}
