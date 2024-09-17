@@ -165,3 +165,68 @@ func ReadGardenDB(db *sql.DB) ([]Garden, error) {
 
 	return garden, nil
 }
+
+// Adds a new garden into the DB
+func addGardenDB(userID int, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+
+	tsql := "INSERT INTO garden ('treeAge', 'userID') VALUES(0, ?)"
+	insert, err := db.ExecContext(ctx, tsql, userID)
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := insert.LastInsertId()
+	if err != nil {
+
+	}
+	return id, nil
+
+}
+
+// Modifies both a userID and age in the DB
+func modifyGardenDB(userID int, age int, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	//Checks need to be implemented for both invalid values (negative vals, etc...)
+	//SQL statement
+	tsql := "UPDATE INTO garden ('treeAge', 'userID') VALUES(?, ?)"
+	modified, err := db.ExecContext(ctx, tsql, age, userID)
+	if err != nil {
+		return -1, err
+	}
+	check, err := modified.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+
+	return check, nil
+}
+
+// Deletes Garden from DB based on userID
+func deleteGardenDB(userID int, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	delete, err := db.ExecContext(ctx, "DELETE FROM garden where userID = ?", userID)
+	if err != nil {
+		return -1, err
+	}
+	check, err := delete.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+	return check, nil
+}
