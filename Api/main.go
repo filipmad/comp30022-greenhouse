@@ -16,12 +16,17 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: homePage")
 }
 
+// Handlers for CRUD functions for User Handlers
 func userHandlers(router *mux.Router) {
 	router.HandleFunc("/Users", getUsers).Methods("GET")
 	router.HandleFunc("/Users/{ID}", getUser).Methods("GET")
 	router.HandleFunc("/Users", createUser).Methods("POST")
 	router.HandleFunc("/Users/{ID}", updateUser).Methods("PUT")
 	router.HandleFunc("/Users/{ID}", DeleteUser).Methods("DELETE")
+	router.HandleFunc("/Garden", getGarden).Methods("GET")
+	router.HandleFunc("/Garden", createGarden).Methods("POST")
+	router.HandleFunc("/Garden/{userID}", updateGarden).Methods("PUT")
+	router.HandleFunc("/Garden/{userID}", deleteGarden).Methods("DELETE")
 }
 
 func handleRequests() {
@@ -29,6 +34,7 @@ func handleRequests() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", homePage)
 	userHandlers(router)
+	// gardenHandlers(router)
 	log.Fatal(http.ListenAndServe(":8081", router))
 
 }

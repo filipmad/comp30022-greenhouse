@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -12,9 +13,9 @@ import (
 )
 
 type Garden struct {
-	gardenID int
-	treeAge  int
-	userID   int
+	GardenID int `json:"GardenID"`
+	TreeAge  int `json:"TreeAge"`
+	UserID   int `json:"UserID"`
 }
 type Plant struct {
 	PlantID  int    `json:"PlantID"`
@@ -89,13 +90,13 @@ func getGarden(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 	//Relevant server needs to be put in
-	gardens, err = ReadGardenDB()
+
 	if err != nil {
 		//Shows relevant error
 	}
 	params := mux.Vars(r)
 	for _, item := range gardens {
-		if strconv.Itoa(item.userID) == params["userID"] {
+		if strconv.Itoa(item.UserID) == params["UserID"] {
 			json.NewEncoder(w).Encode(item)
 			return
 		}
@@ -108,9 +109,16 @@ func getGarden(w http.ResponseWriter, r *http.Request) {
 func createGarden(w http.ResponseWriter, r *http.Request) {
 	var newGarden Garden
 	_ = json.NewDecoder(r.Body).Decode(&newGarden)
-	newGarden.treeAge = 0
-	gardens = append(gardens, newGarden)
-	json.NewEncoder(w).Encode(gardens)
+
+	db := connectToDB()
+	if db != nil {
+
+		check, err := createGardenDB(newGarden, db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		fmt.Printf("%d", check)
+	}
 
 }
 
@@ -158,7 +166,7 @@ func ReadGardenDB(db *sql.DB) ([]Garden, error) {
 		if err != nil {
 			return nil, err
 		}
-		newGarden = Garden{gardenID: gID, treeAge: tAge, userID: uID}
+		newGarden = Garden{GardenID: gID, TreeAge: tAge, UserID: uID}
 		garden = append(garden, newGarden)
 
 	}
@@ -167,7 +175,7 @@ func ReadGardenDB(db *sql.DB) ([]Garden, error) {
 }
 
 // Adds a new garden into the DB
-func addGardenDB(userID int, db *sql.DB) (int64, error) {
+func createGardenDB(garden Garden, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 	// Check if database is alive.
 	err := db.PingContext(ctx)
@@ -175,18 +183,19 @@ func addGardenDB(userID int, db *sql.DB) (int64, error) {
 		return -1, err
 	}
 
-	tsql := "INSERT INTO Garden ('treeAge', 'userID') VALUES(0, ?)"
-	insert, err := db.ExecContext(ctx, tsql, userID)
+	tsql := "INSERT INTO dbo.Garden(gardenID,treeAge, userID) VALUES(@p1, @p2, @p3)"
+	fmt.Printf("%d\n", garden.UserID)
+	insert, err := db.ExecContext(ctx, tsql, garden.GardenID, garden.TreeAge, garden.UserID)
 	if err != nil {
 		return -1, err
 
 	}
-	id, err := insert.LastInsertId()
+	id, err := insert.RowsAffected()
 	if err != nil {
+		log.Fatal(err.Error())
 
 	}
 	return id, nil
-
 }
 
 // Modifies both a userID and age in the DB
@@ -338,7 +347,7 @@ func addPlantsDB(GardenID int, Name string, db *sql.DB) (int64, error) {
 	return id, nil
 
 }
-func UpdatePlantsDB(PlantID int, Age int, db *sql.DB) (int64, error) {
+func updatePlantsDB(PlantID int, Age int, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 	// Check if database is alive.
 	err := db.PingContext(ctx)
