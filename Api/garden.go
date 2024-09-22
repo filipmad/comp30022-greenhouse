@@ -123,6 +123,27 @@ func createGarden(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteGarden(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	db := connectToDB()
+	if db != nil {
+		gardens, err := ReadGardenDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		fmt.Printf("UserID: %s", params["UserID"])
+		for _, item := range gardens {
+			if strconv.Itoa(item.UserID) == params["UserID"] {
+
+				ID, err := strconv.Atoi(params["UserID"])
+				if err != nil {
+					log.Fatal(err.Error())
+				}
+
+				deleteGardenDB(ID, db)
+				break
+			}
+		}
+	}
 
 }
 
@@ -229,7 +250,7 @@ func deleteGardenDB(userID int, db *sql.DB) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	delete, err := db.ExecContext(ctx, "DELETE FROM Garden where userID = ?", userID)
+	delete, err := db.ExecContext(ctx, "DELETE FROM Garden where userID = @p1", userID)
 	if err != nil {
 		return -1, err
 	}
