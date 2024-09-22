@@ -1,7 +1,11 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -10,9 +14,9 @@ import (
 )
 
 type Milestone struct {
-	milestoneID int
-	name        string
-	description string
+	MilestoneID int
+	Name        string
+	Description string
 }
 
 type CommunityMilestone struct {
@@ -42,14 +46,30 @@ var personalMilestones []PersonalMilestone
 
 // Gets all Users
 func getMilestones(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(milestones)
+	db := connectToDB()
+	if db != nil {
+		milestones, err := getMilestonesDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+			json.NewEncoder(w).Encode(milestones)
+		}
+	}
+
 }
 
 // Gets specific user based on ID
 func getMilestone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
+	db := connectToDB()
+	if db != nil {
+		milestones, err := getMilestonesDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+			json.NewEncoder(w).Encode(milestones)
+		}
+	}
 	for _, item := range milestones {
-		if strconv.Itoa(item.milestoneID) == params["ID"] {
+		if strconv.Itoa(item.MilestoneID) == params["milestoneID"] {
 			json.NewEncoder(w).Encode(item)
 			return
 		}
@@ -62,40 +82,26 @@ func getMilestone(w http.ResponseWriter, r *http.Request) {
 func createMilestone(w http.ResponseWriter, r *http.Request) {
 	var newMilestone Milestone
 	_ = json.NewDecoder(r.Body).Decode(&newMilestone)
-	milestones = append(milestones, newMilestone)
-	json.NewEncoder(w).Encode(milestones)
+	db := connectToDB()
+	if db != nil {
+		check, err := createMilestoneDB(newMilestone, db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		fmt.Printf("%d", check)
+
+		json.NewEncoder(w).Encode(newMilestone)
+	}
 }
 
 // Updates data relating to user
 func updateMilestone(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	for index, item := range milestones {
-		if strconv.Itoa(item.milestoneID) == params["MilestoneID"] {
-			milestones = append(milestones[:index], milestones[index+1:]...)
-			var milestone Milestone
-			_ = json.NewDecoder(r.Body).Decode(&milestone)
-			milestone.name = params["name"]
-			milestone.description = params["description"]
-			milestones = append(milestones, milestone)
-			json.NewEncoder(w).Encode(milestones)
-			return
-		}
 
-	}
-	json.NewEncoder(w).Encode(milestones)
 }
 
 // Deletes a User
 func DeleteMilestone(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	for index, item := range milestones {
-		if strconv.Itoa(item.milestoneID) == params["MilestoneID"] {
-			milestones = append(milestones[:index], milestones[index+1:]...)
-			break
-		}
 
-	}
-	json.NewEncoder(w).Encode(milestones)
 }
 
 // Gets all Users
@@ -210,4 +216,89 @@ func DeletePersonalMilestone(w http.ResponseWriter, r *http.Request) {
 
 	}
 	json.NewEncoder(w).Encode(personalMilestones)
+}
+
+// Gets all users from the database
+func getMilestonesDB(db *sql.DB) ([]Milestone, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Custom SQL Selection Query
+	//Needs to put in server
+	tsql := (`SELECT [milestoneID], [name], [description] FROM Milestone`)
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return nil, err
+	}
+
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var milestones []Milestone
+	//Scans every row and converts it into a milestone struct to be returned
+	for rows.Next() {
+		var mID int
+		var name, description string
+
+		err := rows.Scan(&mID, &name, &description)
+		if err != nil {
+			return nil, err
+		}
+		newMilestone := Milestone{MilestoneID: mID, Name: name, Description: description}
+		milestones = append(milestones, newMilestone)
+
+	}
+
+	return milestones, nil
+
+}
+
+// Creates  a New milestone in the db
+func createMilestoneDB(newMilestone Milestone, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+
+	// Custom SQL Selection Query
+	//Insert command
+	tsql := "INSERT INTO dbo.Milestone(milestoneID, name, description) VALUES (@p1, @p2, @p3)"
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return -1, err
+	}
+
+	// Execute query
+	insert, err := db.ExecContext(ctx, tsql, newMilestone.MilestoneID, newMilestone.Name, newMilestone.Description)
+	//Error if
+	if err != nil {
+		fmt.Printf("Execution error")
+		return -1, err
+
+	}
+	id, err := insert.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+	return id, nil
+
 }
