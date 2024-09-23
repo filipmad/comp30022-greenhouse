@@ -1,24 +1,37 @@
-.informationBox, .communityBox, .newsBox, .gamesBox, .gardenBox {
+
+.informationBox, .communityBox, .newsBox, .gamesBox, .gardenBox, .wordExplorerBox {
 	display: flex;
 	flex-direction: column;
 	padding: 3rem;
 	margin: 1.3rem;
 	text-align: center;
+	justify-content: center; 
+	align-items: center;
 	text-decoration: none;
 	border-radius: 4px;
 	transition: background-color 0.3s;
-	width: 100%;
 	max-width: 700px;
 	box-sizing: border-box;
 	flex: 1 1 auto;
-	min-height: 0;
-	margin-left: 150px;
   }
   
-  .gamesBox, .gardenBox {
-	padding: 5rem;
-	margin: 3rem;
-	margin-right: 150px;
+  .wordExplorerBox, .gamesBox {
+	width: 100%;
+	height: 250px; 
+	padding: 1rem;
+	margin: 0; 
+	display: flex;
+	justify-content: center; 
+	align-items: center;
+  }
+  
+  .wordExplorerBox {
+	background-color: #00BCD4;
+	color: white;
+  }
+  
+  .wordExplorerBox:hover {
+	background-color: #00ACC1; 
   }
   
   .gamesBox {
@@ -27,23 +40,26 @@
   }
   
   .gamesBox:hover {
-	background-color: #45a049;
+	background-color: #45a049; 
   }
   
   .gardenBox {
 	background-color: #FF9800;
 	color: white;
+	padding: 4rem;  
+	margin: 0;    
+	height: 250px;  
   }
   
   .gardenBox:hover {
 	background-color: #FB8C00;
   }
-  
+
   .informationBox {
 	background-color: #2196F3;
 	color: white;
   }
-  
+
   .informationBox:hover {
 	background-color: #1E88E5;
   }
@@ -52,29 +68,24 @@
 	background-color: #9C27B0;
 	color: white;
   }
-  
+
   .communityBox:hover {
-	background-color: #8E24AA;
+	background-color: #8E24AA; 
   }
   
   .newsBox {
 	background-color: #F44336;
 	color: white;
   }
-  
+
   .newsBox:hover {
 	background-color: #E53935;
   }
   
-  @media (max-width: 1800px) {
-	.informationBox, .communityBox, .newsBox, .gamesBox, .gardenBox {
-	  margin: 0.5rem;
+  @media (max-width: 768px) {
+	.wordExplorerBox, .gamesBox {
+	  width: 100px;
+	  height: 100px; 
 	}
   }
   
-  @media (max-width: 768px) {
-	.informationBox, .communityBox, .newsBox, .gamesBox, .gardenBox {
-	  padding: 1rem;
-	  margin: 0.5rem; 
-	}
-  }
