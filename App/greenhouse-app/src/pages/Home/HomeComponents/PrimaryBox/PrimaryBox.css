@@ -10,14 +10,13 @@
 	text-decoration: none;
 	border-radius: 4px;
 	transition: background-color 0.3s;
-	max-width: 700px;
+	max-width: 100%;
 	box-sizing: border-box;
 	flex: 1 1 auto;
   }
   
   .wordExplorerBox, .gamesBox {
 	width: 100%;
-	max-width: 250;
 	height: 250px; 
 	padding: 1rem;
 	margin: 0; 
@@ -85,13 +84,23 @@
   }
   
   .communityBox {
-	background-color: #9C27B0;
+	background-image: url('community.jpg'); 
+	background-size: cover;
+	background-position: center;
+	height: 200px;
 	color: white;
+	align-items: center;
+	position: relative;
+	overflow: hidden;
   }
 
-  .communityBox:hover {
-	background-color: #8E24AA; 
-  }
+  .communityBox h1 {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    margin: 0; 
+    color: white;
+}
 
   .trendingHomeItems {
 	display: flex;
@@ -116,10 +125,25 @@
 	border: 1px solid black;
   }
   
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
+	.mainContent {
+		flex-direction: column;
+	}
+
+	.informationBox, .communityBox, .trendingHomeItem, .gamesBox, .gardenBox, .wordExplorerBox {
+		flex: 1 1 100%;  
+	}
+
+	.trendingHomeItems {
+		flex-direction: column; 
+		gap: 1rem;
+	}
+}
+
+@media (max-width: 768px) {
 	.wordExplorerBox, .gamesBox {
-	  width: 100px;
-	  height: 100px; 
+		width: 100px;
+		height: 100px;
 	}
   }
   

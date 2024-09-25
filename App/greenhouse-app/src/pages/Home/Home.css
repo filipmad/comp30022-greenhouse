@@ -1,46 +1,44 @@
 .mainContent {
 	display: flex;
 	flex-wrap: wrap;
-	justify-content: space-around;
+	justify-content: space-between;
 	align-items: flex-start;
 	padding: 2rem;
 	box-sizing: border-box;
 	gap: 2rem;
 	height: auto; 
-  }
-  
-  .rightButtons {
+}
+
+.rightButtons {
 	display: flex;
 	flex-direction: column;
-	gap: 2rem;
+	gap: 3rem;
 	flex: 1 1 48%;
 	margin-top: 5rem;
-  }
-  
-  .leftButtons {
+}
+
+.leftButtons {
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
-	flex: 1 1 48%;
-  }
+	flex: 1 1 48%; 
+}
 
-  .smallButtonsContainer {
+.smallButtonsContainer {
 	display: flex;
-	gap: 3rem; 
+	gap: 3rem;
 	justify-content: space-between;
 	width: 100%;
-  }
-  
-  @media (max-width: 768px) {
+}
+
+@media (max-width: 768px) {
 	.mainContent {
 	  flex-direction: column;
 	  justify-content: center;
 	  gap: 1rem;
 	}
-  
+
 	.smallButtonsContainer {
 	  flex-direction: row;
 	}
-  
-  }
-  
+}
