@@ -75,13 +75,23 @@
   }
 
   .informationBox {
-	background-color: #2196F3;
+	background-image: url('discover.jpg'); 
+	background-size: cover;
+	background-position: center;
+	height: 200px;
 	color: white;
+	align-items: center;
+	position: relative;
+	overflow: hidden;
   }
 
-  .informationBox:hover {
-	background-color: #1E88E5;
-  }
+  .informationBox h1 {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    margin: 0; 
+    color: white;
+}
   
   .communityBox {
 	background-image: url('community.jpg'); 
