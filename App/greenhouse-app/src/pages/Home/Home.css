@@ -1,19 +1,19 @@
 .mainContent {
-	flex: 1;
 	display: flex;
-	justify-content: space-between;
-	align-items: flex-start; 
+	flex-wrap: wrap;
+	justify-content: space-around;
+	align-items: flex-start;
 	padding: 2rem;
 	box-sizing: border-box;
-	height: 100%;
 	gap: 2rem;
+	height: auto; 
   }
   
   .rightButtons {
 	display: flex;
 	flex-direction: column;
 	gap: 2rem;
-	flex: 1;
+	flex: 1 1 48%;
 	margin-top: 5rem;
   }
   
@@ -21,7 +21,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
-	flex: 1;
+	flex: 1 1 48%;
   }
 
   .smallButtonsContainer {

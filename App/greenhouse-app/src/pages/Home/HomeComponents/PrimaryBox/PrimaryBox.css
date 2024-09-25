@@ -1,5 +1,5 @@
 
-.informationBox, .communityBox, .newsBox, .gamesBox, .gardenBox, .wordExplorerBox {
+.informationBox, .communityBox, .trendingHomeItem, .gamesBox, .gardenBox, .wordExplorerBox {
 	display: flex;
 	flex-direction: column;
 	padding: 3rem;
@@ -17,6 +17,7 @@
   
   .wordExplorerBox, .gamesBox {
 	width: 100%;
+	max-width: 250;
 	height: 250px; 
 	padding: 1rem;
 	margin: 0; 
@@ -91,14 +92,28 @@
   .communityBox:hover {
 	background-color: #8E24AA; 
   }
-  
-  .newsBox {
-	background-color: #F44336;
-	color: white;
-  }
 
-  .newsBox:hover {
-	background-color: #E53935;
+  .trendingHomeItems {
+	display: flex;
+	gap: 1.5rem; 
+	justify-content: space-between; 
+	width: 100%;
+  }
+  
+  .trendingHomeItem {
+	flex: 1 1 48%; 
+	color: black;
+	padding: 2rem;
+	text-align: center;
+	border-radius: 4px;
+	transition: background-color 0.3s ease;
+	height: 200px; 
+	display: flex;
+	padding: 2rem;
+	justify-content: center;
+	box-sizing: border-box;
+	align-items: center;
+	border: 1px solid black;
   }
   
   @media (max-width: 768px) {

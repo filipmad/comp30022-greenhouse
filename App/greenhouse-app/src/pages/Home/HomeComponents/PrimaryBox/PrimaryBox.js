@@ -27,11 +27,6 @@ export default function PrimaryBox({ page }) {
     linkTo = "/community";
     className = "communityBox";
   }
-  else if (page === "News") {
-    text = "News";
-    linkTo = "/news";
-    className = "newsBox";
-  }
   else if (page === "Information") {
     text = "Discover The SDGs";
     linkTo = "/discover";
