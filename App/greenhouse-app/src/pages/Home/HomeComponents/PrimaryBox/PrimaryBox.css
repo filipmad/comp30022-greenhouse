@@ -26,7 +26,7 @@
   }
   
   .wordExplorerBox {
-	background-image: url('wordSearch.jpg'); 
+	background-image: url('/public/wordSearch.jpg'); 
 	background-size: cover;
 	background-position: center;
 	color: white;
@@ -75,7 +75,7 @@
   }
 
   .informationBox {
-	background-image: url('discover.jpg'); 
+	background-image: url('/public/discover.jpg'); 
 	background-size: cover;
 	background-position: center;
 	height: 200px;
@@ -83,6 +83,11 @@
 	align-items: center;
 	position: relative;
 	overflow: hidden;
+  }
+
+  .informationBox:hover {
+	opacity: 0.9;
+	transition: opacity 0.3s ease;
   }
 
   .informationBox h1 {
@@ -94,7 +99,7 @@
 }
   
   .communityBox {
-	background-image: url('community.jpg'); 
+	background-image: url('/public/community.jpg'); 
 	background-size: cover;
 	background-position: center;
 	height: 200px;
@@ -102,6 +107,11 @@
 	align-items: center;
 	position: relative;
 	overflow: hidden;
+  }
+
+  .communityBox:hover {
+	opacity: 0.9;
+	transition: opacity 0.3s ease;
   }
 
   .communityBox h1 {
