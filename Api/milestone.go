@@ -375,6 +375,7 @@ func ReadMilestoneDB(db *sql.DB) ([]Milestone, error) {
 
 }
 
+// Updates the details for a Milestones
 func updateMilestoneDB(updateMs Milestone, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
@@ -399,6 +400,7 @@ func updateMilestoneDB(updateMs Milestone, db *sql.DB) (int64, error) {
 
 }
 
+// Gets all the community milestones
 func getCommunityMilestoneDB(db *sql.DB) ([]CommunityMilestone, error) {
 	ctx := context.Background()
 
@@ -438,6 +440,7 @@ func getCommunityMilestoneDB(db *sql.DB) ([]CommunityMilestone, error) {
 	return communityMilestones, nil
 }
 
+// Deletes a community Milestone
 func communityMilestoneDeleteDB(communityMilestoneId int, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
@@ -458,4 +461,29 @@ func communityMilestoneDeleteDB(communityMilestoneId int, db *sql.DB) (int64, er
 	}
 
 	return check, nil
+}
+
+// Updates the details of a community milestone
+func updateCommunityMilestoneDB(updateMs CommunityMilestone, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	//Command to delete Milestone
+	tsql := "UPDATE INTO CommunityMilestone ('status', 'progress', 'dateFinished') VALUES(?, ?, ?)"
+
+	insert, err := db.ExecContext(ctx, tsql, updateMs.Status, updateMs.Progress, updateMs.FinishedAt)
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := insert.LastInsertId()
+	if err != nil {
+
+	}
+	return id, nil
+
 }
