@@ -170,7 +170,7 @@ func getPersonalMilestones(w http.ResponseWriter, r *http.Request) {
 func getPersonalMilestone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for _, item := range personalMilestones {
-		if strconv.Itoa(item.personalMilestoneID) == params["MilestoneID"] {
+		if strconv.Itoa(item.PersonalMilestoneID) == params["MilestoneID"] {
 			json.NewEncoder(w).Encode(item)
 			return
 		}
@@ -191,7 +191,7 @@ func createPersonalMilestone(w http.ResponseWriter, r *http.Request) {
 func updatePersonalMilestone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for index, item := range personalMilestones {
-		if strconv.Itoa(item.milestoneID) == params["PersonalMilestoneID"] {
+		if strconv.Itoa(item.MilestoneID) == params["PersonalMilestoneID"] {
 			personalMilestones = append(personalMilestones[:index], personalMilestones[index+1:]...)
 			var milestone PersonalMilestone
 			_ = json.NewDecoder(r.Body).Decode(&milestone)
@@ -209,7 +209,7 @@ func updatePersonalMilestone(w http.ResponseWriter, r *http.Request) {
 func DeletePersonalMilestone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	for index, item := range personalMilestones {
-		if strconv.Itoa(item.personalMilestoneID) == params["PersonalMilestoneID"] {
+		if strconv.Itoa(item.PersonalMilestoneID) == params["PersonalMilestoneID"] {
 			personalMilestones = append(personalMilestones[:index], personalMilestones[index+1:]...)
 			break
 		}
@@ -521,5 +521,27 @@ func createCommunityMilestoneDB(newMilestone CommunityMilestone, db *sql.DB) (in
 		return -1, err
 	}
 	return id, nil
+
+}
+func deletePersonalMilestoneDB(userID int, milestoneID int, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	//Command to delete Milestone
+	tsql := "DELETE FROM dbo.CommunityMilestone where userID = @p1 and milestoneID = @p2"
+	delete, err := db.ExecContext(ctx, tsql, userID, milestoneID)
+	if err != nil {
+		return -1, err
+	}
+	check, err := delete.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+
+	return check, nil
 
 }
