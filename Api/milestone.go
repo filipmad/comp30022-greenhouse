@@ -487,3 +487,38 @@ func updateCommunityMilestoneDB(updateMs CommunityMilestone, db *sql.DB) (int64,
 	return id, nil
 
 }
+
+// Creates a New Community milestone in the db
+func createCommunityMilestoneDB(newMilestone CommunityMilestone, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+
+	tsql := "INSERT INTO dbo.CommunityMilestone(status, progress, timeCreated, milestoneID) VALUES (@p1, @p2, @p3, @p4)"
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return -1, err
+	}
+
+	// Execute query
+	insert, err := db.ExecContext(ctx, tsql, newMilestone.Status, newMilestone.Progress, time.Now(), newMilestone.MilestoneID)
+	//Error if
+	if err != nil {
+		fmt.Printf("Execution error")
+		return -1, err
+
+	}
+	id, err := insert.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+	return id, nil
+
+}
