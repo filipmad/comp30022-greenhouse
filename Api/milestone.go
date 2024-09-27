@@ -437,3 +437,25 @@ func getCommunityMilestoneDB(db *sql.DB) ([]CommunityMilestone, error) {
 	}
 	return communityMilestones, nil
 }
+
+func communityMilestoneDeleteDB(communityMilestoneId int, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	//Command to delete Milestone
+	tsql := "DELETE FROM dbo.CommunityMilestone where communityMilestoneID = @p1"
+	delete, err := db.ExecContext(ctx, tsql, communityMilestoneId)
+	if err != nil {
+		return -1, err
+	}
+	check, err := delete.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+
+	return check, nil
+}
