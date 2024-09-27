@@ -302,3 +302,27 @@ func createMilestoneDB(newMilestone Milestone, db *sql.DB) (int64, error) {
 	return id, nil
 
 }
+
+// Deletes a Milestone
+func deleteMilestoneDB(milestoneId int, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+
+	tsql := "DELETE FROM dbo.Milestone where milestoneID = @p1"
+	delete, err := db.ExecContext(ctx, tsql, milestoneId)
+	if err != nil {
+		return -1, err
+	}
+	check, err := delete.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+
+	return check, nil
+
+}
