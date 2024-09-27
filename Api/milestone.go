@@ -14,18 +14,18 @@ import (
 )
 
 type Milestone struct {
-	MilestoneID int
-	Name        string
-	Description string
+	MilestoneID int    `json:"MilestoneID"`
+	Name        string `json:"Name"`
+	Description string `json:"Description"`
 }
 
 type CommunityMilestone struct {
-	CommunityMilestoneID int
-	Status               int
-	Progress             int
-	TimeCreated          time.Time
-	FinishedAt           time.Time
-	MilestoneID          int
+	CommunityMilestoneID int       `json:"CommunityMilestoneID"`
+	Status               int       `json:"Status"`
+	Progress             int       `json:"Progress"`
+	TimeCreated          time.Time `json:"TimeCreated"`
+	FinishedAt           time.Time `json:"FinishedAt"`
+	MilestoneID          int       `json:"MilestoneID"`
 }
 
 type PersonalMilestone struct {
