@@ -21,7 +21,7 @@ type Milestone struct {
 
 type CommunityMilestone struct {
 	CommunityMilestoneID int       `json:"CommunityMilestoneID"`
-	Status               int       `json:"Status"`
+	Status               string    `json:"Status"`
 	Progress             int       `json:"Progress"`
 	TimeCreated          time.Time `json:"TimeCreated"`
 	FinishedAt           time.Time `json:"FinishedAt"`
@@ -29,13 +29,13 @@ type CommunityMilestone struct {
 }
 
 type PersonalMilestone struct {
-	personalMilestoneID int
-	status              string
-	progress            int
-	timeCreated         time.Time
-	finishedAt          time.Time
-	userID              int
-	milestoneID         int
+	PersonalMilestoneID int       `json:"PersonalMilestoneID"`
+	Status              string    `json:"Status"`
+	Progress            int       `json:"Progress"`
+	TimeCreated         time.Time `json:"TimeCreated"`
+	FinishedAt          time.Time `json:"FinishedAt"`
+	UserID              int       `json:"UserID"`
+	MilestoneID         int       `json:"MilestoneID"`
 }
 
 var milestones []Milestone
@@ -426,7 +426,8 @@ func getCommunityMilestoneDB(db *sql.DB) ([]CommunityMilestone, error) {
 	defer rows.Close()
 	//Scans every row and converts it into a milestone struct to be returned
 	for rows.Next() {
-		var cmID, mID, status, progress int
+		var status string
+		var cmID, mID, progress int
 		var dateCreated, dateFinished time.Time
 
 		err := rows.Scan(&cmID, &mID, &status, &progress, &dateCreated, &dateFinished)
