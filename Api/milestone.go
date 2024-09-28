@@ -611,3 +611,37 @@ func updatePersonalMilestoneDB(updateMs PersonalMilestone, db *sql.DB) (int64, e
 	return id, nil
 
 }
+
+// Creates a New Personal milestone in the db
+func createPersonalMilestoneDB(newMilestone PersonalMilestone, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+
+	tsql := "INSERT INTO dbo.PersonalMilestone(status, progress, timeCreated, milestoneID, userID) VALUES (@p1, @p2, @p3, @p4, @p5)"
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return -1, err
+	}
+
+	// Execute query
+	insert, err := db.ExecContext(ctx, tsql, newMilestone.Status, newMilestone.Progress, time.Now(), newMilestone.MilestoneID, newMilestone.UserID)
+	//Error if
+	if err != nil {
+		fmt.Printf("Execution error")
+		return -1, err
+
+	}
+	id, err := insert.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+	return id, nil
+}
