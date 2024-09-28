@@ -16,6 +16,7 @@ import Garden from "./pages/Garden/Garden";
 import Community from "./pages/Community/Community";
 import News from "./pages/News/News";
 import Information from "./pages/Information/Information";
+import WordExplorer from "./pages/Games/WordExplorer/WordExplorer";
 
 
 export default function myApp() {
@@ -36,6 +37,7 @@ export default function myApp() {
           <Route path="/grow" element={<Garden />} />
           <Route path="/news" element={<News />} />
           <Route path="/community" element={<Community />} />
+          <Route path="/games/WordExplorer" element={<WordExplorer />} />
         </Routes>
       </div>
     </Router>

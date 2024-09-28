@@ -9,7 +9,7 @@ export default function PrimaryBox({ page }) {
 
   if (page === "WordExplorer") {
     text = "Word Explorer";  
-    linkTo = "/games/wordexplorer"; 
+    linkTo = "/games/WordExplorer"; 
     className = "wordExplorerBox"; 
   }
   else if (page === "Games") {
