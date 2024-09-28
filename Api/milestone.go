@@ -545,3 +545,44 @@ func deletePersonalMilestoneDB(userID int, milestoneID int, db *sql.DB) (int64, 
 	return check, nil
 
 }
+
+// Gets every personal milestone from the DB
+func getPersonalMilestoneDB(db *sql.DB) ([]PersonalMilestone, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	tsql := (`SELECT [personalMilestoneID], [UserID], [mileStoneId], [status], [progress], [dateCreated], [dateFinished] FROM CommunityMilestone`)
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return nil, err
+	}
+
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql)
+	if err != nil {
+		return nil, err
+	}
+	var personalMilestones []PersonalMilestone
+	defer rows.Close()
+	//Scans every row and converts it into a personal milestone struct to be returned
+	for rows.Next() {
+		var status string
+		var pID, mID, uID, progress int
+		var dateCreated, dateFinished time.Time
+
+		err := rows.Scan(&pID, &mID, &status, &progress, &dateCreated, &dateFinished)
+		if err != nil {
+			return nil, err
+		}
+		newMilestone := PersonalMilestone{PersonalMilestoneID: pID, UserID: uID, MilestoneID: mID, Status: status, Progress: progress, TimeCreated: dateCreated, FinishedAt: dateFinished}
+		personalMilestones = append(personalMilestones, newMilestone)
+
+	}
+	return personalMilestones, nil
+}
