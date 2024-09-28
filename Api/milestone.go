@@ -586,3 +586,28 @@ func getPersonalMilestoneDB(db *sql.DB) ([]PersonalMilestone, error) {
 	}
 	return personalMilestones, nil
 }
+
+// updates Personal Milestone in Database
+func updatePersonalMilestoneDB(updateMs PersonalMilestone, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	//Command to delete Milestone
+	tsql := "UPDATE INTO PersonalMilestone ('status', 'progress', 'dateFinished') VALUES(?, ?, ?)"
+
+	insert, err := db.ExecContext(ctx, tsql, updateMs.Status, updateMs.Progress, updateMs.FinishedAt)
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := insert.LastInsertId()
+	if err != nil {
+
+	}
+	return id, nil
+
+}
