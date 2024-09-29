@@ -17,6 +17,8 @@ import Community from "./pages/Community/Community";
 import News from "./pages/News/News";
 import Information from "./pages/Information/Information";
 import WordExplorer from "./pages/Games/WordExplorer/WordExplorer";
+import EcoAdventure from "./pages/Games/EcoAdventure/EcoAdventure";
+import CityScape from "./pages/Games/CityScape/CityScape";
 
 
 export default function myApp() {
@@ -38,6 +40,8 @@ export default function myApp() {
           <Route path="/news" element={<News />} />
           <Route path="/community" element={<Community />} />
           <Route path="/games/WordExplorer" element={<WordExplorer />} />
+          <Route path="/games/EcoAdventure" element={<EcoAdventure />} />
+          <Route path="/games/CityScape" element={<CityScape />} />
         </Routes>
       </div>
     </Router>

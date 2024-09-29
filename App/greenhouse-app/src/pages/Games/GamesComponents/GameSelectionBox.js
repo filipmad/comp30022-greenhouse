@@ -4,17 +4,17 @@ import "./GameSelectionBox.css";
 export default function GameSelectionBox({game}) {
   if (game === "game1") {
     return (
-      <a href="/games/wordexplorer" className="gameLink">Word Explorer</a>
+      <a href="/games/WordExplorer" className="gameLink">Word Explorer</a>
     );
   }
   else if (game === "game2") {
     return (
-      <a href="/games/cityscape" className="gameLink">CityScape</a>
+      <a href="/games/CityScape" className="gameLink">CityScape</a>
     );
   }
   else if (game === "game3") {
     return (
-      <a href="/games/eco_adventure" className="gameLink">Eco Adventure</a>
+      <a href="/games/EcoAdventure" className="gameLink">Eco Adventure</a>
     );
   }
   else if (game === "quiz1") {
