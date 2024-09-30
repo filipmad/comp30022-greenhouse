@@ -1,4 +1,52 @@
-.pillar-container {
+.economical-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    background-color: #F5F5DC;
+  }
+  
+  .economical-nav-buttons {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  
+  .economical-nav-button {
+    color: white;
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .economical-nav-button.economical {
+    background-color: #f39c12;
+  }
+  
+  .economical-nav-button.social {
+    background-color: #e74c3c;
+  }
+  
+  .economical-nav-button.environmental {
+    background-color: #27ae60; 
+  }
+  
+  .economical-nav-button:hover {
+    opacity: 0.9;
+  }
+  
+  .economical-nav-button.active {
+    background-color: #d35400; 
+    cursor: default;
+    opacity: 1;
+  }
+  
+  .economical-pillar-container {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -7,7 +55,7 @@
     background-color: #F5F5DC;
   }
   
-  .pillar-item {
+  .economical-pillar-item {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -24,32 +72,23 @@
     transition: background-color 0.3s ease;
   }
   
-  .pillar-item h2 {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
+  .economical-pillar-item:nth-child(1) {
+    background-color: #f39c12;
   }
   
-  .pillar-item p {
-    font-size: 1rem;
+  .economical-pillar-item:nth-child(2) {
+    background-color: #c0392b; 
   }
   
-  .pillar-item:hover {
-    opacity: 0.9;
-  }
-  
-  .pillar-item:nth-child(1) {
-    background-color: #16a085;
-  }
-  
-  .pillar-item:nth-child(2) {
-    background-color: #c0392b;
-  }
-  
-  .pillar-item:nth-child(3) {
+  .economical-pillar-item:nth-child(3) {
     background-color: #8e44ad;
   }
   
-  .pillar-item:nth-child(4) {
+  .economical-pillar-item:nth-child(4) {
     background-color: #d35400; 
+  }
+  
+  .economical-pillar-item:hover {
+    opacity: 0.9;
   }
   
