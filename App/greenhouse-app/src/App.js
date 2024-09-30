@@ -19,6 +19,9 @@ import Information from "./pages/Information/Information";
 import WordExplorer from "./pages/Games/WordExplorer/WordExplorer";
 import EcoAdventure from "./pages/Games/EcoAdventure/EcoAdventure";
 import CityScape from "./pages/Games/CityScape/CityScape";
+import Social from "./pages/Information/Social/Social";
+import Economical from "./pages/Information/Economical/Economical";
+import Environmental from "./pages/Information/Environmental/Environmental";
 
 
 export default function myApp() {
@@ -35,6 +38,9 @@ export default function myApp() {
           <Route path="/" element={<Navigate to="/home" />} />
           <Route path="/home" element={<Home />} />
           <Route path="/discover" element={<Information />} />
+          <Route path="/discover/social" element={<Social />} />
+          <Route path="/discover/economical" element={<Economical />} />
+          <Route path="/discover/environmental" element={<Environmental />} />
           <Route path="/games" element={<Games />} />
           <Route path="/grow" element={<Garden />} />
           <Route path="/news" element={<News />} />
