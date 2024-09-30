@@ -1,13 +1,19 @@
 package main
 
-import "time"
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"log"
+	"time"
+)
 
 type ForumPost struct {
 	AuthorID   int       `json:"AuthorID"`
 	PostID     int       `json:"PostID"`
 	Title      string    `json:"Title"`
 	Text       string    `json:"Text"`
-	Likes      int       `json:"Text"`
+	Likes      int       `json:"Likes"`
 	DatePosted time.Time `json:"DatePosted"`
 }
 
@@ -16,7 +22,6 @@ type Comment struct {
 	Text            string    `json:"Text"`
 	DatePosted      time.Time `json:"DatePosted"`
 	PostID          int       `json:"PostID"`
-	PostAuthorID    int       `json:"PostAuthorID"`
 	CommentAuthorID int       `json:"CommentAuthorID"`
 }
 
@@ -37,4 +42,95 @@ type Poll struct {
 	OptionTwo      string `json:"OptionTwo"`
 	OptionOneVotes int    `json:"OptionOneVotes"`
 	OptionTwoVotes int    `json:"OptionTwoVotes"`
+}
+
+func getCommentDB(db *sql.DB) ([]Comment, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Custom SQL Selection Query
+	//Needs to put in server
+	tsql := (`SELECT commentID, text, datePosted, postID, commentAuthorID FROM Comment`)
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return nil, err
+	}
+
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var comments []Comment
+	for rows.Next() {
+		var cID, pID, caID int
+		var text string
+		var newComment Comment
+		var datePosted time.Time
+		err := rows.Scan(&cID, &text, &datePosted, &pID, &caID)
+		if err != nil {
+			return nil, err
+		}
+		newComment = Comment{CommentID: cID, Text: text, DatePosted: datePosted, PostID: pID, CommentAuthorID: caID}
+		comments = append(comments, newComment)
+
+	}
+
+	return comments, nil
+}
+
+func createCommentDB(newComment Comment, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+
+	tsql := "INSERT INTO dbo.Comment(text, datePosted, postID, commentAuthorID) VALUES(@p1, @p2, @p3, @p4)"
+
+	insert, err := db.ExecContext(ctx, tsql, newComment.Text, newComment.DatePosted, newComment.PostID, newComment.CommentAuthorID)
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := insert.RowsAffected()
+	if err != nil {
+		log.Fatal(err.Error())
+
+	}
+	return id, nil
+}
+
+func deleteCommentDB(commentID int, postID int, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	//Command to delete Comment
+	tsql := "DELETE FROM dbo.Comment where commentID = @p1 and postID = @p2"
+	delete, err := db.ExecContext(ctx, tsql, commentID, postID)
+	if err != nil {
+		return -1, err
+	}
+	check, err := delete.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+
+	return check, nil
 }
