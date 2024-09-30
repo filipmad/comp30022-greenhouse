@@ -1,78 +1,85 @@
-
-// You can write more code here
-
-/* START OF COMPILED CODE */
-
 class Level extends Phaser.Scene {
 
-	constructor() {
-		super("Level");
+    constructor() {
+        super("Level");
 
-		/* START-USER-CTR-CODE */
-		// Write your code here.
-		/* END-USER-CTR-CODE */
-	}
+		//initialize stats from the database
+		this.stats = {
+            population: 1000,
+            happiness: 75,
+            bank: 5000,
+            income: 10,
+            education: 80,
+            poverty: 10,
+            energyQuota: 90
+        };
 
-	/** @returns {void} */
-	editorCreate() {
+		// Track the last time income was added
+        this.lastIncomeTime = 0;
+    }
 
-		// dino
-		const dino = this.add.image(640, 288, "dino");
-		dino.setInteractive(new Phaser.Geom.Rectangle(0, 0, 250, 250), Phaser.Geom.Rectangle.Contains);
+    create() {
+        const background = this.add.image(0, 0, "cityscape-background").setOrigin(0, 0);
+        background.displayWidth = 1067;
+        background.displayHeight = 600;
 
-		// onPointerDownScript
-		const onPointerDownScript = new OnPointerDownScript(dino);
+        // Create text objects for each statistic
+        this.statsText = this.add.text(870, 10, this.getStatsText(), { fontSize: '16px', fill: '#fff' });
 
-		// pushActionScript
-		new PushActionScript(onPointerDownScript);
+        this.createButtons();
 
-		// onAwakeScript
-		const onAwakeScript = new OnAwakeScript(dino);
+        this.updateStats();
+    }
 
-		// moveInSceneActionScript
-		const moveInSceneActionScript = new MoveInSceneActionScript(onAwakeScript);
+	update(time, delta) {
+        // Check if one second has passed
+        if (time - this.lastIncomeTime > 1000) {
+            this.addIncomeToBank();
+            this.lastIncomeTime = time;
+        }
+    }
 
-		// welcome
-		const welcome = this.add.text(640, 478, "", {});
-		welcome.setOrigin(0.5, 0.5);
-		welcome.text = "Phaser 3 + Phaser Editor v4";
-		welcome.setStyle({ "fontFamily": "Arial", "fontSize": "30px" });
+    addIncomeToBank() {
+        this.updateStat('bank', this.stats.income);
+    }
 
-		// onAwakeScript_1
-		const onAwakeScript_1 = new OnAwakeScript(welcome);
+	createButtons() {
+        const buttonNames = ['Build Housing', 'Supply Jobs', 'Build Parks', 'Build Schools', 'Build Food Banks', 'Build Sustainable Power'];
+        const buttonActions = [
+            () => {this.updateStat('population', 100); this.updateStat('bank', -100)},
+            () => {this.updateStat('income', 10); this.updateStat('bank', -100)},
+            () => {this.updateStat('happiness', 1); this.updateStat('bank', -100)},
+            () => {this.updateStat('education', 1); this.updateStat('bank', -100)},
+            () => {this.updateStat('poverty', -1); this.updateStat('bank', -100)},
+            () => {this.updateStat('energyQuota', 5); this.updateStat('bank', -100)}
+        ];
 
-		// fadeActionScript
-		const fadeActionScript = new FadeActionScript(onAwakeScript_1);
+        for (let i = 0; i < buttonNames.length; i++) {
+            const x = 50 + (i % 3) * 250;
+            const y = 50 + Math.floor(i / 3) * 50;
+            const button = this.add.text(x, y, buttonNames[i], { fontSize: '20px', fill: '#fff', backgroundColor: '#000' })
+                .setInteractive()
+                .on('pointerdown', buttonActions[i]);
+        }
+    }
 
-		// moveInSceneActionScript (prefab fields)
-		moveInSceneActionScript.from = "TOP";
+    getStatsText() {
+        return `Population: ${this.stats.population}\n` +
+               `Happiness %: ${this.stats.happiness}\n` +
+               `Bank: ${this.stats.bank}\n` +
+               `Income: ${this.stats.income}\n` +
+               `Education %: ${this.stats.education}\n` +
+               `Poverty %: ${this.stats.poverty}\n` +
+               `Energy Quota %: ${this.stats.energyQuota}`;
+    }
 
-		// moveInSceneActionScript (components)
-		const moveInSceneActionScriptDurationConfigComp = new DurationConfigComp(moveInSceneActionScript);
-		moveInSceneActionScriptDurationConfigComp.duration = 1000;
+	updateStat(stat, value) {
+        this.stats[stat] += value;
+        this.updateStats();
+    }
 
-		// fadeActionScript (prefab fields)
-		fadeActionScript.fadeDirection = "FadeIn";
+    updateStats() {
+        this.statsText.setText(this.getStatsText());
+    }
 
-		// fadeActionScript (components)
-		const fadeActionScriptDurationConfigComp = new DurationConfigComp(fadeActionScript);
-		fadeActionScriptDurationConfigComp.duration = 1500;
-
-		this.events.emit("scene-awake");
-	}
-
-	/* START-USER-CODE */
-
-	// Write more your code here
-
-	create() {
-
-		this.editorCreate();
-	}
-
-	/* END-USER-CODE */
 }
-
-/* END OF COMPILED CODE */
-
-// You can write more code here

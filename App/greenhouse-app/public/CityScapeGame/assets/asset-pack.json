@@ -2,6 +2,11 @@
     "section1": {
         "files": [
             {
+                "url": "assets/cityscape-night-skyline-architecture-buildings-b3b66b (1).jpg",
+                "type": "image",
+                "key": "cityscape-background"
+            },
+            {
                 "url": "assets/dino.png",
                 "key": "dino",
                 "type": "image"
@@ -12,6 +17,7 @@
         "app": "Phaser Editor 2D - Asset Pack Editor",
         "contentType": "phasereditor2d.pack.core.AssetContentType",
         "url": "https://phasereditor2d.com",
-        "version": 2
+        "version": 2,
+        "showAllFilesInBlocks": false
     }
 }
