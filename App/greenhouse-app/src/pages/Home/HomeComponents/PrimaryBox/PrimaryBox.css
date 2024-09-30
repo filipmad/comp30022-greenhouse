@@ -63,15 +63,35 @@
   }
   
   .gardenBox {
-	background-color: #FF9800;
+	background-image: url('/public/garden.webp'); 
+	background-size: cover;
+	background-position: center;
+	height: 250px;
 	color: white;
-	padding: 4rem;  
-	margin: 0;    
-	height: 250px;  
+	align-items: center;
+	position: relative;
+	overflow: hidden;
+	box-sizing: border-box; 
+	color: white;
   }
   
   .gardenBox:hover {
-	background-color: #FB8C00;
+	opacity: 0.9;
+	transition: opacity 0.3s ease;
+  }
+
+  .gardenBox h1 {
+	position: absolute;
+	bottom: 0; 
+	left: 0;
+	right: 0;
+	width: 100%;
+	text-align: center;
+	background-color: rgba(0, 0, 0, 0.5); 
+	padding: 10px; 
+	margin: 0; 
+	box-sizing: border-box; 
+	color: white;
   }
 
   .informationBox {
