@@ -134,3 +134,21 @@ func deleteCommentDB(commentID int, postID int, db *sql.DB) (int64, error) {
 
 	return check, nil
 }
+
+func createPollDB(newPoll Poll, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	tsql := "INSERT INTO dbo.Polls (title, text, optionOneVotes, OptionTwoVotes, OptionOneText, OptionTwoText, timeCreated) VALUES(@p1, @p2, @p3, @p4, @p5, @p6)"
+
+	insert, err := db.ExecContext(ctx, tsql, newPoll.Title, newPoll.Text, newPoll.OptionOneVotes, newPoll.OptionTwoVotes, newPoll.OptionOneVotes, newPoll.OptionTwo, time.Now())
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := insert.RowsAffected()
+	if err != nil {
+		log.Fatal(err.Error())
+
+	}
+	return id, nil
+}
