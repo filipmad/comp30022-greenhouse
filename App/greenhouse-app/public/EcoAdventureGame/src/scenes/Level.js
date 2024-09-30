@@ -1,78 +1,175 @@
-
-// You can write more code here
-
-/* START OF COMPILED CODE */
-
 class Level extends Phaser.Scene {
+    constructor() {
+        super("Level");
 
-	constructor() {
-		super("Level");
+        this.isJumping = false;  // Track whether the character is in the air
+        this.jumpSpeed = 800;     // The speed at which the character moves up/down
+        this.gravity = 1500;      // Simulate gravity
+        this.velocityY = 0;       // Vertical velocity
+        this.groundY = 600 - 30;  // The Y position where the character stands
+        this.isScrolling = true;   // Flag to control background scrolling
+        this.trees = [];           // Array to store tree sprites
+        this.treeSpawnDistance = 300; // Distance to spawn a new tree
+        this.treeSpawnInterval = Phaser.Math.Between(500, 3000); // Random interval between 500 and 3000
+        this.lastTreeX = 700;      // Position of the last tree spawned
+        this.scrollOffset = 0;     // Track the total scroll offset
+        this.nextSpawnTime = 0;    // Track time until the next tree spawn
+		this.distanceScore = 0; // Initialize the distance score
+    }
 
-		/* START-USER-CTR-CODE */
-		// Write your code here.
-		/* END-USER-CTR-CODE */
-	}
+    create() {
 
-	/** @returns {void} */
-	editorCreate() {
+        const screenWidth = 1067;
+        const screenHeight = 600;
 
-		// dino
-		const dino = this.add.image(640, 288, "dino");
-		dino.setInteractive(new Phaser.Geom.Rectangle(0, 0, 250, 250), Phaser.Geom.Rectangle.Contains);
+        const originalWidth = 288;
+        const originalHeight = 208;
 
-		// onPointerDownScript
-		const onPointerDownScript = new OnPointerDownScript(dino);
+        const scaleX = screenWidth / originalWidth;
+        const scaleY = screenHeight / originalHeight;
 
-		// pushActionScript
-		new PushActionScript(onPointerDownScript);
+        // Add the background image twice to create a scrolling effect
+        this.background1 = this.add.image(0, 0, '_Complete_static_BG_(288 x 208)_4').setOrigin(0, 0);
+        this.background2 = this.add.image(screenWidth, 0, '_Complete_static_BG_(288 x 208)_4').setOrigin(0, 0);
 
-		// onAwakeScript
-		const onAwakeScript = new OnAwakeScript(dino);
+        this.background1.setScale(scaleX, scaleY);
+        this.background2.setScale(scaleX, scaleY);
 
-		// moveInSceneActionScript
-		const moveInSceneActionScript = new MoveInSceneActionScript(onAwakeScript);
+		// Create a text object to display the distance score
+		this.scoreText = this.add.text(10, 10, 'Distance: 0', { fontSize: '32px', fill: '#fff' });
 
-		// welcome
-		const welcome = this.add.text(640, 478, "", {});
-		welcome.setOrigin(0.5, 0.5);
-		welcome.text = "Phaser 3 + Phaser Editor v4";
-		welcome.setStyle({ "fontFamily": "Arial", "fontSize": "30px" });
+        // Add the character sprite (fixed position)
+        this.character = this.physics.add.sprite(50, this.groundY, 'FinnSprite').setOrigin(0, 1);
+        this.character.setScale(3);
 
-		// onAwakeScript_1
-		const onAwakeScript_1 = new OnAwakeScript(welcome);
+		// Character collision box
+        this.character.setSize(12, 15);
+        this.character.setOffset(7, 9);
+        this.character.setCollideWorldBounds(true);
 
-		// fadeActionScript
-		const fadeActionScript = new FadeActionScript(onAwakeScript_1);
+        // Different animations for the character
+        this.anims.create({
+            key: 'run',
+            frames: this.anims.generateFrameNumbers('FinnSprite', { start: 9, end: 14 }),
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'jump',
+            frames: [{ key: 'FinnSprite', frame: 15 }],
+            frameRate: 10,
+            repeat: -1
+        });
+        this.anims.create({
+            key: 'hurt',
+            frames: this.anims.generateFrameNumbers('FinnSprite', { start: 16, end: 19 }),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'loss',
+            frames: this.anims.generateFrameNumbers('FinnSprite', { start: 20, end: 20 }),
+            frameRate: 10,
+            repeat: -1
+        });
 
-		// moveInSceneActionScript (prefab fields)
-		moveInSceneActionScript.from = "TOP";
+        this.character.play('run');
 
-		// moveInSceneActionScript (components)
-		const moveInSceneActionScriptDurationConfigComp = new DurationConfigComp(moveInSceneActionScript);
-		moveInSceneActionScriptDurationConfigComp.duration = 1000;
+        this.input.keyboard.on('keydown-SPACE', this.startJump, this);
+        this.input.on('pointerdown', this.startJump, this);
 
-		// fadeActionScript (prefab fields)
-		fadeActionScript.fadeDirection = "FadeIn";
+        // Spawn the first tree
+        this.spawnTree(this.lastTreeX);
 
-		// fadeActionScript (components)
-		const fadeActionScriptDurationConfigComp = new DurationConfigComp(fadeActionScript);
-		fadeActionScriptDurationConfigComp.duration = 1500;
+        // Setup collision
+        this.physics.add.collider(this.character, this.trees, this.hitTree, null, this);
+    }
 
-		this.events.emit("scene-awake");
-	}
+    update(time, delta) {
+        if (this.isScrolling) {
+            const scrollSpeed = 2;
 
-	/* START-USER-CODE */
+            this.background1.x -= scrollSpeed;
+            this.background2.x -= scrollSpeed;
+            this.trees.forEach(tree => { tree.x -= scrollSpeed; });
 
-	// Write more your code here
+            this.scrollOffset += scrollSpeed;
 
-	create() {
+            // Update lastTreeX based on the scrolling
+            this.lastTreeX -= scrollSpeed;
 
-		this.editorCreate();
-	}
+            // Reset position if background moves off screen
+            if (this.background1.x <= -this.background1.displayWidth) {
+                this.background1.x = this.background2.x + this.background2.displayWidth;
+            }
+            if (this.background2.x <= -this.background2.displayWidth) {
+                this.background2.x = this.background1.x + this.background1.displayWidth;
+            }
 
-	/* END-USER-CODE */
+            // Check if we need to spawn a new tree
+            if (time > this.nextSpawnTime && this.character.x > this.lastTreeX - this.treeSpawnDistance) {
+                this.spawnTree(this.lastTreeX + this.treeSpawnInterval);
+
+                // Generate a new random spawn interval for the next tree
+                this.treeSpawnInterval = Phaser.Math.Between(500, 3000);
+                this.nextSpawnTime = time + this.treeSpawnInterval; // Set the next spawn time
+            }
+
+			// Update the distance score
+			this.distanceScore += scrollSpeed * (delta / 1000);
+			this.scoreText.setText('Distance: ' + Math.floor(this.distanceScore));
+        }
+
+        // Handle character jump physics
+        if (this.isJumping) {
+            this.velocityY += this.gravity * (delta / 1000);
+            this.character.y += this.velocityY * (delta / 1000);
+
+            if (this.character.y >= this.groundY) {
+                this.character.y = this.groundY;
+                this.velocityY = 0;
+                this.isJumping = false;
+				if (this.isScrolling) {
+                	this.character.play('run');
+				}
+            }
+        }
+    }
+
+    startJump() {
+
+        // Only allow jumping if not hitting the tree
+        if (!this.isJumping && this.isScrolling) {
+            this.isJumping = true;
+            this.velocityY = -this.jumpSpeed;
+            this.character.play('jump');
+        }
+    }
+
+    hitTree(character, tree) {
+        this.physics.pause();
+        character.play('hurt');
+        this.isScrolling = false;
+
+        // Check if the hurt animation has finished, then play the loss animation
+        character.once('animationcomplete', (anim) => {
+            if (anim.key === 'hurt') {
+                character.play('loss');
+            }
+        });
+    }
+
+    spawnTree(xPosition) {
+        const tree = this.physics.add.sprite(xPosition, this.groundY - 16, 'Grassland_entities (16 x 16)', 0).setOrigin(0, 1);
+        tree.setScale(3);
+
+		// Tree collision box
+        tree.setSize(20, 35);
+        tree.setOffset(30, 25);
+
+        this.trees.push(tree);
+        this.lastTreeX = xPosition; // Update the last tree's position
+    }
 }
 
-/* END OF COMPILED CODE */
 
-// You can write more code here
