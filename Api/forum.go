@@ -35,13 +35,14 @@ type NewsPost struct {
 }
 
 type Poll struct {
-	PollID         int    `json:"PollID"`
-	Title          string `json:"Title"`
-	Text           string `json:"Text"`
-	OptionOne      string `json:"OptionOne"`
-	OptionTwo      string `json:"OptionTwo"`
-	OptionOneVotes int    `json:"OptionOneVotes"`
-	OptionTwoVotes int    `json:"OptionTwoVotes"`
+	PollID         int       `json:"PollID"`
+	Title          string    `json:"Title"`
+	Text           string    `json:"Text"`
+	OptionOne      string    `json:"OptionOne"`
+	OptionTwo      string    `json:"OptionTwo"`
+	OptionOneVotes int       `json:"OptionOneVotes"`
+	OptionTwoVotes int       `json:"OptionTwoVotes"`
+	TimeCreated    time.Time `json:"TimeCreated"`
 }
 
 func getCommentDB(db *sql.DB) ([]Comment, error) {
@@ -169,4 +170,72 @@ func deletePollDB(newPoll Poll, db *sql.DB) (int64, error) {
 
 	}
 	return id, nil
+}
+
+func updatePollDB(pollDetails Poll, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	//Command to delete Milestone
+	tsql := "UPDATE INTO Poll ('title', 'text', 'optionOneVotes', 'optionTwoVotes';, 'optionOneText', 'optionTwoText') VALUES(@p1, @p2, @p3, @p4, @p5) where pollID = @p6"
+	insert, err := db.ExecContext(ctx, tsql, pollDetails.Title, pollDetails.Text, pollDetails.OptionOneVotes, pollDetails.OptionTwoVotes, pollDetails.OptionOne, pollDetails.OptionTwo, pollDetails.PollID)
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := insert.RowsAffected()
+	if err != nil {
+		log.Fatal(err.Error())
+
+	}
+	return id, nil
+}
+
+func readPollDB(db *sql.DB) ([]Poll, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// Custom SQL Selection Query
+	//Needs to put in server
+	tsql := (`SELECT [pollID], [title],[text], [optionOneVotes], [optionTwoVotes], [optionOneText], [optionTwoText], [timeCreated] FROM Garden`)
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return nil, err
+	}
+
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var polls []Poll
+	for rows.Next() {
+		var pID, optionOneVotes, optionTwoVotes int
+		var title, text, optionOneText, optionTwoText string
+		var timeCreated time.Time
+		var newPoll Poll
+		err := rows.Scan(&pID, &title, &text, &optionOneVotes, &optionOneVotes, &optionOneText, &optionTwoText, &timeCreated)
+		if err != nil {
+			return nil, err
+		}
+		newPoll = Poll{PollID: pID, Title: title, Text: text, OptionOneVotes: optionOneVotes, OptionTwoVotes: optionTwoVotes, OptionOne: optionOneText, OptionTwo: optionTwoText, TimeCreated: timeCreated}
+		polls = append(polls, newPoll)
+
+	}
+
+	return polls, nil
 }
