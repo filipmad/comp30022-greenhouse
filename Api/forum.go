@@ -152,3 +152,21 @@ func createPollDB(newPoll Poll, db *sql.DB) (int64, error) {
 	}
 	return id, nil
 }
+
+func deletePollDB(newPoll Poll, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	tsql := "DELETE FROM dbo.Poll where pollID = @p1"
+
+	insert, err := db.ExecContext(ctx, tsql, newPoll.PollID)
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := insert.RowsAffected()
+	if err != nil {
+		log.Fatal(err.Error())
+
+	}
+	return id, nil
+}
