@@ -325,3 +325,25 @@ func readForumPostDB(db *sql.DB) ([]ForumPost, error) {
 	}
 	return forumPosts, nil
 }
+
+func updateForumPostDB(updatedPost ForumPost, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	tsql := "UPDATE INTO ForumPost ('title', 'text', 'likes', 'datePosted', 'authorID') VALUES(@p1, @p2, @p3, @p4, @p5) where pollID = @p6"
+	update, err := db.ExecContext(ctx, tsql, updatedPost.Title, updatedPost.Text, updatedPost.Likes, updatedPost.DatePosted, updatedPost.AuthorID)
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := update.RowsAffected()
+	if err != nil {
+		log.Fatal(err.Error())
+
+	}
+	return id, nil
+}
