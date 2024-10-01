@@ -243,7 +243,7 @@ func readPollDB(db *sql.DB) ([]Poll, error) {
 func deleteForumPostDB(forumID int, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
-	tsql := "DELETE FROM dbo.Poll where forumID = @p1"
+	tsql := "DELETE FROM dbo.ForumPost where forumID = @p1"
 
 	delete, err := db.ExecContext(ctx, tsql, forumID)
 	if err != nil {
@@ -372,6 +372,25 @@ func createNewsPostDB(newPost NewsPost, db *sql.DB) (int64, error) {
 
 }
 
-func deleteNewsPostDB(newPost NewsPost, db *sql.DB) {
+func deleteNewsPostDB(deleteID int, db *sql.DB) (int64, error) {
+	ctx := context.Background()
 
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+
+	tsql := "DELETE FROM dbo.NewsPost where newsPostID= @p1"
+	delete, err := db.ExecContext(ctx, tsql, deleteID)
+	if err != nil {
+		return -1, err
+
+	}
+	check, err := delete.RowsAffected()
+	if err != nil {
+		log.Fatal(err.Error())
+
+	}
+	return check, nil
 }
