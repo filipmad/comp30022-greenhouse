@@ -1,28 +1,15 @@
-/* START OF COMPILED CODE */
-
 class Level extends Phaser.Scene {
 
 	constructor() {
 		super("Level");
-	
-		/* START-USER-CTR-CODE */
-		/* END-USER-CTR-CODE */
 	}
-	
-	/** @returns {void} */
-	editorCreate() {
-	
+
+	preload() {
 		// background
 		const background = this.add.image(0, 0, "Background");
 		background.setOrigin(0, 0);
 	
 		this.events.emit("scene-awake");
-	}
-	
-	/* START-USER-CODE */
-	
-	create() {
-		this.editorCreate();
 
 		// Input target words from database (10 Words)
 		this.targetWords = ['GOALS', 'SOCIETY', 'DEVELOPMENT', 'ENVIRONMENT', 'PROJECT', 
@@ -31,7 +18,7 @@ class Level extends Phaser.Scene {
 		// Input grid of letters from database (generate using target words in a word search maker)
 		// Need to make grid size variable based on what the external generator spits out
 		// For now its just an example
-		const lettersArray = [
+		this.lettersArray = [
 			["T", "O", "I", "R", "L", "K", "E", "N", "N", "J", "G", "T", "A", "G"],
 			["N", "O", "T", "E", "A", "J", "N", "P", "K", "O", "D", "N" ,"O", "O"],
 			["E", "E", "O", "N", "J", "S", "L", "A", "O", "G", "N", "E", "R", "O"],
@@ -39,7 +26,7 @@ class Level extends Phaser.Scene {
 			["P", "O", "I", "E", "A", "R", "R", "R", "N", "L", "O", "N", "D", "D"],
 			["O", "E", "E", "Y", "O", "T", "M", "D", "M", "N", "P", "O", "E", "E"],
 			["L", "M", "D", "T", "M", "E", "T", "N", "A", "R", "F", "R", "T", "V"],
-			["E", "L", "T", "E", "K", "O", "N", "O", "O", "N", "O", "N", "O", "E"],
+			["E", "L", "T", "E", "K", "O", "N", "O", "O", "N", "I", "I", "O", "E"],
 			["V", "O", "I", "I", "E", "P", "N", "J", "D", "A", "L", "V", "R", "L"],
 			["E", "O", "C", "C", "E", "C", "E", "O", "E", "E", "I", "N", "E", "B"],
 			["D", "E", "M", "O", "O", "C", "T", "E", "C", "E", "P", "E", "T", "O"],
@@ -47,8 +34,31 @@ class Level extends Phaser.Scene {
 			["I", "E", "L", "R", "T", "C", "C", "E", "V", "C", "V", "V", "E", "O"],
 			["I", "E", "O", "D", "P", "E", "V", "V", "R", "A", "S", "R", "E", "N"]
 		];
-		this.createWordSearchGrid(lettersArray);
+
 		this.createTargetWordsList();
+	}
+	
+	create() {
+
+		// Start with a black rectangle covering the screen for fade-in
+		const fadeRectangle = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000);
+		fadeRectangle.setOrigin(0, 0);
+		fadeRectangle.setAlpha(1);
+		fadeRectangle.setDepth(1000);
+
+		// Fade in the new scene
+		this.tweens.add({
+    		targets: fadeRectangle,
+    		alpha: { from: 1, to: 0 },
+    		duration: 300,
+    		onComplete: () => {
+        		fadeRectangle.destroy();
+    		}
+		});
+
+
+		this.createWordSearchGrid(this.lettersArray);
+		
 	}
 
 	createTargetWordsList() {
@@ -251,9 +261,4 @@ class Level extends Phaser.Scene {
 		if (rowDiff === -colDiff) return 'diagonal-tr-bl';
 		return null;
 	}
-	
-	
-	/* END-USER-CODE */
 }
-
-/* END OF COMPILED CODE */

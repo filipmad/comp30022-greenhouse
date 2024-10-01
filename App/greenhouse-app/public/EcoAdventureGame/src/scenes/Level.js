@@ -19,6 +19,22 @@ class Level extends Phaser.Scene {
 
     create() {
 
+		// Start with a black rectangle covering the screen for fade-in
+		const fadeRectangle = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000);
+		fadeRectangle.setOrigin(0, 0);
+		fadeRectangle.setAlpha(1);
+		fadeRectangle.setDepth(1000);
+
+		// Fade in the new scene
+		this.tweens.add({
+    		targets: fadeRectangle,
+    		alpha: { from: 1, to: 0 },
+    		duration: 300,
+    		onComplete: () => {
+        		fadeRectangle.destroy();
+    		}
+		});
+
         const screenWidth = 1067;
         const screenHeight = 600;
 
