@@ -26,12 +26,11 @@ type Comment struct {
 }
 
 type NewsPost struct {
-	NewsPostID   int       `json:"NewsPostID"`
-	Title        string    `json:"Title"`
-	Author       string    `json:"Author"`
-	Text         string    `json:"Text"`
-	IsNewsLetter bool      `json:"IsNewsLetter"`
-	Timecreated  time.Time `json:"TimeCreated"`
+	NewsPostID  int       `json:"NewsPostID"`
+	Title       string    `json:"Title"`
+	Author      string    `json:"Author"`
+	Text        string    `json:"Text"`
+	Timecreated time.Time `json:"TimeCreated"`
 }
 
 type Poll struct {
@@ -432,4 +431,26 @@ func getNewsPostDB(db *sql.DB) ([]NewsPost, error) {
 		newPosts = append(newPosts, newPost)
 	}
 	return newPosts, nil
+}
+func updateNewsPostDB(updatedPost NewsPost, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	tsql := "UPDATE INTO NewsPost ('title', 'author', 'text', 'timeCreated') VALUES(@p1, @p2, @p3, @p4) where newsPostID = @p5"
+	update, err := db.ExecContext(ctx, tsql, updatedPost.Title, updatedPost.Author, updatedPost.Text, updatedPost.Timecreated, updatedPost.NewsPostID)
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := update.RowsAffected()
+	if err != nil {
+		log.Fatal(err.Error())
+
+	}
+	return id, nil
+
 }
