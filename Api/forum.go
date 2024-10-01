@@ -26,7 +26,7 @@ type Comment struct {
 }
 
 type NewsPost struct {
-	NewsPostID   int       `json:"CommentID"`
+	NewsPostID   int       `json:"NewsPostID"`
 	Title        string    `json:"Title"`
 	Author       string    `json:"Author"`
 	Text         string    `json:"Text"`
@@ -334,7 +334,7 @@ func updateForumPostDB(updatedPost ForumPost, db *sql.DB) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	tsql := "UPDATE INTO ForumPost ('title', 'text', 'likes', 'datePosted', 'authorID') VALUES(@p1, @p2, @p3, @p4, @p5) where pollID = @p6"
+	tsql := "UPDATE INTO ForumPost ('title', 'text', 'likes', 'datePosted', 'authorID') VALUES(@p1, @p2, @p3, @p4, @p5) where postID = @p6"
 	update, err := db.ExecContext(ctx, tsql, updatedPost.Title, updatedPost.Text, updatedPost.Likes, updatedPost.DatePosted, updatedPost.AuthorID)
 	if err != nil {
 		return -1, err
