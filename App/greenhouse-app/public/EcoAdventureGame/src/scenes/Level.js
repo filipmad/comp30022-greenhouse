@@ -1,7 +1,6 @@
 class Level extends Phaser.Scene {
-    constructor() {
-        super("Level");
-
+    
+    initValues() {
         this.isJumping = false;  // Track whether the character is in the air
         this.jumpSpeed = 800;     // The speed at which the character moves up/down
         this.gravity = 1500;      // Simulate gravity
@@ -14,10 +13,21 @@ class Level extends Phaser.Scene {
         this.lastTreeX = 700;      // Position of the last tree spawned
         this.scrollOffset = 0;     // Track the total scroll offset
         this.nextSpawnTime = 0;    // Track time until the next tree spawn
-		this.distanceScore = 0; // Initialize the distance score
+		this.distanceScore = 0;    // Initialize the distance score
+    }
+    
+    constructor() {
+        super("Level");
+        this.initValues();
     }
 
     create() {
+
+        // Need to call this in create() to reset the values when restarting the game from EndScreen
+        this.initValues();
+
+        // Create a group to hold all the game objects if needed (may need to do this when adding more objects)
+        this.mainGroup = this.add.group();
 
 		// Start with a black rectangle covering the screen for fade-in
 		const fadeRectangle = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000);
@@ -171,8 +181,14 @@ class Level extends Phaser.Scene {
         character.once('animationcomplete', (anim) => {
             if (anim.key === 'hurt') {
                 character.play('loss');
+
+                // Call the displayGameOver method after the hurt animation
+                this.time.delayedCall(500, () => {
+                    this.displayGameOver(); // Transition to game over screen
+            });
             }
         });
+
     }
 
     spawnTree(xPosition) {
@@ -186,6 +202,95 @@ class Level extends Phaser.Scene {
         this.trees.push(tree);
         this.lastTreeX = xPosition; // Update the last tree's position
     }
+
+    displayGameOver() {
+
+	    // Disable input on current scene
+		this.input.enabled = false;
+		
+		// Create a semi-transparent black background
+		const overlay = this.add.rectangle(
+			this.cameras.main.width / 2,
+			this.cameras.main.height / 2,
+			this.cameras.main.width,
+			this.cameras.main.height,
+			0x000000,
+			0.8
+		);
+		overlay.setOrigin(0.5, 0.5);
+		overlay.setDepth(9999);
+		this.mainGroup.add(overlay);
+
+		this.tweens.add({
+    		targets: overlay,
+    		alpha: { from: 0, to: 1 },
+    		duration: 1000,
+		});
+	
+		// Create the game over text
+		const gameOverText = this.add.text(
+			this.cameras.main.width / 2,
+			this.cameras.main.height / 2,
+			'Game Over',
+			{
+				fontSize: '48px',
+				color: '#ffffff',
+				fontStyle: 'bold',
+			}
+		);
+		gameOverText.setOrigin(0.5, 0.5);
+		gameOverText.setDepth(10000);
+		this.mainGroup.add(gameOverText);
+	
+
+		this.tweens.add({
+			targets: gameOverText,
+			scale: { from: 1, to: 1.2 },
+			yoyo: true,
+			repeat: -1,
+			ease: 'Sine.easeInOut',
+			duration: 1000,
+		});
+
+		this.tweens.addCounter({
+			from: 0,
+			to: 100,
+			duration: 2000,
+			repeat: -1,
+			yoyo: true,
+			onUpdate: (tween) => {
+				const progress = tween.getValue();
+				const newColor = Phaser.Display.Color.Interpolate.ColorWithColor(
+                    Phaser.Display.Color.ValueToColor(0xff0000),
+                    Phaser.Display.Color.ValueToColor(0x800000),
+					100,
+					progress
+				);
+				const hexColor = Phaser.Display.Color.RGBToString(newColor.r, newColor.g, newColor.b, newColor.a, '#');
+				gameOverText.setColor(hexColor);
+			}
+		});
+	
+		this.tweens.add({
+			targets: gameOverText,
+			alpha: { from: 0, to: 1 },
+			duration: 1000,
+		});
+
+		// Delay a little to show the game over message
+		this.time.delayedCall(3000, () => {
+			this.transitionToEndScreen();
+		});
+		
+	}
+
+    transitionToEndScreen() {
+
+		// Want to display the EndScreen scene over the Level scene as a popup
+		const endScreen = this.scene.get('EndScreen');
+		this.scene.run('EndScreen');
+	
+	}
 }
 
 

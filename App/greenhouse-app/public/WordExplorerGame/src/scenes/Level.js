@@ -1,14 +1,17 @@
 class Level extends Phaser.Scene {
-
 	constructor() {
 		super("Level");
+		this.foundWords = [];
 	}
 
 	preload() {
-		// background
-		const background = this.add.image(0, 0, "Background");
+		this.mainGroup = this.add.group();
+		const background = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0xffffff);
 		background.setOrigin(0, 0);
-	
+		background.setDepth(1);
+		this.mainGroup.add(background);
+
+
 		this.events.emit("scene-awake");
 
 		// Input target words from database (10 Words)
@@ -55,10 +58,7 @@ class Level extends Phaser.Scene {
         		fadeRectangle.destroy();
     		}
 		});
-
-
 		this.createWordSearchGrid(this.lettersArray);
-		
 	}
 
 	createTargetWordsList() {
@@ -69,13 +69,17 @@ class Level extends Phaser.Scene {
 	
 		this.targetWords.forEach((word, index) => {
 			const text = this.add.text(startX, startY + index * spacing, word, { fontSize: '24px', color: '#000000' });
+			text.depth = 2;
+			this.mainGroup.add(text);
 			this.targetWordsText.push(text);
 		});
 	}
 	
 	createWordSearchGrid(lettersArray) {
 		const gridSize = 14;
-		const tileSize = 597 / gridSize;
+		const borderThickness = 5; // Thickness of the border
+		const tileSize = (600 - (borderThickness * 2)) / gridSize; // Reduce tile size for the border
+	
 		this.tiles = []; // Array to store references to all tiles
 		this.startTile = null; // Track the initial tile selected
 		this.lastTile = null; // Track the last highlighted tile
@@ -83,38 +87,50 @@ class Level extends Phaser.Scene {
 		this.highlightedLetters = []; // Track the sequence of highlighted letters
 		this.highlightedTiles = []; // Track the tiles that are currently highlighted
 	
+		// Create the border rectangle
+		const borderRect = this.add.rectangle(
+			0,
+			this.cameras.main.height / 2,
+			1200,
+			600,
+			0x000000 // Black color
+		).setOrigin(0.5, 0.5).setDepth(1); // Ensure it is behind the tiles
+		this.mainGroup.add(borderRect);
+	
 		for (let row = 0; row < gridSize; row++) {
 			for (let col = 0; col < gridSize; col++) {
 				const tile = this.add.rectangle(
-					col * tileSize,
-					row * tileSize,
+					col * tileSize + borderThickness, // Adjust position for border
+					row * tileSize + borderThickness, // Adjust position for border
 					tileSize,
 					tileSize,
 					0xffffff
 				).setOrigin(0, 0).setStrokeStyle(1, 0x000000);
 	
 				const hitAreaSize = tileSize * 0.8;
+				tile.depth = 2;
 				tile.setInteractive(new Phaser.Geom.Rectangle((tileSize - hitAreaSize) / 2, (tileSize - hitAreaSize) / 2, hitAreaSize, hitAreaSize), Phaser.Geom.Rectangle.Contains);
 				this.tiles.push({ tile, row, col });
+				this.mainGroup.add(tile);
 	
 				// Add letter text to the tile
 				const letter = lettersArray[row][col];
 				const text = this.add.text(
-					col * tileSize + tileSize / 2,
-					row * tileSize + tileSize / 2,
+					col * tileSize + borderThickness + tileSize / 2, // Adjust position for border
+					row * tileSize + borderThickness + tileSize / 2, // Adjust position for border
 					letter,
 					{ fontSize: `${tileSize / 2}px`, color: '#000000' }
 				).setOrigin(0.5, 0.5);	
-				
+				text.depth = 2;
+				this.mainGroup.add(text);
+	
 				tile.on('pointerdown', () => {
 					if (!this.isDrawing) {
-
 						// Start drawing sequence
 						this.isDrawing = true;
-
 						this.startTile = { row, col };
 						this.lastTile = this.startTile;
-
+	
 						// Highlight tile in yellow
 						tile.setFillStyle(0xffff00);
 						
@@ -125,10 +141,9 @@ class Level extends Phaser.Scene {
 	
 				tile.on('pointerover', () => {
 					if (this.isDrawing && this.isValidSelection(row, col)) {
-
 						// Highlight sequence tile in yellow
 						tile.setFillStyle(0xffff00);
-
+	
 						this.lastTile = { row, col };
 						this.highlightedLetters.push(letter);
 						this.highlightedTiles.push(tile);
@@ -136,14 +151,15 @@ class Level extends Phaser.Scene {
 				});
 			}
 		}
+	
 		this.input.on('pointerup', () => {
 			if (this.isDrawing) {
 				this.isDrawing = false;
-				if (this.targetWords.includes(this.highlightedLetters.join(''))) {
-
+				let highlightedSequence = this.highlightedLetters.join('');
+				if (this.targetWords.includes(highlightedSequence) && !this.foundWords.includes(highlightedSequence)) {
 					// Turn highlighted tiles green if sequence matches a target word
+					this.foundWords.push(highlightedSequence);
 					this.highlightTilesGreen();
-					
 				} else {
 					this.highlightAllTiles();
 				}
@@ -172,8 +188,8 @@ class Level extends Phaser.Scene {
 		this.input.on('pointermove', (pointer) => {
 			const canvasBounds = this.scale.canvas.getBoundingClientRect();
 			if (this.isDrawing && 
-				(pointer.x < 0 || pointer.y < 0 || 
-				pointer.x > 600 || pointer.y > canvasBounds.height)) {
+				(pointer.x < 5 || pointer.y < 0 || 
+				pointer.x > 595 || pointer.y > canvasBounds.height - 5)) {
 				this.isDrawing = false;
 				this.highlightAllTiles();
 				this.startTile = null;
@@ -184,6 +200,7 @@ class Level extends Phaser.Scene {
 			}
 		});
 	}
+	
 	
 	isValidSelection(row, col) {
 
@@ -247,8 +264,18 @@ class Level extends Phaser.Scene {
 		const foundWord = this.highlightedLetters.join('');
 		const targetWordIndex = this.targetWords.indexOf(foundWord);
 		if (targetWordIndex !== -1) {
-			this.targetWordsText[targetWordIndex].setStyle({color: '#00ff00'}); // Turn word green
+			this.targetWordsText[targetWordIndex].setStyle({
+				fontSize: '24px', // Increase font size
+				backgroundColor: '#00ff00' // Add black background
+			});
+			this.targetWordsText[targetWordIndex].setFontStyle('bold'); // Make font bold
 		}
+
+		// Check if all target words have been found
+		if (this.foundWords.length === this.targetWords.length) {
+			this.displayCongratulations();
+		}
+
 	}
 	
 	calculateDirection(startTile, currentTile) {
@@ -260,5 +287,94 @@ class Level extends Phaser.Scene {
 		if (rowDiff === colDiff) return 'diagonal-tl-br';
 		if (rowDiff === -colDiff) return 'diagonal-tr-bl';
 		return null;
+	}
+
+	displayCongratulations() {
+
+	    // Disable input to prevent further selection of letters
+		this.input.enabled = false;
+		
+		// Create a semi-transparent black background
+		const overlay = this.add.rectangle(
+			this.cameras.main.width / 2,
+			this.cameras.main.height / 2,
+			this.cameras.main.width,
+			this.cameras.main.height,
+			0x000000,
+			0.8
+		);
+		overlay.setOrigin(0.5, 0.5);
+		overlay.setDepth(9999);
+		this.mainGroup.add(overlay);
+
+		this.tweens.add({
+    		targets: overlay,
+    		alpha: { from: 0, to: 1 },
+    		duration: 1000,
+		});
+	
+		// Create the congratulations text
+		const congratsText = this.add.text(
+			this.cameras.main.width / 2,
+			this.cameras.main.height / 2,
+			'Congratulations!',
+			{
+				fontSize: '48px',
+				color: '#ffffff',
+				fontStyle: 'bold',
+			}
+		);
+		congratsText.setOrigin(0.5, 0.5);
+		congratsText.setDepth(10000);
+		this.mainGroup.add(congratsText);
+	
+
+		this.tweens.add({
+			targets: congratsText,
+			scale: { from: 1, to: 1.2 },
+			yoyo: true,
+			repeat: -1,
+			ease: 'Sine.easeInOut',
+			duration: 1000,
+		});
+
+		this.tweens.addCounter({
+			from: 0,
+			to: 100,
+			duration: 2000,
+			repeat: -1,
+			yoyo: true,
+			onUpdate: (tween) => {
+				const progress = tween.getValue();
+				const newColor = Phaser.Display.Color.Interpolate.ColorWithColor(
+					Phaser.Display.Color.ValueToColor(0xff0000),
+					Phaser.Display.Color.ValueToColor(0x00ff00),
+					100,
+					progress
+				);
+				const hexColor = Phaser.Display.Color.RGBToString(newColor.r, newColor.g, newColor.b, newColor.a, '#');
+				congratsText.setColor(hexColor);
+			}
+		});
+	
+		this.tweens.add({
+			targets: congratsText,
+			alpha: { from: 0, to: 1 },
+			duration: 1000,
+		});
+
+		// Delay a little to show the congratulations message
+		this.time.delayedCall(3000, () => {
+			this.transitionToEndScreen();
+		});
+		
+	}
+
+	transitionToEndScreen() {
+
+		// Want to display the EndScreen scene over the Level scene as a popup
+		const endScreen = this.scene.get('EndScreen');
+		this.scene.run('EndScreen');
+	
 	}
 }
