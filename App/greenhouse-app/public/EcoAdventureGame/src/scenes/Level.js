@@ -1,5 +1,10 @@
 class Level extends Phaser.Scene {
-    
+
+    constructor() {
+        super("Level");
+        this.highScore = 0; // Initialize the high score (from the database)
+    }
+
     initValues() {
         this.isJumping = false;  // Track whether the character is in the air
         this.jumpSpeed = 800;     // The speed at which the character moves up/down
@@ -14,11 +19,6 @@ class Level extends Phaser.Scene {
         this.scrollOffset = 0;     // Track the total scroll offset
         this.nextSpawnTime = 0;    // Track time until the next tree spawn
 		this.distanceScore = 0;    // Initialize the distance score
-    }
-    
-    constructor() {
-        super("Level");
-        this.initValues();
     }
 
     create() {
@@ -63,6 +63,9 @@ class Level extends Phaser.Scene {
 
 		// Create a text object to display the distance score
 		this.scoreText = this.add.text(10, 10, 'Distance: 0', { fontSize: '32px', fill: '#fff' });
+
+        // Create a text object to display the user's high score
+        this.highScoreText = this.add.text(10, 50, 'High Score: ' + this.highScore, { fontSize: '32px', fill: '#fff' });
 
         // Add the character sprite (fixed position)
         this.character = this.physics.add.sprite(50, this.groundY, 'FinnSprite').setOrigin(0, 1);
@@ -144,6 +147,12 @@ class Level extends Phaser.Scene {
 			// Update the distance score
 			this.distanceScore += scrollSpeed * (delta / 1000);
 			this.scoreText.setText('Distance: ' + Math.floor(this.distanceScore));
+
+            // Update the high score if the distance score is higher
+            if (this.distanceScore > this.highScore) {
+                this.highScore = Math.floor(this.distanceScore);
+                this.highScoreText.setText('High Score: ' + this.highScore);
+            }
         }
 
         // Handle character jump physics
@@ -277,6 +286,9 @@ class Level extends Phaser.Scene {
 			duration: 1000,
 		});
 
+        // Send high score to the database
+        this.sendHighScoreToDatabase(this.highScore);
+
 		// Delay a little to show the game over message
 		this.time.delayedCall(3000, () => {
 			this.transitionToEndScreen();
@@ -291,6 +303,11 @@ class Level extends Phaser.Scene {
 		this.scene.run('EndScreen');
 	
 	}
+
+    sendHighScoreToDatabase(score) {
+        // Send the high score to the database
+        console.log('High score: ' + score);
+    }
 }
 
 

@@ -56,10 +56,9 @@ class Preload extends Phaser.Scene {
 	}
 
 	create() {
-
 		const centerX = this.cameras.main.width / 2;
 		const centerY = this.cameras.main.height / 2;
-
+	
 		this.playButton = this.add.text(centerX, centerY + 50, "Play", {
 			color: "#ffffff",
 			fontFamily: "Arial",
@@ -70,7 +69,14 @@ class Preload extends Phaser.Scene {
 		this.playButton.setOrigin(0.5, 0.5);
 		this.playButton.setInteractive();
 		this.playButton.visible = false;
-
+	
+		this.playButton.on('pointerover', () => {
+			this.playButton.setScale(1.1);
+		});
+		this.playButton.on('pointerout', () => {
+			this.playButton.setScale(1);
+		});
+	
 		// Add a click event on the Play button to trigger scene transition
 		this.playButton.on('pointerdown', () => {
 			this.fadeToScene("Level");

@@ -293,6 +293,9 @@ class Level extends Phaser.Scene {
 
 	    // Disable input to prevent further selection of letters
 		this.input.enabled = false;
+
+		// Send comfirmation to the server that the game is complete
+		this.events.emit("game-complete");
 		
 		// Create a semi-transparent black background
 		const overlay = this.add.rectangle(

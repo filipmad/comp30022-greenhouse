@@ -16,9 +16,13 @@ class Level extends Phaser.Scene {
 
 		// Track the last time income was added
         this.lastIncomeTime = 0;
+
+        this.incomeGenerationStarted = false;
     }
 
     create() {
+        this.sceneStartTime = this.time.now;
+
 
 		// Start with a black rectangle covering the screen for fade-in
 		const fadeRectangle = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000);
@@ -44,15 +48,30 @@ class Level extends Phaser.Scene {
         this.statsText = this.add.text(870, 10, this.getStatsText(), { fontSize: '16px', fill: '#fff' });
 
         this.createButtons();
+        this.createSaveButton();
+
 
         this.updateStats();
     }
 
-	update(time, delta) {
-        // Check if one second has passed
-        if (time - this.lastIncomeTime > 1000) {
-            this.addIncomeToBank();
+    update(time, delta) {
+
+        // Check if 3 seconds have passed since the scene started
+        if (!this.incomeGenerationStarted && time > 3000) {
+            this.incomeGenerationStarted = true; // Start income generation
+
+            // Initialize the last income time
             this.lastIncomeTime = time;
+        }
+
+        // Check if income generation has started
+        if (this.incomeGenerationStarted) {
+            
+            // Check if one second has passed since last income was added
+            if (time - this.lastIncomeTime > 1000) {
+                this.addIncomeToBank();
+                this.lastIncomeTime = time;
+            }
         }
     }
 
@@ -97,6 +116,33 @@ class Level extends Phaser.Scene {
 
     updateStats() {
         this.statsText.setText(this.getStatsText());
+    }
+
+    createSaveButton() {
+        const saveButton = this.add.text(this.cameras.main.width - 80, this.cameras.main.height - 50, "Save", {
+            fontSize: '20px',
+            fill: '#fff',
+            backgroundColor: '#000'
+        }).setOrigin(1, 0.5) // Align to the bottom right
+          .setInteractive();
+
+        saveButton.on('pointerdown', () => {
+            this.saveStats();
+        });
+
+        // Add hover effects for the save button
+        saveButton.on('pointerover', () => {
+            saveButton.setScale(1.1);
+        });
+
+        saveButton.on('pointerout', () => {
+            saveButton.setScale(1);
+        });
+    }
+
+    saveStats() {
+        // Implement saving logic
+        console.log("Saving stats:", this.stats); // Currently just logging the stats to the console
     }
 
 }

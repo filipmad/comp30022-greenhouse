@@ -71,6 +71,13 @@ class Preload extends Phaser.Scene {
 		this.playButton.setInteractive();
 		this.playButton.visible = false;
 
+		this.playButton.on('pointerover', () => {
+			this.playButton.setScale(1.1);
+		});
+		this.playButton.on('pointerout', () => {
+			this.playButton.setScale(1);
+		});
+
 		// Add a click event on the Play button to trigger scene transition
 		this.playButton.on('pointerdown', () => {
 			this.fadeToScene("Level");
