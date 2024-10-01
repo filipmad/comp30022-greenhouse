@@ -347,3 +347,31 @@ func updateForumPostDB(updatedPost ForumPost, db *sql.DB) (int64, error) {
 	}
 	return id, nil
 }
+
+func createNewsPostDB(newPost NewsPost, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	tsql := "INSERT INTO dbo.NewsPost (title, author, text, timeCreated) VALUES(@p1, @p2, @p3, @p4)"
+
+	insert, err := db.ExecContext(ctx, tsql, newPost.Title, newPost.Author, newPost.Text, time.Now())
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := insert.RowsAffected()
+	if err != nil {
+		log.Fatal(err.Error())
+
+	}
+	return id, nil
+
+}
+
+func deleteNewsPostDB(newPost NewsPost, db *sql.DB) {
+
+}
