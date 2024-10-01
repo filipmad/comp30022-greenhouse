@@ -205,7 +205,7 @@ func readPollDB(db *sql.DB) ([]Poll, error) {
 	}
 	// Custom SQL Selection Query
 	//Needs to put in server
-	tsql := (`SELECT [pollID], [title],[text], [optionOneVotes], [optionTwoVotes], [optionOneText], [optionTwoText], [timeCreated] FROM Garden`)
+	tsql := (`SELECT [pollID], [title],[text], [optionOneVotes], [optionTwoVotes], [optionOneText], [optionTwoText], [timeCreated] FROM Poll`)
 
 	// Check Validity of the db
 	if db == nil {
@@ -238,4 +238,90 @@ func readPollDB(db *sql.DB) ([]Poll, error) {
 	}
 
 	return polls, nil
+}
+
+func deleteForumPostDB(forumID int, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+
+	tsql := "DELETE FROM dbo.Poll where forumID = @p1"
+
+	delete, err := db.ExecContext(ctx, tsql, forumID)
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := delete.RowsAffected()
+	if err != nil {
+		log.Fatal(err.Error())
+
+	}
+	return id, nil
+
+}
+
+func createForumPostDB(newPost ForumPost, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+
+	tsql := "INSERT INTO dbo.ForumPost (postID, title, text, likes, datePosted, authorID) VALUES(@p1, @p2, @p3, @p4, @p5, @p6)"
+
+	insert, err := db.ExecContext(ctx, tsql, newPost.PostID, newPost.Title, newPost.Text, newPost.Likes, time.Now(), newPost.AuthorID)
+	if err != nil {
+		return -1, err
+
+	}
+	id, err := insert.RowsAffected()
+	if err != nil {
+		log.Fatal(err.Error())
+
+	}
+	return id, nil
+
+}
+
+func readForumPostDB(db *sql.DB) ([]ForumPost, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// Custom SQL Selection Query
+	//Needs to put in server
+	tsql := (`SELECT [postID], [title],[text], [likes], [datePosted], [authorID] FROM ForumPost`)
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return nil, err
+	}
+
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	var forumPosts []ForumPost
+	for rows.Next() {
+		var newPost ForumPost
+		var pId, likes, authorID int
+		var title, text string
+		var datePosted time.Time
+		err := rows.Scan(&pId, &title, &text, &likes, &datePosted, &authorID)
+		if err != nil {
+			return nil, err
+		}
+		newPost = ForumPost{PostID: pId, Title: title, Text: text, Likes: likes, DatePosted: datePosted, AuthorID: authorID}
+		forumPosts = append(forumPosts, newPost)
+
+	}
+	return forumPosts, nil
 }
