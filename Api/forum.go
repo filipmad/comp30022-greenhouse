@@ -394,3 +394,42 @@ func deleteNewsPostDB(deleteID int, db *sql.DB) (int64, error) {
 	}
 	return check, nil
 }
+
+func getNewsPostDB(db *sql.DB) ([]NewsPost, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	tsql := (`SELECT [newsPostID], [title], [author], [text], [timeCreated] FROM NewsPost`)
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return nil, err
+	}
+
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var newPosts []NewsPost
+
+	for rows.Next() {
+		var newPost NewsPost
+		var npID int
+		var title, author, text string
+		var timeCreated time.Time
+		err := rows.Scan(npID, title, author, text, timeCreated)
+		if err != nil {
+			return nil, err
+		}
+		newPost = NewsPost{NewsPostID: npID, Title: title, Author: author, Text: text, Timecreated: timeCreated}
+		newPosts = append(newPosts, newPost)
+	}
+	return newPosts, nil
+}
