@@ -115,8 +115,11 @@ class Level extends Phaser.Scene {
     }
 
     update(time, delta) {
+
         if (this.isScrolling) {
-            const scrollSpeed = 2;
+
+            // Calculate the scroll speed based on the delta time
+            const scrollSpeed = 4 * (delta / 16.6667); // 4 pixels per frame at 60fps
 
             this.background1.x -= scrollSpeed;
             this.background2.x -= scrollSpeed;
