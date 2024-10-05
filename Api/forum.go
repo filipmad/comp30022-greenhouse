@@ -7,7 +7,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 type ForumPost struct {
@@ -467,5 +470,43 @@ func getNewsPost(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(newsPosts)
 		}
 
+	}
+}
+
+func createNewsPost(w http.ResponseWriter, r *http.Request) {
+	var newPost NewsPost
+	_ = json.NewDecoder(r.Body).Decode(&newPost)
+	db := connectToDB()
+	if db != nil {
+
+		check, err := createNewsPostDB(newPost, db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		fmt.Print(check)
+		json.NewEncoder(w).Encode(newPost)
+	}
+}
+
+func deleteNewsPost(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	db := connectToDB()
+	if db != nil {
+		users, err := ReadUsersDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		for _, item := range users {
+			if item.ID == params["ID"] {
+				ID, err := strconv.Atoi(params["ID"])
+				if err != nil {
+					log.Fatal(err.Error())
+				}
+
+				deleteUsersDB(ID, db)
+				break
+			}
+
+		}
 	}
 }
