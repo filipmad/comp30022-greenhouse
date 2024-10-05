@@ -492,13 +492,13 @@ func deleteNewsPost(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
 	if db != nil {
-		users, err := ReadUsersDB(db)
+		newsPosts, err := getNewsPostDB(db)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		for _, item := range users {
-			if item.ID == params["ID"] {
-				ID, err := strconv.Atoi(params["ID"])
+		for _, item := range newsPosts {
+			if strconv.Itoa(item.NewsPostID) == params["NewsPostID"] {
+				ID, err := strconv.Atoi(params["NewsPostID"])
 				if err != nil {
 					log.Fatal(err.Error())
 				}
@@ -539,5 +539,43 @@ func updateNewsPost(w http.ResponseWriter, r *http.Request) {
 
 		}
 		json.NewEncoder(w).Encode(updatedNewsPost)
+	}
+}
+
+func getComment(w http.ResponseWriter, r *http.Request) {
+	db := connectToDB()
+	if db != nil {
+		comments, err := getCommentDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			json.NewEncoder(w).Encode(comments)
+		}
+
+	}
+}
+
+func deleteComment(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	db := connectToDB()
+	if db != nil {
+		comments, err := getCommentDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			json.NewEncoder(w).Encode(comments)
+		}
+		for _, item := range comments {
+			if strconv.Itoa(item.CommentID) == params["CommentID"] {
+
+				if err != nil {
+					log.Fatal(err.Error())
+				}
+				deleteCommentDB(item.CommentID, item.PostID, db)
+				break
+			}
+
+		}
+
 	}
 }
