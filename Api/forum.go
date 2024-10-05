@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 )
 
@@ -453,4 +455,17 @@ func updateNewsPostDB(updatedPost NewsPost, db *sql.DB) (int64, error) {
 	}
 	return id, nil
 
+}
+
+func getNewsPost(w http.ResponseWriter, r *http.Request) {
+	db := connectToDB()
+	if db != nil {
+		newsPosts, err := getNewsPostDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			json.NewEncoder(w).Encode(newsPosts)
+		}
+
+	}
 }
