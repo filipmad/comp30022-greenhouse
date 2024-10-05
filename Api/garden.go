@@ -369,7 +369,7 @@ func deleteAllPlantDB(gardenID int, db *sql.DB) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	delete, err := db.ExecContext(ctx, "DELETE FROM Plant where gardenID = ?", gardenID)
+	delete, err := db.ExecContext(ctx, "DELETE FROM Plant where gardenID = @p1", gardenID)
 	if err != nil {
 		return -1, err
 	}
@@ -434,8 +434,8 @@ func createPlantsDB(newPlant Plant, db *sql.DB) (int64, error) {
 		return -1, err
 	}
 
-	tsql := "INSERT INTO Plant ('Age', 'Name', 'GardenID') VALUES('1', ?, ?)"
-	insert, err := db.ExecContext(ctx, tsql, newPlant.Age, newPlant.Name, newPlant.GardenID)
+	tsql := "INSERT INTO dbo.Plant(age, name, gardenID) VALUES(1, @p1, @p2)"
+	insert, err := db.ExecContext(ctx, tsql, newPlant.Name, newPlant.GardenID)
 	if err != nil {
 		return -1, err
 
