@@ -542,6 +542,21 @@ func updateNewsPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func createComment(w http.ResponseWriter, r *http.Response) {
+	var newComment Comment
+	_ = json.NewDecoder(r.Body).Decode(&newComment)
+	db := connectToDB()
+	if db != nil {
+
+		check, err := createCommentDB(newComment, db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		fmt.Print(check)
+		json.NewEncoder(w).Encode(newComment)
+	}
+}
+
 func getComment(w http.ResponseWriter, r *http.Request) {
 	db := connectToDB()
 	if db != nil {
@@ -579,3 +594,34 @@ func deleteComment(w http.ResponseWriter, r *http.Request) {
 
 	}
 }
+
+// func updateComment(w http.ResponseWriter, r *http.Request) {
+// 	var updatedComment Comment
+// 	_ = json.NewDecoder(r.Body).Decode(&updatedComment)
+// 	db := connectToDB()
+// 	if db != nil {
+// 		updateComments, err := getCommentDB(db)
+// 		if err != nil {
+// 			log.Fatal(err.Error())
+// 		}
+// 		for _, item := range updatedComments {
+// 			if item.CommentID == updatedComment.CommentID {
+// 				commentID := updatedComment.CommentID
+// 				text := updatedComment.Text
+
+// 				if err != nil {
+// 					log.Fatal(err.Error())
+// 				}
+// 				comment := Comment{CommentID: commentID, Text: text}
+// 				changed, err :=
+// 				if err != nil {
+// 					log.Fatal(err.Error())
+// 				}
+// 				fmt.Print(changed)
+// 			}
+
+// 		}
+// 		json.NewEncoder(w).Encode(updatedNewsPost)
+// 	}
+// }
+// }
