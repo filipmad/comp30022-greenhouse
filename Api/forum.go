@@ -634,9 +634,6 @@ func deletePoll(w http.ResponseWriter, r *http.Request) {
 			for _, item := range polls {
 				if strconv.Itoa(item.PollID) == params["pollID"] {
 
-					if err != nil {
-						log.Fatal(err.Error())
-					}
 					deletePollDB(item, db)
 					break
 				}
@@ -675,6 +672,55 @@ func changePoll(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+}
+
+func getForumPost(w http.ResponseWriter, r *http.Request) {
+	db := connectToDB()
+	if db != nil {
+		forumPosts, err := readForumPostDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			json.NewEncoder(w).Encode(forumPosts)
+		}
+
+	}
+}
+
+func deleteForumPost(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	db := connectToDB()
+	if db != nil {
+		forumPosts, err := readForumPostDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			for _, item := range forumPosts {
+				if strconv.Itoa(item.PostID) == params["postID"] {
+
+					deleteForumPostDB(item.PostID, db)
+					break
+				}
+
+			}
+
+		}
+
+	}
+}
+
+func createForumPost(w http.ResponseWriter, r *http.Request) {
+	var newForumPost ForumPost
+	_ = json.NewDecoder(r.Body).Decode(&newForumPost)
+	db := connectToDB()
+	if db != nil {
+		check, err := createForumPostDB(newForumPost, db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		fmt.Print(check)
+		json.NewEncoder(w).Encode(newForumPost)
+	}
 }
 
 // func updateComment(w http.ResponseWriter, r *http.Request) {
