@@ -510,3 +510,34 @@ func deleteNewsPost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+func updateNewsPost(w http.ResponseWriter, r *http.Request) {
+	var updatedNewsPost NewsPost
+	_ = json.NewDecoder(r.Body).Decode(&updatedNewsPost)
+	db := connectToDB()
+	if db != nil {
+		newsPosts, err := getNewsPostDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		for _, item := range newsPosts {
+			if item.NewsPostID == updatedNewsPost.NewsPostID {
+				ID := updatedNewsPost.NewsPostID
+				author := updatedNewsPost.Author
+				text := updatedNewsPost.Text
+				title := updatedNewsPost.Title
+				if err != nil {
+					log.Fatal(err.Error())
+				}
+				updatedNewsPost := NewsPost{NewsPostID: ID, Author: author, Text: text, Title: title}
+				changed, err := updateNewsPostDB(updatedNewsPost, db)
+				if err != nil {
+					log.Fatal(err.Error())
+				}
+				fmt.Print(changed)
+			}
+
+		}
+		json.NewEncoder(w).Encode(updatedNewsPost)
+	}
+}
