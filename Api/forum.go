@@ -595,6 +595,19 @@ func deleteComment(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getPoll(w http.ResponseWriter, r *http.Request) {
+	db := connectToDB()
+	if db != nil {
+		polls, err := readPollDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			json.NewEncoder(w).Encode(polls)
+		}
+
+	}
+}
+
 // func updateComment(w http.ResponseWriter, r *http.Request) {
 // 	var updatedComment Comment
 // 	_ = json.NewDecoder(r.Body).Decode(&updatedComment)
