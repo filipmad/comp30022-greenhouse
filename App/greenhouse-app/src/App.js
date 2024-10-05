@@ -16,12 +16,14 @@ import Garden from "./pages/Garden/Garden";
 import Community from "./pages/Community/Community";
 import News from "./pages/News/News";
 import Information from "./pages/Information/Information";
+import Social from "./pages/Information/Social/Social";
+import Goal1 from "./pages/Information/Social/SocialGoals/Goal1";
+import Economical from "./pages/Information/Economical/Economical";
+import Environmental from "./pages/Information/Environmental/Environmental";
 import WordExplorer from "./pages/Games/WordExplorer/WordExplorer";
 import EcoAdventure from "./pages/Games/EcoAdventure/EcoAdventure";
 import CityScape from "./pages/Games/CityScape/CityScape";
-import Social from "./pages/Information/Social/Social";
-import Economical from "./pages/Information/Economical/Economical";
-import Environmental from "./pages/Information/Environmental/Environmental";
+
 
 
 export default function myApp() {
@@ -39,6 +41,7 @@ export default function myApp() {
           <Route path="/home" element={<Home />} />
           <Route path="/discover" element={<Information />} />
           <Route path="/discover/social" element={<Social />} />
+          <Route path="/discover/social/goal1" element={<Goal1 />} />
           <Route path="/discover/economical" element={<Economical />} />
           <Route path="/discover/environmental" element={<Environmental />} />
           <Route path="/games" element={<Games />} />
