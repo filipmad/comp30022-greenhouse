@@ -608,6 +608,75 @@ func getPoll(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func createPoll(w http.ResponseWriter, r *http.Request) {
+	var newPoll Poll
+	_ = json.NewDecoder(r.Body).Decode(&newPoll)
+	db := connectToDB()
+	if db != nil {
+
+		check, err := createPollDB(newPoll, db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		fmt.Print(check)
+		json.NewEncoder(w).Encode(newPoll)
+	}
+}
+
+func deletePoll(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	db := connectToDB()
+	if db != nil {
+		polls, err := readPollDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			for _, item := range polls {
+				if strconv.Itoa(item.PollID) == params["pollID"] {
+
+					if err != nil {
+						log.Fatal(err.Error())
+					}
+					deletePollDB(item, db)
+					break
+				}
+
+			}
+
+		}
+
+	}
+}
+
+func changePoll(w http.ResponseWriter, r *http.Request) {
+	var changedPoll Poll
+	_ = json.NewDecoder(r.Body).Decode(&changedPoll)
+	db := connectToDB()
+	if db != nil {
+		polls, err := readPollDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			for _, item := range polls {
+				if item.PollID == changedPoll.PollID {
+					pollID := changedPoll.PollID
+					voteOne := changedPoll.OptionOneVotes
+					voteTwo := changedPoll.OptionTwoVotes
+					optionOne := changedPoll.OptionOne
+					optionTwo := changedPoll.OptionTwo
+					newPoll := Poll{PollID: pollID, OptionOne: optionOne, OptionTwo: optionTwo, OptionOneVotes: voteOne, OptionTwoVotes: voteTwo}
+					updatePollDB(newPoll, db)
+					break
+				}
+
+			}
+
+		}
+
+	}
+
+}
+
 // func updateComment(w http.ResponseWriter, r *http.Request) {
 // 	var updatedComment Comment
 // 	_ = json.NewDecoder(r.Body).Decode(&updatedComment)
