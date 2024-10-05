@@ -28,7 +28,7 @@ type Plant struct {
 func getPlants(w http.ResponseWriter, r *http.Request) {
 	db := connectToDB()
 	if db != nil {
-		plants, err := getPlantsDB(db)
+		plants, err := readPlantsDB(db)
 		if err != nil {
 			log.Fatal(err.Error())
 		} else {
@@ -44,7 +44,7 @@ func getPlantByPlantID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
 	if db != nil {
-		plants, err := getPlantsDB(db)
+		plants, err := readPlantsDB(db)
 		if err != nil {
 			log.Fatal(err.Error())
 
@@ -64,7 +64,7 @@ func getPlantByGardenID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
 	if db != nil {
-		plants, err := getPlantsDB(db)
+		plants, err := readPlantsDB(db)
 		if err != nil {
 			log.Fatal(err.Error())
 
@@ -100,23 +100,27 @@ func createPlant(w http.ResponseWriter, r *http.Request) {
 
 // Updates data relating to user
 func updatePlant(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
+	var updatedPlant Plant
+	_ = json.NewDecoder(r.Body).Decode(&updatedPlant)
 	db := connectToDB()
 	if db != nil {
-		plants, err := ReadUsersDB(db)
+		plants, err := readPlantsDB(db)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
 		for _, item := range plants {
-			if item.ID == params["PlantID"] {
-				ID, err := strconv.Atoi(params["PlantID"])
-				age, err := strconv.Atoi(params["Age"])
-				name := params["Name"]
+			if item.PlantID == updatedPlant.PlantID {
+				ID := updatedPlant.PlantID
+				age := updatedPlant.Age
+				name := updatedPlant.Name
 				if err != nil {
 					log.Fatal(err.Error())
 				}
 				updatedPlant := Plant{PlantID: ID, Age: age, Name: name}
 				changed, err := updatePlantsDB(updatedPlant, db)
+				if err != nil {
+					fmt.Errorf(err.Error())
+				}
 				fmt.Print(changed)
 			}
 
@@ -130,7 +134,7 @@ func DeletePlant(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
 	if db != nil {
-		plants, err := getPlantsDB(db)
+		plants, err := readPlantsDB(db)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -380,7 +384,7 @@ func deleteAllPlantDB(gardenID int, db *sql.DB) (int64, error) {
 	return check, nil
 }
 
-func getPlantsDB(db *sql.DB) ([]Plant, error) {
+func readPlantsDB(db *sql.DB) ([]Plant, error) {
 	ctx := context.Background()
 
 	// Check if database is alive.
@@ -455,7 +459,7 @@ func updatePlantsDB(updatePlant Plant, db *sql.DB) (int64, error) {
 		return -1, err
 	}
 
-	tsql := "UPDATE INTO Plant ('Age', 'Name') VALUES(@p1, @p2) WHERE plantID = @p3"
+	tsql := "UPDATE dbo.Plant SET age = @p1, name = @p2 WHERE plantID = @p3"
 	insert, err := db.ExecContext(ctx, tsql, updatePlant.Age, updatePlant.Name, updatePlant.PlantID)
 	if err != nil {
 		return -1, err
