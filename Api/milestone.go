@@ -38,26 +38,21 @@ type PersonalMilestone struct {
 	MilestoneID         int       `json:"MilestoneID"`
 }
 
-var milestones []Milestone
-
-var communityMilestones []CommunityMilestone
-
-var personalMilestones []PersonalMilestone
-
-// Gets all Users
+// Gets all milestone
 func getMilestones(w http.ResponseWriter, r *http.Request) {
 	db := connectToDB()
 	if db != nil {
 		milestones, err := getMilestonesDB(db)
 		if err != nil {
 			log.Fatal(err.Error())
-			json.NewEncoder(w).Encode(milestones)
+
 		}
+		json.NewEncoder(w).Encode(milestones)
 	}
 
 }
 
-// Gets specific user based on ID
+// Gets specific milestone based on ID
 func getMilestone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
@@ -65,20 +60,19 @@ func getMilestone(w http.ResponseWriter, r *http.Request) {
 		milestones, err := getMilestonesDB(db)
 		if err != nil {
 			log.Fatal(err.Error())
-			json.NewEncoder(w).Encode(milestones)
-		}
-	}
-	for _, item := range milestones {
-		if strconv.Itoa(item.MilestoneID) == params["milestoneID"] {
-			json.NewEncoder(w).Encode(item)
-			return
+			for _, item := range milestones {
+				if strconv.Itoa(item.MilestoneID) == params["milestoneID"] {
+					json.NewEncoder(w).Encode(item)
+					return
+				}
+			}
 		}
 
 	}
-	json.NewEncoder(w).Encode(&Milestone{})
+
 }
 
-// Creates a new user
+// Creates a new milestone
 func createMilestone(w http.ResponseWriter, r *http.Request) {
 	var newMilestone Milestone
 	_ = json.NewDecoder(r.Body).Decode(&newMilestone)
@@ -96,126 +90,236 @@ func createMilestone(w http.ResponseWriter, r *http.Request) {
 
 // Updates data relating to user
 func updateMilestone(w http.ResponseWriter, r *http.Request) {
+	var updateMilestone Milestone
+	_ = json.NewDecoder(r.Body).Decode(&updateMilestone)
 
+	db := connectToDB()
+	if db != nil {
+		milestones, err := getMilestonesDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		for _, item := range milestones {
+
+			if item.MilestoneID == updateMilestone.MilestoneID {
+
+				if err != nil {
+					log.Fatal(err.Error())
+				}
+				updateMilestoneDB(updateMilestone, db)
+				break
+			}
+		}
+
+	}
 }
 
 // Deletes a User
-func DeleteMilestone(w http.ResponseWriter, r *http.Request) {
+func deleteMilestone(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	db := connectToDB()
+	if db != nil {
+		milestone, err := getMilestonesDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			for _, item := range milestone {
+				if strconv.Itoa(item.MilestoneID) == params["milestoneID"] {
 
+					deleteMilestoneDB(item.MilestoneID, db)
+					break
+				}
+
+			}
+
+		}
+
+	}
 }
 
-// Gets all Users
+// Gets all Community Milestones
 func getCommunityMilestones(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(communityMilestones)
+	db := connectToDB()
+	if db != nil {
+		milestones, err := getCommunityMilestoneDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+
+		}
+		json.NewEncoder(w).Encode(milestones)
+	}
+
 }
 
 // Gets specific user based on ID
 func getCommunityMilestone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	for _, item := range communityMilestones {
-		if strconv.Itoa(item.CommunityMilestoneID) == params["MilestoneID"] {
-			json.NewEncoder(w).Encode(item)
-			return
+	db := connectToDB()
+	if db != nil {
+		communityMilestones, err := getCommunityMilestoneDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+
+		}
+		for _, item := range communityMilestones {
+			if strconv.Itoa(item.CommunityMilestoneID) == params["MilestoneID"] {
+				json.NewEncoder(w).Encode(item)
+				return
+			}
+
 		}
 
 	}
-	json.NewEncoder(w).Encode(&CommunityMilestone{})
 }
 
-// Creates a new user
+// Creates a new community milestone in the db
 func createCommunityMilestone(w http.ResponseWriter, r *http.Request) {
 	var newMilestone CommunityMilestone
 	_ = json.NewDecoder(r.Body).Decode(&newMilestone)
-	communityMilestones = append(communityMilestones, newMilestone)
-	json.NewEncoder(w).Encode(communityMilestones)
+	db := connectToDB()
+	if db != nil {
+		check, err := createCommunityMilestoneDB(newMilestone, db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		fmt.Printf("%d", check)
+
+		json.NewEncoder(w).Encode(newMilestone)
+	}
 }
 
 // Updates data relating to user
 func updateCommunityMilestone(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	for index, item := range communityMilestones {
-		if strconv.Itoa(item.MilestoneID) == params["CommunityMilestoneID"] {
-			communityMilestones = append(communityMilestones[:index], communityMilestones[index+1:]...)
-			var milestone CommunityMilestone
-			_ = json.NewDecoder(r.Body).Decode(&milestone)
+	var updateCommunityMilestone CommunityMilestone
+	_ = json.NewDecoder(r.Body).Decode(&updateCommunityMilestone)
 
-			communityMilestones = append(communityMilestones, milestone)
-			json.NewEncoder(w).Encode(milestones)
-			return
+	db := connectToDB()
+	if db != nil {
+		communityMilestones, err := getCommunityMilestoneDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		for _, item := range communityMilestones {
+
+			if item.CommunityMilestoneID == updateCommunityMilestone.CommunityMilestoneID {
+
+				if err != nil {
+					log.Fatal(err.Error())
+				}
+				updateCommunityMilestoneDB(updateCommunityMilestone, db)
+				break
+			}
 		}
 
 	}
-	json.NewEncoder(w).Encode(personalMilestones)
 }
 
 // Deletes a User
-func DeleteCommunityMilestone(w http.ResponseWriter, r *http.Request) {
+func deleteCommunityMilestone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	for index, item := range communityMilestones {
-		if strconv.Itoa(item.CommunityMilestoneID) == params["CommunityMilestoneID"] {
-			communityMilestones = append(communityMilestones[:index], communityMilestones[index+1:]...)
-			break
+	db := connectToDB()
+	if db != nil {
+		milestone, err := getCommunityMilestoneDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			for _, item := range milestone {
+				if strconv.Itoa(item.CommunityMilestoneID) == params["communityMilestoneID"] {
+					communityMilestoneDeleteDB(item.CommunityMilestoneID, db)
+					break
+				}
+
+			}
+
 		}
 
 	}
-	json.NewEncoder(w).Encode(personalMilestones)
 }
 
 // Gets all Users
 func getPersonalMilestones(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(personalMilestones)
+	db := connectToDB()
+	if db != nil {
+		milestones, err := getCommunityMilestoneDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+
+		}
+		json.NewEncoder(w).Encode(milestones)
+	}
 }
 
 // Gets specific user based on ID
 func getPersonalMilestone(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	for _, item := range personalMilestones {
-		if strconv.Itoa(item.PersonalMilestoneID) == params["MilestoneID"] {
-			json.NewEncoder(w).Encode(item)
-			return
-		}
 
-	}
-	json.NewEncoder(w).Encode(&PersonalMilestone{})
 }
 
 // Creates a new user
 func createPersonalMilestone(w http.ResponseWriter, r *http.Request) {
 	var newMilestone PersonalMilestone
 	_ = json.NewDecoder(r.Body).Decode(&newMilestone)
-	personalMilestones = append(personalMilestones, newMilestone)
-	json.NewEncoder(w).Encode(personalMilestones)
+	db := connectToDB()
+	if db != nil {
+		check, err := createPersonalMilestoneDB(newMilestone, db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		fmt.Printf("%d", check)
+
+		json.NewEncoder(w).Encode(newMilestone)
+	}
 }
 
 // Updates data relating to user
 func updatePersonalMilestone(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	for index, item := range personalMilestones {
-		if strconv.Itoa(item.MilestoneID) == params["PersonalMilestoneID"] {
-			personalMilestones = append(personalMilestones[:index], personalMilestones[index+1:]...)
-			var milestone PersonalMilestone
-			_ = json.NewDecoder(r.Body).Decode(&milestone)
 
-			personalMilestones = append(personalMilestones, milestone)
-			json.NewEncoder(w).Encode(milestones)
-			return
+	var updateMilestone PersonalMilestone
+	_ = json.NewDecoder(r.Body).Decode(&updateMilestone)
+
+	db := connectToDB()
+	if db != nil {
+		milestones, err := getPersonalMilestoneDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		for _, item := range milestones {
+
+			if item.MilestoneID == updateMilestone.MilestoneID {
+
+				if err != nil {
+					log.Fatal(err.Error())
+				}
+				updatePersonalMilestoneDB(updateMilestone, db)
+				break
+			}
 		}
 
 	}
-	json.NewEncoder(w).Encode(personalMilestones)
 }
 
 // Deletes a User
 func DeletePersonalMilestone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	for index, item := range personalMilestones {
-		if strconv.Itoa(item.PersonalMilestoneID) == params["PersonalMilestoneID"] {
-			personalMilestones = append(personalMilestones[:index], personalMilestones[index+1:]...)
-			break
+	db := connectToDB()
+	if db != nil {
+		milestone, err := getPersonalMilestoneDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			for _, item := range milestone {
+				if strconv.Itoa(item.MilestoneID) == params["personalMilestoneID"] {
+					deletePersonalMilestoneDB(item.UserID, item.MilestoneID, db)
+					break
+				}
+
+			}
+
 		}
 
 	}
-	json.NewEncoder(w).Encode(personalMilestones)
 }
 
 // Gets all users from the database

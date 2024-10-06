@@ -542,7 +542,7 @@ func updateNewsPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func createComment(w http.ResponseWriter, r *http.Response) {
+func createComment(w http.ResponseWriter, r *http.Request) {
 	var newComment Comment
 	_ = json.NewDecoder(r.Body).Decode(&newComment)
 	db := connectToDB()
@@ -696,7 +696,7 @@ func deleteForumPost(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err.Error())
 		} else {
 			for _, item := range forumPosts {
-				if strconv.Itoa(item.PostID) == params["postID"] {
+				if strconv.Itoa(item.PostID) == params["PostID"] {
 
 					deleteForumPostDB(item.PostID, db)
 					break
