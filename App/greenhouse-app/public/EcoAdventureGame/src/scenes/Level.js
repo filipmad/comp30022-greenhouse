@@ -13,9 +13,12 @@ class Level extends Phaser.Scene {
         this.groundY = 600 - 30;  // The Y position where the character stands
         this.isScrolling = true;   // Flag to control background scrolling
         this.trees = [];           // Array to store tree sprites
+        this.collectibles = [];    // Array to store collectible sprites
         this.treeSpawnDistance = 300; // Distance to spawn a new tree
         this.treeSpawnInterval = Phaser.Math.Between(500, 3000); // Random interval between 500 and 3000
         this.lastTreeX = 700;      // Position of the last tree spawned
+        this.lastCollectibleX = 1000; // Position of the last collectible spawned
+        this.lastCollectibleHeight = 20;  // Height from ground of the last collectible spawned
         this.scrollOffset = 0;     // Track the total scroll offset
         this.nextSpawnTime = 0;    // Track time until the next tree spawn
 		this.distanceScore = 0;    // Initialize the distance score
@@ -107,11 +110,13 @@ class Level extends Phaser.Scene {
         this.input.keyboard.on('keydown-SPACE', this.startJump, this);
         this.input.on('pointerdown', this.startJump, this);
 
-        // Spawn the first tree
+        // Spawn the first tree and collectible
         this.spawnTree(this.lastTreeX);
+        this.spawnCollectible(this.lastCollectibleX, this.lastCollectibleHeight, 'plastic bag');
 
         // Setup collision
         this.physics.add.collider(this.character, this.trees, this.hitTree, null, this);
+        this.physics.add.overlap(this.character, this.collectibles, this.hitCollectible, null, this);
     }
 
     update(time, delta) {
@@ -124,11 +129,13 @@ class Level extends Phaser.Scene {
             this.background1.x -= scrollSpeed;
             this.background2.x -= scrollSpeed;
             this.trees.forEach(tree => { tree.x -= scrollSpeed; });
+            this.collectibles.forEach(collectible => { collectible.x -= scrollSpeed; });
 
             this.scrollOffset += scrollSpeed;
 
-            // Update lastTreeX based on the scrolling
+            // Update x coordinates of objects based on the scrolling
             this.lastTreeX -= scrollSpeed;
+            this.lastCollectibleX -= scrollSpeed;
 
             // Reset position if background moves off screen
             if (this.background1.x <= -this.background1.displayWidth) {
@@ -145,6 +152,11 @@ class Level extends Phaser.Scene {
                 // Generate a new random spawn interval for the next tree
                 this.treeSpawnInterval = Phaser.Math.Between(500, 3000);
                 this.nextSpawnTime = time + this.treeSpawnInterval; // Set the next spawn time
+            }
+
+            // Check if we need to spawn a new collectible
+            if (this.character.x > this.lastCollectibleX - this.treeSpawnDistance) {
+                this.spawnCollectible(this.lastCollectibleX + this.treeSpawnInterval, this.lastCollectibleHeight, 'plastic bag');
             }
 
 			// Update the distance score
@@ -200,7 +212,11 @@ class Level extends Phaser.Scene {
             });
             }
         });
+    }
 
+    hitCollectible(character, collectible) {
+        collectible.destroy();
+        this.addCoin();
     }
 
     spawnTree(xPosition) {
@@ -213,6 +229,13 @@ class Level extends Phaser.Scene {
 
         this.trees.push(tree);
         this.lastTreeX = xPosition; // Update the last tree's position
+    }
+
+    spawnCollectible(xPosition, height, type) {
+        const collectible = this.physics.add.image(xPosition, this.groundY - height, type).setOrigin(0, 1);
+        collectible.setScale(0.05);
+        this.collectibles.push(collectible);
+        this.lastCollectibleX = xPosition; // Update the last collectible's position
     }
 
     displayGameOver() {
@@ -310,6 +333,11 @@ class Level extends Phaser.Scene {
     sendHighScoreToDatabase(score) {
         // Send the high score to the database
         console.log('High score: ' + score);
+    }
+
+    addCoin() {
+        // Add coins to the database
+        console.log('Coin collected!');
     }
 }
 

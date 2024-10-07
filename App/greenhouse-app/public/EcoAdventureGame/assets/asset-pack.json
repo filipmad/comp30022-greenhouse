@@ -619,6 +619,11 @@
                 "key": "Metal_Wire_fence (16 x 16)_1"
             },
             {
+                "url": "assets/plastic bag.png",
+                "type": "image",
+                "key": "plastic bag"
+            },
+            {
                 "url": "assets/Seasonal Tilesets/5 - Misc. universal tiles/Rock_shape (16 x 16).png",
                 "frameConfig": {
                     "frameWidth": 32,
