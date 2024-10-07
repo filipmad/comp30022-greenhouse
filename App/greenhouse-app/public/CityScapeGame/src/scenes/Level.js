@@ -16,6 +16,7 @@ class Level extends Phaser.Scene {
 
 		// Track the last time income was added
         this.lastIncomeTime = 0;
+        this.lastCoinAdditionTime = 0;
 
         this.incomeGenerationStarted = false;
     }
@@ -60,8 +61,9 @@ class Level extends Phaser.Scene {
         if (!this.incomeGenerationStarted && time > 3000) {
             this.incomeGenerationStarted = true; // Start income generation
 
-            // Initialize the last income time
+            // Initialize the last income and coin addition time
             this.lastIncomeTime = time;
+            this.lastCoinAdditionTime = time;
         }
 
         // Check if income generation has started
@@ -72,11 +74,36 @@ class Level extends Phaser.Scene {
                 this.addIncomeToBank();
                 this.lastIncomeTime = time;
             }
+
+            // Check if 60 seconds have passed since the last coin update
+            if(time - this.lastCoinAdditionTime > 60000) {
+                this.saveStats();
+                this.addCoins();
+                this.lastCoinAdditionTime = time;
+            }
         }
     }
 
     addIncomeToBank() {
         this.updateStat('bank', this.stats.income);
+    }
+
+    // Add coins based on the percentage stats (not implemented)
+    addCoins() {
+        let coins = 0;
+        if(this.stats.happiness > 90) {
+            coins += 1;
+        }
+        if(this.stats.education > 90) {
+            coins += 1;
+        }
+        if(this.stats.poverty > 90) {
+            coins += 1;
+        }
+        if(this.stats.energyQuota > 90) {
+            coins += 1;
+        }
+        console.log("Coins added:", coins);
     }
 
 	createButtons() {

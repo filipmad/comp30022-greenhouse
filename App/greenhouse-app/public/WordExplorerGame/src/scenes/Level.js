@@ -366,6 +366,8 @@ class Level extends Phaser.Scene {
 			duration: 1000,
 		});
 
+		this.addCoins();
+
 		// Delay a little to show the congratulations message
 		this.time.delayedCall(3000, () => {
 			this.transitionToEndScreen();
@@ -379,5 +381,10 @@ class Level extends Phaser.Scene {
 		const endScreen = this.scene.get('EndScreen');
 		this.scene.run('EndScreen');
 	
+	}
+
+	addCoins() {
+		// Add coins to the player's account
+		console.log("+100 coins");
 	}
 }
