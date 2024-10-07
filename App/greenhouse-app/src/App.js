@@ -18,6 +18,7 @@ import News from "./pages/News/News";
 import Information from "./pages/Information/Information";
 import Social from "./pages/Information/Social/Social";
 import Goal1 from "./pages/Information/Social/SocialGoals/Goal1";
+import Goal2 from "./pages/Information/Social/SocialGoals/Goal2";
 import Economical from "./pages/Information/Economical/Economical";
 import Environmental from "./pages/Information/Environmental/Environmental";
 import WordExplorer from "./pages/Games/WordExplorer/WordExplorer";
@@ -42,6 +43,7 @@ export default function myApp() {
           <Route path="/discover" element={<Information />} />
           <Route path="/discover/social" element={<Social />} />
           <Route path="/discover/social/goal1" element={<Goal1 />} />
+          <Route path="/discover/social/goal2" element={<Goal2 />} />
           <Route path="/discover/economical" element={<Economical />} />
           <Route path="/discover/environmental" element={<Environmental />} />
           <Route path="/games" element={<Games />} />

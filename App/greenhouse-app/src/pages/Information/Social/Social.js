@@ -7,7 +7,6 @@ const Social = () => {
 
   return (
     <div className="social-container">
-      {/* Navigation buttons */}
       <div className="social-nav-buttons">
         {location.pathname === '/discover/social' ? (
           <button className="social-nav-button active">Social</button>
@@ -26,39 +25,38 @@ const Social = () => {
         )}
       </div>
 
-      {/* Clickable goals */}
       <div className="social-pillar-container">
         <Link to="/discover/social/goal1" className="social-pillar-item">
           <h2>Goal 1: No Poverty</h2>
           <p>End poverty in all its forms everywhere.</p>
         </Link>
 
-        <Link to="/goal2" className="social-pillar-item">
+        <Link to="/discover/social/goal2" className="social-pillar-item">
           <h2>Goal 2: Zero Hunger</h2>
           <p>End hunger, achieve food security, and improve nutrition, and promote sustainable agriculture.</p>
         </Link>
 
-        <Link to="/goal3" className="social-pillar-item">
+        <Link to="/discover/social/goal3" className="social-pillar-item">
           <h2>Goal 3: Good Health and Well-being</h2>
           <p>Ensure healthy lives and promote well-being for all at all ages.</p>
         </Link>
 
-        <Link to="/goal4" className="social-pillar-item">
+        <Link to="/discover/social/goal4" className="social-pillar-item">
           <h2>Goal 4: Quality Education</h2>
           <p>Ensure inclusive and equitable quality education and promote lifelong learning opportunities for all.</p>
         </Link>
 
-        <Link to="/goal5" className="social-pillar-item">
+        <Link to="/discover/social/goal5" className="social-pillar-item">
           <h2>Goal 5: Gender Equality</h2>
           <p>Achieve gender equality and empower all women and girls.</p>
         </Link>
 
-        <Link to="/goal10" className="social-pillar-item">
+        <Link to="/discover/social/goal10" className="social-pillar-item">
           <h2>Goal 10: Reduced Inequality</h2>
           <p>Reduce inequality within and among countries.</p>
         </Link>
 
-        <Link to="/goal16" className="social-pillar-item">
+        <Link to="/discover/social/goal16" className="social-pillar-item">
           <h2>Goal 16: Peace, Justice, and Strong Institutions</h2>
           <p>Promote peaceful and inclusive societies for sustainable development, provide access to justice for all, and build effective, accountable institutions at all levels.</p>
         </Link>

@@ -1,0 +1,150 @@
+.goal2-container {
+    padding: 20px;
+  }
+  
+  .goal2-nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    margin-bottom: 20px;
+  }
+  
+  .goal2-nav-side-buttons {
+    display: flex;
+    gap: 1rem; 
+  }
+  
+  .nav-button {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    color: white;
+    background-color: #2196F3;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+    display: inline-block;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .nav-button:hover {
+    background-color: #1E88E5;
+  }
+  
+  .back-button {
+    background-color: #F44336; 
+  }
+  
+  .back-button:hover {
+    background-color: #E53935; 
+  }
+  
+  .previous-button {
+    background-color: #FF9800;
+  }
+  
+  .previous-button:hover {
+    background-color: #FB8C00;
+  }
+  
+  .next-button {
+    background-color: #4CAF50;
+  }
+  
+  .next-button:hover {
+    background-color: #45A049; 
+  }
+  
+  
+  .goal2-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+  }
+  
+  .goal2-text {
+    flex: 1;
+    margin-right: 20px;
+  }
+  
+  .goal2-text h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .goal2-text p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  
+  .goal2-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .goal2-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+  }
+  
+  .goal2-targets {
+    margin-top: 40px;
+  }
+  
+  .goal2-targets h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+  
+  .goal2-targets ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .goal2-targets ul li {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+  
+  .goal2-targets ul li strong {
+    color: #2196F3;
+  }
+  
+  .goal2-career {
+    margin-top: 40px;
+  }
+  
+  .goal2-career h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+  
+  .goal2-career ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .goal2-career ul li {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+  
+  .goal2-career ul li strong {
+    color: #4CAF50;
+  }
+  
+  .goal2-career ul li a {
+    color: #2196F3;
+    text-decoration: none;
+  }
+  
+  .goal2-career ul li a:hover {
+    text-decoration: underline;
+  }
+  
