@@ -330,11 +330,16 @@ class Level extends Phaser.Scene {
 	
 	}
 
+    // highScore, addedCoins
+
+    // NEED TO CHANGE TO SEND HIGH SCORE AT END OF GAME
     sendHighScoreToDatabase(score) {
         // Send the high score to the database
         console.log('High score: ' + score);
     }
 
+
+    // NEED TO CHANGE TO ADD COINS AT END OF GAME
     addCoin() {
         // Add coins to the database
         console.log('Coin collected!');

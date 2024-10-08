@@ -14,22 +14,12 @@ export default function GameSelectionBox({game}) {
   }
   else if (game === "game3") {
     return (
-      <a href="/games/EcoAdventure" className="gameLink">Eco Adventure</a>
+      <a href="/games/EcoAdventure" className="gameLink">EcoAdventure</a>
     );
   }
-  else if (game === "quiz1") {
+  else if (game === "quiz") {
     return (
-      <a href="/games/social_quiz" className="quizLink">Social Issues</a>
-    );
-  }
-  else if (game === "quiz2") {
-    return (
-      <a href="/games/economic_quiz" className="quizLink">Economic Issues</a>
-    );
-  }
-  else if (game === "quiz3") {
-    return (
-      <a href="/games/environmental_quiz" className="quizLink">Environmental Issues</a>
+      <a href="/games/SDGQuizzes" className="gameLink">SDG Quizzes</a>
     );
   }
   else {

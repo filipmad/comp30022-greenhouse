@@ -312,9 +312,24 @@
                 "key": "GardenBackground"
             },
             {
+                "url": "assets/HalfTree.webp",
+                "type": "image",
+                "key": "HalfTree"
+            },
+            {
+                "url": "assets/SeedTree.webp",
+                "type": "image",
+                "key": "SeedTree"
+            },
+            {
                 "url": "assets/ShopBackground.webp",
                 "type": "image",
                 "key": "ShopBackground"
+            },
+            {
+                "url": "assets/SmallTree.webp",
+                "type": "image",
+                "key": "SmallTree"
             }
         ]
     },

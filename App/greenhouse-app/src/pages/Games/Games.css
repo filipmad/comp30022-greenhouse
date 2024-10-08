@@ -16,14 +16,3 @@
 	flex-direction: column;
 	align-items: center;
   }
-
-.quizContainer h1 {
-	margin-bottom: 0px;
-	font-size: 40px;
-  }
-
-  .quizLinks {
-	display: flex;
-	justify-content: center;
-	flex-wrap: wrap;
-  }

@@ -11,11 +11,8 @@ export default function Games() {
 	  		<GameSelectionBox game="game3" />
     	</div>
 		<div className="quizContainer">
-			<h1>SDG Quizzes</h1>
 			<div className="quizLinks">
-	  		<GameSelectionBox game="quiz1" />
-			<GameSelectionBox game="quiz2" />
-			<GameSelectionBox game="quiz3" />
+			<GameSelectionBox game="quiz" />
 			</div>
 		</div>
 	</div>
