@@ -27,6 +27,7 @@ import Environmental from "./pages/Information/Environmental/Environmental";
 import WordExplorer from "./pages/Games/WordExplorer/WordExplorer";
 import EcoAdventure from "./pages/Games/EcoAdventure/EcoAdventure";
 import CityScape from "./pages/Games/CityScape/CityScape";
+import SDGQuizzes from "./pages/Games/SDGQuizzes/SDGQuizzes";
 
 
 
@@ -59,6 +60,7 @@ export default function myApp() {
           <Route path="/games/WordExplorer" element={<WordExplorer />} />
           <Route path="/games/EcoAdventure" element={<EcoAdventure />} />
           <Route path="/games/CityScape" element={<CityScape />} />
+          <Route path="/games/SDGQuizzes" element={<SDGQuizzes />} />
         </Routes>
       </div>
     </Router>
