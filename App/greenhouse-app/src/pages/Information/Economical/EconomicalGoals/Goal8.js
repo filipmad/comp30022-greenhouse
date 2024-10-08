@@ -8,7 +8,6 @@ const Goal8 = () => {
       <div className="goal-nav-buttons">
         <Link to="/discover/economical" className="nav-button back-button">← Back to Economical Goals</Link>
         <div className="goal-nav-side-buttons">
-          <Link to="/discover/economical/goal7" className="nav-button previous-button">← Previous Economical Goal</Link>
           <Link to="/discover/economical/goal9" className="nav-button next-button">Next Economical Goal →</Link>
         </div>
       </div>
@@ -17,15 +16,21 @@ const Goal8 = () => {
         <div className="goal-text">
           <h1>Goal 8: Decent Work and Economic Growth</h1>
           <p>
-            Promoting sustained, inclusive, and sustainable economic growth, full and productive employment, and decent work for all is essential to fostering prosperity and reducing inequalities. Goal 8 aims to ensure that economic progress creates opportunities for everyone, improves standards of living, and does not harm the environment.
-          </p>
-          <p>
-            Achieving this goal requires creating jobs that provide fair wages, safe working conditions, and equal opportunities. It also involves supporting entrepreneurship, innovation, and the development of sustainable industries that drive economic growth.
-          </p>
+            Promoting sustained, inclusive, and sustainable economic growth, productive employment, and decent work for all is crucial for reducing inequalities and fostering prosperity. Goal 8 focuses on creating quality jobs that offer fair wages, safe working conditions, and equal opportunities for everyone.
+            </p>
+            <p>
+            Achieving this goal means supporting entrepreneurship, innovation, and small businesses, especially in developing countries. It also emphasizes the importance of protecting labor rights, ending child labor, and ensuring safe and secure work environments for all workers.
+            </p>
+            <p>
+            Sustainable economic growth aims to reduce environmental impact by improving resource efficiency and promoting green industries. By empowering people through decent work and fair opportunities, Goal 8 seeks to create a more inclusive and resilient global economy.
+            </p>
+
+
+
         </div>
 
         <div className="goal-image">
-          <img src="path/to/economic-growth-image.jpg" alt="Decent Work and Economic Growth" />
+          <img src="/stock.jpg" alt="Decent Work and Economic Growth" />
         </div>
       </div>
 
