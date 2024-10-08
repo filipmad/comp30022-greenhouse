@@ -21,12 +21,6 @@ type User struct {
 	ProfilePicture string `json:"ProfilePicture"`
 }
 
-var server = "greenhouse-server.database.windows.net"
-var database = "greenhouse-sql-db"
-var port = 1433
-var username = "azureuser"
-var password = "Greenhouse123."
-
 // Gets all Users
 func getUsers(w http.ResponseWriter, r *http.Request) {
 	db := connectToDB()
@@ -83,20 +77,27 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 
 // Updates data relating to user
 func updateUser(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	for index, item := range Users {
-		if item.ID == params["ID"] {
-			Users = append(Users[:index], Users[index+1:]...)
-			var user User
-			_ = json.NewDecoder(r.Body).Decode(&user)
-			user.ID = params["ID"]
-			Users = append(Users, user)
-			json.NewEncoder(w).Encode(user)
-			return
+	var changedUser User
+	_ = json.NewDecoder(r.Body).Decode(&changedUser)
+	db := connectToDB()
+	if db != nil {
+		users, err := ReadUsersDB(db)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			for _, item := range users {
+				if item.ID == changedUser.ID {
+
+					updatedUser := User{ID: changedUser.ID, Username: changedUser.Username, Password: changedUser.Password, University: changedUser.University, ProfilePicture: changedUser.ProfilePicture}
+					updateUsersDB(updatedUser, db)
+					break
+				}
+
+			}
+
 		}
 
 	}
-	json.NewEncoder(w).Encode(Users)
 }
 
 // Deletes a User
