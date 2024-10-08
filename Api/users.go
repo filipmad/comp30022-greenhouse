@@ -21,6 +21,12 @@ type User struct {
 	ProfilePicture string `json:"ProfilePicture"`
 }
 
+var server = "greenhouse-server.database.windows.net"
+var database = "greenhouse-sql-db"
+var port = 1433
+var username = "azureuser"
+var password = "Greenhouse123."
+
 // Gets all Users
 func getUsers(w http.ResponseWriter, r *http.Request) {
 	db := connectToDB()
@@ -64,7 +70,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&newUser)
 	db := connectToDB()
 	if db != nil {
-		fmt.Print("Good")
+
 		check, err := CreateUsersDB(newUser, db)
 		if err != nil {
 			log.Fatal(err.Error())
@@ -180,7 +186,7 @@ func CreateUsersDB(newUser User, db *sql.DB) (int64, error) {
 
 	// Custom SQL Selection Query
 	//Insert command
-	tsql := "INSERT INTO dbo.Users(userID, username, password, profilePic, university, gameOneHighScore, gameTwoHighScore, gameThreeHighScore, 	quizOneHighScore, quizTwoHighScore, quizThreeHighScore) VALUES (@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)"
+	tsql := "INSERT INTO Users(username, password, profilePic, university, gameOneHighScore, gameTwoHighScore, gameThreeHighScore, quizOneHighScore, quizTwoHighScore, quizThreeHighScore) VALUES (@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10)"
 
 	// Check Validity of the db
 	if db == nil {
@@ -190,7 +196,7 @@ func CreateUsersDB(newUser User, db *sql.DB) (int64, error) {
 	}
 
 	// Execute query
-	insert, err := db.ExecContext(ctx, tsql, newUser.ID, newUser.Username, newUser.Password, newUser.ProfilePicture, newUser.University, 0, 0, 0, 0, 0, 0)
+	insert, err := db.ExecContext(ctx, tsql, newUser.Username, newUser.Password, newUser.ProfilePicture, newUser.University, 0, 0, 0, 0, 0, 0)
 	//Error if
 	if err != nil {
 		fmt.Printf("Execution error")
@@ -243,4 +249,26 @@ func connectToDB() *sql.DB {
 	}
 	fmt.Printf("Connected!\n")
 	return db
+}
+
+func updateUsersDB(updated User, db *sql.DB) (int64, error) {
+	ctx := context.Background()
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	//Checks need to be implemented for both invalid values (negative vals, etc...)
+	//SQL statement
+	tsql := "UPDATE dbo.User SET profilePicture = @p1, University = @p2 WHERE userID = @p2"
+	modified, err := db.ExecContext(ctx, tsql, updated.ProfilePicture, updated.University, updated.ID)
+	if err != nil {
+		return -1, err
+	}
+	check, err := modified.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+
+	return check, nil
 }
