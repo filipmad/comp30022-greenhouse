@@ -4,15 +4,15 @@
     align-items: center;
     height: 100vh;
     background-color: #F5F5DC;
-  }
-  
-  .economical-nav-buttons {
+}
+
+.economical-nav-buttons {
     display: flex;
     justify-content: center;
     margin: 20px 0;
-  }
-  
-  .economical-nav-button {
+}
+
+.economical-nav-button {
     color: white;
     padding: 10px 20px;
     margin: 0 10px;
@@ -22,40 +22,40 @@
     font-size: 0.9rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
-  }
-  
-  .economical-nav-button.economical {
+}
+
+.economical-nav-button.economical {
     background-color: #f39c12;
-  }
-  
-  .economical-nav-button.social {
+}
+
+.economical-nav-button.social {
     background-color: #e74c3c;
-  }
-  
-  .economical-nav-button.environmental {
+}
+
+.economical-nav-button.environmental {
     background-color: #27ae60; 
-  }
-  
-  .economical-nav-button:hover {
+}
+
+.economical-nav-button:hover {
     opacity: 0.9;
-  }
-  
-  .economical-nav-button.active {
+}
+
+.economical-nav-button.active {
     background-color: #d35400; 
     cursor: default;
     opacity: 1;
-  }
-  
-  .economical-pillar-container {
+}
+
+.economical-pillar-container {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
     align-items: center;
     height: 100vh;
     background-color: #F5F5DC;
-  }
-  
-  .economical-pillar-item {
+}
+
+.economical-pillar-item {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -70,25 +70,24 @@
     text-decoration: none;
     color: white;
     transition: background-color 0.3s ease;
-  }
-  
-  .economical-pillar-item:nth-child(1) {
+}
+
+.economical-pillar-item:nth-child(1) {
     background-color: #f39c12;
-  }
-  
-  .economical-pillar-item:nth-child(2) {
+}
+
+.economical-pillar-item:nth-child(2) {
     background-color: #c0392b; 
-  }
-  
-  .economical-pillar-item:nth-child(3) {
+}
+
+.economical-pillar-item:nth-child(3) {
     background-color: #8e44ad;
-  }
-  
-  .economical-pillar-item:nth-child(4) {
+}
+
+.economical-pillar-item:nth-child(4) {
     background-color: #d35400; 
-  }
-  
-  .economical-pillar-item:hover {
+}
+
+.economical-pillar-item:hover {
     opacity: 0.9;
-  }
-  
+}

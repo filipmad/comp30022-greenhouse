@@ -1,17 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './Goal1.css';
+import './../../Goal.css'; 
 
 const Goal1 = () => {
     return (
-        <div className="goal1-container">
-            <div className="goal1-nav-buttons">
+        <div className="goal-container">
+            <div className="goal-nav-buttons">
                 <Link to="/discover/social" className="nav-button back-button">← Back to Social Goals</Link>
                 <Link to="/discover/social/goal2" className="nav-button next-button">Next Social Goal →</Link>
             </div>
 
-            <div className="goal1-content">
-                <div className="goal1-text">
+            <div className="goal-content">
+                <div className="goal-text">
                     <h1>Goal 1: No Poverty</h1>
                     <p>
                         Ending poverty in all its forms remains one of the greatest challenges facing humanity.
@@ -28,12 +28,12 @@ const Goal1 = () => {
                     </p>
                 </div>
 
-                <div className="goal1-image">
+                <div className="goal-image">
                     <img src="/poverty.jpg" alt="No Poverty" />
                 </div>
             </div>
 
-            <div className="goal1-targets">
+            <div className="goal-targets">
                 <h2>Targets for Goal 1: No Poverty</h2>
                 <ul>
                     <li><strong>Target 1.1:</strong> By 2030, eradicate extreme poverty for all people everywhere, currently measured as people living on less than $1.25 a day.</li>
@@ -41,10 +41,12 @@ const Goal1 = () => {
                     <li><strong>Target 1.3:</strong> Implement nationally appropriate social protection systems and measures for all, including floors, and by 2030 achieve substantial coverage of the poor and the vulnerable.</li>
                     <li><strong>Target 1.4:</strong> By 2030, ensure that all men and women, particularly the poor and the vulnerable, have equal rights to economic resources, as well as access to basic services, ownership, and control over land and other forms of property, inheritance, natural resources, appropriate new technology, and financial services, including microfinance.</li>
                     <li><strong>Target 1.5:</strong> By 2030, build the resilience of the poor and those in vulnerable situations and reduce their exposure and vulnerability to climate-related extreme events and other economic, social, and environmental shocks and disasters.</li>
+                    <li><strong>Target 1.a:</strong> Ensure significant mobilization of resources from a variety of sources, including through enhanced development cooperation, to provide adequate and predictable means for developing countries, in particular least developed countries, to implement programs and policies to end poverty in all its dimensions.</li>
+                    <li><strong>Target 1.b:</strong> Create sound policy frameworks at the national, regional, and international levels, based on pro-poor and gender-sensitive development strategies, to support accelerated investment in poverty eradication actions.</li>
                 </ul>
             </div>
 
-            <div className="goal1-career">
+            <div className="goal-career">
                 <h2>Career Opportunities Related to No Poverty</h2>
                 <ul>
                     <li>

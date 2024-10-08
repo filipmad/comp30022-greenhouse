@@ -1,20 +1,20 @@
-.goal3-container {
+.goal-container {
     padding: 20px;
-  }
+}
 
-  .goal3-nav-buttons {
+.goal-nav-buttons {
     display: flex;
     justify-content: space-between;
-    align-items: center; 
+    align-items: center;
     margin-bottom: 20px;
-  }
-  
-  .goal3-nav-side-buttons {
+}
+
+.goal-nav-side-buttons {
     display: flex;
     gap: 1rem;
-  }
-  
-  .nav-button {
+}
+
+.nav-button {
     padding: 10px 20px;
     font-size: 1.2rem;
     color: white;
@@ -25,125 +25,104 @@
     font-weight: bold;
     display: inline-block;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .nav-button:hover {
+}
+
+.nav-button:hover {
     background-color: #1E88E5; 
-  }
-  
-  .back-button {
+}
+
+.back-button {
     background-color: #F44336;
-  }
-  
-  .back-button:hover {
+}
+
+.back-button:hover {
     background-color: #E53935; 
-  }
-  
-  .previous-button {
+}
+
+.previous-button {
     background-color: #FF9800;
-  }
-  
-  .previous-button:hover {
+}
+
+.previous-button:hover {
     background-color: #FB8C00; 
-  }
-  
-  .next-button {
+}
+
+.next-button {
     background-color: #4CAF50; 
-  }
-  
-  .next-button:hover {
+}
+
+.next-button:hover {
     background-color: #45A049; 
-  }
-  
-  .goal3-content {
+}
+
+.goal-content {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 40px;
-  }
-  
-  .goal3-text {
+}
+
+.goal-text {
     flex: 1;
     margin-right: 20px;
-  }
-  
-  .goal3-text h1 {
+}
+
+.goal-text h1 {
     font-size: 2rem;
     margin-bottom: 1rem;
-  }
-  
-  .goal3-text p {
+}
+
+.goal-text p {
     font-size: 1.2rem;
     line-height: 1.6;
     margin-bottom: 1rem;
-  }
-  
-  .goal3-image {
+}
+
+.goal-image {
     flex: 1;
     display: flex;
     justify-content: center;
-  }
-  
-  .goal3-image img {
+}
+
+.goal-image img {
     max-width: 100%;
     height: auto;
     border-radius: 10px;
-  }
-  
-  .goal3-targets {
+}
+
+.goal-targets, .goal-career {
     margin-top: 40px;
-  }
-  
-  .goal3-targets h2 {
+}
+
+.goal-targets h2, .goal-career h2 {
     font-size: 1.8rem;
     margin-bottom: 20px;
-  }
-  
-  .goal3-targets ul {
+}
+
+.goal-targets ul, .goal-career ul {
     list-style: none;
     padding: 0;
-  }
-  
-  .goal3-targets ul li {
+}
+
+.goal-targets ul li, .goal-career ul li {
     margin-bottom: 15px;
     font-size: 1.2rem;
     line-height: 1.6;
-  }
-  
-  .goal3-targets ul li strong {
+}
+
+.goal-targets ul li strong {
     color: #2196F3;
-  }
-  
-  .goal3-career {
-    margin-top: 40px;
-  }
-  
-  .goal3-career h2 {
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-  }
-  
-  .goal3-career ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .goal3-career ul li {
-    margin-bottom: 15px;
-    font-size: 1.2rem;
-    line-height: 1.6;
-  }
-  
-  .goal3-career ul li strong {
+}
+
+.goal-career ul li strong {
     color: #4CAF50;
-  }
-  
-  .goal3-career ul li a {
+}
+
+.goal-career ul li a {
     color: #2196F3;
     text-decoration: none;
-  }
-  
-  .goal3-career ul li a:hover {
+}
+
+.goal-career ul li a:hover {
     text-decoration: underline;
-  }
-  
+}

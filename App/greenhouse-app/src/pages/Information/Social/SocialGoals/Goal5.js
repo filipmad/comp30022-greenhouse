@@ -1,20 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './Goal5.css';
+import './../../Goal.css'; 
 
 const Goal5 = () => {
   return (
-    <div className="goal5-container">
-      <div className="goal5-nav-buttons">
+    <div className="goal-container">
+      <div className="goal-nav-buttons">
         <Link to="/discover/social" className="nav-button back-button">← Back to Social Goals</Link>
-        <div className="goal5-nav-side-buttons">
+        <div className="goal-nav-side-buttons">
           <Link to="/discover/social/goal4" className="nav-button previous-button">← Previous Social Goal</Link>
           <Link to="/discover/social/goal10" className="nav-button next-button">Next Social Goal →</Link>
         </div>
       </div>
 
-      <div className="goal5-content">
-        <div className="goal5-text">
+      <div className="goal-content">
+        <div className="goal-text">
           <h1>Goal 5: Gender Equality</h1>
           <p>
             Achieving gender equality and empowering all women and girls is essential for ensuring sustainable development and creating a fair and just society. Gender equality is not only a fundamental human right but a necessary foundation for a peaceful, prosperous, and sustainable world.
@@ -27,22 +27,27 @@ const Goal5 = () => {
           </p>
         </div>
 
-        <div className="goal5-image">
+        <div className="goal-image">
           <img src="/gender.jpg" alt="Gender Equality" />
         </div>
       </div>
 
-      <div className="goal5-targets">
+      <div className="goal-targets">
         <h2>Targets for Goal 5: Gender Equality</h2>
         <ul>
           <li><strong>Target 5.1:</strong> End all forms of discrimination against all women and girls everywhere.</li>
           <li><strong>Target 5.2:</strong> Eliminate all forms of violence against all women and girls in the public and private spheres, including trafficking and sexual and other types of exploitation.</li>
           <li><strong>Target 5.3:</strong> Eliminate all harmful practices, such as child, early, and forced marriage, and female genital mutilation.</li>
-          <li><strong>Target 5.4:</strong> Recognize and value unpaid care and domestic work through the provision of public services, infrastructure, and social protection policies.</li>
+          <li><strong>Target 5.4:</strong> Recognize and value unpaid care and domestic work through the provision of public services, infrastructure, and social protection policies and the promotion of shared responsibility within the household and the family as nationally appropriate.</li>
+          <li><strong>Target 5.5:</strong> Ensure women's full and effective participation and equal opportunities for leadership at all levels of decision-making in political, economic, and public life.</li>
+          <li><strong>Target 5.6:</strong> Ensure universal access to sexual and reproductive health and reproductive rights as agreed in accordance with the Programme of Action of the International Conference on Population and Development and the Beijing Platform for Action and the outcome documents of their review conferences.</li>
+          <li><strong>Target 5.a:</strong> Undertake reforms to give women equal rights to economic resources, as well as access to ownership and control over land and other forms of property, financial services, inheritance, and natural resources, in accordance with national laws.</li>
+          <li><strong>Target 5.b:</strong> Enhance the use of enabling technology, in particular information and communications technology, to promote the empowerment of women.</li>
+          <li><strong>Target 5.c:</strong> Adopt and strengthen sound policies and enforceable legislation for the promotion of gender equality and the empowerment of all women and girls at all levels.</li>
         </ul>
       </div>
 
-      <div className="goal5-career">
+      <div className="goal-career">
         <h2>Career Opportunities Related to Gender Equality</h2>
         <ul>
           <li>
