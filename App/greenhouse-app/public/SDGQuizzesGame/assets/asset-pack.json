@@ -5,6 +5,21 @@
                 "url": "assets/dino.png",
                 "key": "dino",
                 "type": "image"
+            },
+            {
+                "url": "assets/EconomicQuizBG.webp",
+                "type": "image",
+                "key": "EconomicQuizBG"
+            },
+            {
+                "url": "assets/EnvironmentalQuizBG.webp",
+                "type": "image",
+                "key": "EnvironmentalQuizBG"
+            },
+            {
+                "url": "assets/SocialQuizBG.webp",
+                "type": "image",
+                "key": "SocialQuizBG"
             }
         ]
     },
@@ -12,6 +27,7 @@
         "app": "Phaser Editor 2D - Asset Pack Editor",
         "contentType": "phasereditor2d.pack.core.AssetContentType",
         "url": "https://phasereditor2d.com",
-        "version": 2
+        "version": 2,
+        "showAllFilesInBlocks": false
     }
 }

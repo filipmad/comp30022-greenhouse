@@ -317,6 +317,16 @@
                 "key": "HalfTree"
             },
             {
+                "url": "assets/LargeBud.png",
+                "type": "image",
+                "key": "LargeBud"
+            },
+            {
+                "url": "assets/MediumBud.png",
+                "type": "image",
+                "key": "MediumBud"
+            },
+            {
                 "url": "assets/SeedTree.webp",
                 "type": "image",
                 "key": "SeedTree"
@@ -325,6 +335,16 @@
                 "url": "assets/ShopBackground.webp",
                 "type": "image",
                 "key": "ShopBackground"
+            },
+            {
+                "url": "assets/SmallBud.png",
+                "type": "image",
+                "key": "SmallBud"
+            },
+            {
+                "url": "assets/SmallBud1.png",
+                "type": "image",
+                "key": "SmallBud1"
             },
             {
                 "url": "assets/SmallTree.webp",
