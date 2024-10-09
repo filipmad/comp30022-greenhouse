@@ -1,182 +1,188 @@
+// package main
+
+// import (
+// 	"fmt"
+// 	"log"
+// 	"net/http"
+// 	"os"
+// )
+// func homePage(w http.ResponseWriter, r *http.Request) {
+// 	fmt.Fprintf(w, "test")
+// 	fmt.Println("test")
+// }
+
+// func handleRequests() {
+// 	http.HandleFunc("/", homePage)
+// 	port := os.Getenv("HTTP_PLATFORM_PORT")
+
+// 	if port == "" {
+// 		port = "10000"
+// 	}
+
+// 	log.Fatal(http.ListenAndServe(":"+port, nil))
+// }
+
+//	func main() {
+//		handleRequests()
+//	}
 package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/microsoft/go-mssqldb"
+	_ "github.com/microsoft/go-mssqldb" // Postgres driver
+	"github.com/rs/cors"
 )
 
 type User struct {
-	id             int `json:"id"`
-	university     string `json:"university"`
-	username       string `json:"username"`
-	profilepic 	   string `json:"profilepic"`
-	//Scores      *personalScore
-}
-type personalScore struct {
-	HighScoreGame1 int
-	HighScoreGame2 int
-	HighScoreGame3 int
-	HighScoreQuiz1 int
-	HighScoreQuiz2 int
-	HighScoreQuiz3 int
+	Username string `json:"username"`
+	Password string `json:"password"`
+	University string `json:"university"`
 }
 
-var Users []User
-
-func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the HomePage!")
-
-	fmt.Println("Endpoint Hit: homePage")
+type ResponseMessage struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
 }
 
-// Read Function
-// Read from AzureSQL and parse data into a list of LogEntry objects
-func ReadTable(db *sql.DB) (int, error) {
-	ctx := context.Background()
+var (
+	debug    = flag.Bool("debug", false, "enable debugging")
+	server   = flag.String("server", "greenhouse-server.database.windows.net", "server IP")
+	username = flag.String("username", "azureuser", "the database username")
+	password = flag.String("password", "Greenhouse123.", "the database password")
+	port     = flag.Int("port", 1433, "the database port")
+	database = flag.String("db", "greenhouse-sql-db", "the db")
+)
 
-	// Check if database is alive.
-	err := db.PingContext(ctx)
-	if err != nil {
-		return -1, err
-	}
+func handleUsernameCheck(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var input User
 
-	// Custom SQL Selection Query
-	tsql := (``)
+		// Decode the incoming JSON from the frontend
+		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
-	// Check Validity of the db
-	if db == nil {
-		fmt.Printf("db is invalid\n")
-		var err error
-		return -1, err
-	}
+		if db == nil {
+			print("db is nil")
+			return
+		}
+		print("db is alive")
 
-	// Execute query
-	rows, err := db.QueryContext(ctx, tsql)
-	if err != nil {
-		return -1, err
-	}
+		var exists bool
 
-	defer rows.Close()
-
-	var count int
-	Users = nil
-	// Iterate through the result set.
-	for rows.Next() {
-		var id int
-		var university, username, profilepic string
-
-		// Get values from row.
-		err := rows.Scan(&id, &university, &username, &profilepic)
+		// Use a parameterized query to avoid SQL injection risks
+		err := db.QueryRow("SELECT 1 FROM [Users] WHERE username = ? AND password = ?", input.Username, input.Password).Scan(&exists)
 		if err != nil {
-			return -1, err
+			if err == sql.ErrNoRows {
+				// Username does not exist
+				exists = false
+			} else {
+				// Query failed
+				http.Error(w, "Invalid username or password", http.StatusInternalServerError)
+				return
+			}
 		}
- 
-		newUser := User{id: id, university: university, profilepic: profilepic}
-		Users = append(Users, newUser)
 
-		count++
+		var response ResponseMessage
+		if exists {
+			response = ResponseMessage{
+				Success: true,
+				Message: "Login Successful",
+			}
+		} else {
+			response = ResponseMessage{
+				Success: false,
+				Message: "Login Failed",
+			}
+		}
+
+		// Send the success/failure response back to the frontend
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
 	}
-
-	return count, nil
-
 }
 
-// Gets all Users
-func getUsers(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(Users)
-}
+func handleCreateProfile(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var profile User
 
-// Gets specific user based on ID
-func getUser(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	for _, item := range Users {
-		if item.ID == params["ID"] {
-			json.NewEncoder(w).Encode(item)
+		// Decode the incoming JSON from the frontend
+		if err := json.NewDecoder(r.Body).Decode(&profile); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-	}
-	json.NewEncoder(w).Encode(&User{})
-}
+		query := (`INSERT INTO [Users] (username, password, profilePic, university, gameOneHighScore, gameTwoHighScore, gameThreeHighScore, quizOneHighScore, quizTwoHighScore, quizThreeHighScore) 
+		VALUES (?, ?, 'default_pic', ?, 0, 0, 0, 0, 0, 0)`);
 
-// Creates a new user
-func createUser(w http.ResponseWriter, r *http.Request) {
-	var newUser User
-	_ = json.NewDecoder(r.Body).Decode(&newUser)
-	Users = append(Users, newUser)
-	json.NewEncoder(w).Encode(newUser)
-}
+		// Insert the new profile into the database
+		_, err := db.Exec(query,
+			profile.Username, profile.Password, profile.University)
 
-// Updates data relating to user
-func updateUser(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	for index, item := range Users {
-		if item.id == params["id"] {
-			Users = append(Users[:index], Users[index+1:]...)
-			var user User
-			_ = json.NewDecoder(r.Body).Decode(&user)
-			user.id = params["ID"]
-			Users = append(Users, user)
-			json.NewEncoder(w).Encode(user)
+		if err != nil {
+			http.Error(w, "Error creating profile in database", http.StatusInternalServerError)
 			return
 		}
 
+		// Return success message
+		response := ResponseMessage{
+			Success: true,
+			Message: "Profile created successfully",
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
 	}
-	json.NewEncoder(w).Encode(Users)
 }
 
-func testUsers(router *mux.Router) {
-	router.HandleFunc("/Users", getUsers).Methods("GET")
-	router.HandleFunc("/Users/{ID}", getUser).Methods("GET")
-	router.HandleFunc("/Users", createUser).Methods("POST")
-	router.HandleFunc("/Users/{ID}", updateUser).Methods("PUT")
-}
-
-func handleRequests() {
-	//Creates new mux router
-	router := mux.NewRouter()
-	router.HandleFunc("/", homePage)
-	testUsers(router)
-	log.Fatal(http.ListenAndServe(":8081", router))
-
-}
 
 func main() {
-	handleRequests()
+	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s", *server, *username, *password, *port, *database)
+
+	if *debug {
+		fmt.Printf(" connString:%s\n", connString)
+	}
+
+	// changed conn to db
+	db, err := sql.Open("mssql", connString)
+
+	if err != nil {
+		log.Fatal("Error creating connection pool: ", err.Error())
+	}
+	ctx := context.Background()
+	err = db.PingContext(ctx)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	fmt.Printf("Connected!\n")
+
+	r := mux.NewRouter()
+
+	// Define the /check-username route
+	r.HandleFunc("/check-username", handleUsernameCheck(db)).Methods("POST")
+	r.HandleFunc("/create-profile", handleCreateProfile(db)).Methods("POST")
+
+	// Set up CORS to allow requests from the React frontend
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"}, // Frontend origin
+		AllowedMethods:   []string{"GET", "POST"},
+		AllowedHeaders:   []string{"Content-Type"},
+		AllowCredentials: true,
+	})
+
+	// Use the CORS middleware with the router
+	handler := c.Handler(r)
+
+	log.Println("Starting server on :8000")
+	log.Fatal(http.ListenAndServe(":8000", handler))
+
 }
-// package main
-
-// import (
-// 	"encoding/json"
-// 	"log"
-// 	"net/http"
-// )
-
-// type Todo struct {
-// 	ID        string `json:"id"`
-// 	Title     string `json:"title"`
-// 	Completed bool   `json:"completed"`
-// }
-
-
-// // SQL Request
-// var todos = [1]Todo{{"123", "Mr", true}}
-
-// func main() {
-// 	// Define routes
-// 	http.HandleFunc("/todos", getTodos)
-
-// 	// Start the server
-// 	log.Fatal(http.ListenAndServe(":8080", nil))
-// }
-
-// func getTodos(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-Type", "application/json")
-// 	json.NewEncoder(w).Encode(todos)
-// }
