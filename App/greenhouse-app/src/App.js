@@ -33,6 +33,13 @@ import Goal11 from "./pages/Information/Economical/EconomicalGoals/Goal11";
 import Goal12 from "./pages/Information/Economical/EconomicalGoals/Goal12";
 
 import Environmental from "./pages/Information/Environmental/Environmental";
+import Goal6 from "./pages/Information/Environmental/EnvironmentalGoals/Goal6";
+import Goal7 from "./pages/Information/Environmental/EnvironmentalGoals/Goal7";
+import Goal13 from "./pages/Information/Environmental/EnvironmentalGoals/Goal13";
+import Goal14 from "./pages/Information/Environmental/EnvironmentalGoals/Goal14";
+import Goal15 from "./pages/Information/Environmental/EnvironmentalGoals/Goal15";
+
+
 import WordExplorer from "./pages/Games/WordExplorer/WordExplorer";
 import EcoAdventure from "./pages/Games/EcoAdventure/EcoAdventure";
 import CityScape from "./pages/Games/CityScape/CityScape";
@@ -71,6 +78,12 @@ export default function myApp() {
           <Route path="/discover/economical/goal12" element={<Goal12 />} />
 
           <Route path="/discover/environmental" element={<Environmental />} />
+          <Route path="/discover/environmental/goal6" element={<Goal6 />} />
+          <Route path="/discover/environmental/goal7" element={<Goal7 />} />
+          <Route path="/discover/environmental/goal13" element={<Goal13 />} />
+          <Route path="/discover/environmental/goal14" element={<Goal14 />} />
+          <Route path="/discover/environmental/goal15" element={<Goal15 />} />
+
           <Route path="/games" element={<Games />} />
           <Route path="/grow" element={<Garden />} />
           <Route path="/news" element={<News />} />
