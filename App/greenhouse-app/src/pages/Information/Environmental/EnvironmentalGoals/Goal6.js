@@ -8,7 +8,6 @@ const Goal6 = () => {
             <div className="goal-nav-buttons">
                 <Link to="/discover/environmental" className="nav-button back-button">← Back to Environmental Goals</Link>
                 <div className="goal-nav-side-buttons">
-                    <Link to="/discover/environmental" className="nav-button previous-button">← Previous Environmental Goal</Link>
                     <Link to="/discover/environmental/goal7" className="nav-button next-button">Next Environmental Goal →</Link>
                 </div>
             </div>
