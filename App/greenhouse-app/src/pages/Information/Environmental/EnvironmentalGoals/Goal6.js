@@ -34,7 +34,7 @@ const Goal6 = () => {
                 </div>
 
                 <div className="goal-image">
-                    <img src="/path.jpg" alt="Clean Water and Sanitation" />
+                    <img src="/water.jpg" alt="Clean Water and Sanitation" />
                 </div>
             </div>
 

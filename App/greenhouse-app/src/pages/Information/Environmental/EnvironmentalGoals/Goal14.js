@@ -28,7 +28,7 @@ const Goal14 = () => {
                 </div>
 
                 <div className="goal-image">
-                    <img src="/path.jpg" alt="Life Below Water" />
+                    <img src="/underwater.jpg" alt="Life Below Water" />
                 </div>
             </div>
 
