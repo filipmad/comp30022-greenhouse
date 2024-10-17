@@ -39,6 +39,7 @@ import Goal13 from "./pages/Information/Environmental/EnvironmentalGoals/Goal13"
 import Goal14 from "./pages/Information/Environmental/EnvironmentalGoals/Goal14";
 import Goal15 from "./pages/Information/Environmental/EnvironmentalGoals/Goal15";
 
+import Goal17 from "./pages/Information/Goal17";
 
 import WordExplorer from "./pages/Games/WordExplorer/WordExplorer";
 import EcoAdventure from "./pages/Games/EcoAdventure/EcoAdventure";
@@ -83,6 +84,8 @@ export default function myApp() {
           <Route path="/discover/environmental/goal13" element={<Goal13 />} />
           <Route path="/discover/environmental/goal14" element={<Goal14 />} />
           <Route path="/discover/environmental/goal15" element={<Goal15 />} />
+
+          <Route path="/discover/goal17" element={<Goal17 />} />
 
           <Route path="/games" element={<Games />} />
           <Route path="/grow" element={<Garden />} />

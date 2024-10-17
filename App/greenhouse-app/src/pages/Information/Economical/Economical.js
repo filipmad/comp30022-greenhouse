@@ -23,6 +23,11 @@ const Economical = () => {
         ) : (
           <Link to="/discover/environmental" className="economical-nav-button environmental">Environmental</Link>
         )}
+        {location.pathname === '/discover/goal17' ? (
+          <button className="social-nav-button">Environmental</button>
+        ) : (
+          <Link to="/discover/goal17" className="social-nav-button goal17">Goal 17</Link>
+        )}
       </div>
 
       <div className="economical-pillar-container">
