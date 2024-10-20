@@ -1,0 +1,13 @@
+html {
+  background-color: #F5F5DC;
+}
+
+.header {
+  display: flex;
+  align-items: top;
+  padding: 10px;
+}
+
+.header .title {
+  margin-left: 0px;
+}

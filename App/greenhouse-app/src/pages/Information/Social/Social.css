@@ -1,0 +1,107 @@
+.social-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    background-color: #F5F5DC;
+  }
+  
+  .social-nav-buttons {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  
+  .social-nav-button {
+    color: white;
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  
+  .social-nav-button.social {
+    background-color: #e74c3c;
+  }
+  
+  .social-nav-button.economical {
+    background-color: #f39c12;
+  }
+  
+  .social-nav-button.environmental {
+    background-color: #27ae60; 
+  }
+  
+  .social-nav-button:hover {
+    opacity: 0.9;
+  }
+  
+  .social-nav-button.active {
+    background-color: #c0392b;
+    cursor: default;
+    opacity: 1;
+  }
+  
+  .social-pillar-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 100vh;
+    background-color: #F5F5DC;
+  }
+  
+  .social-pillar-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+    margin: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  
+  .social-pillar-item:nth-child(1) {
+    background-color: #e74c3c;
+  }
+  
+  .social-pillar-item:nth-child(2) {
+    background-color: #f39c12;
+  }
+  
+  .social-pillar-item:nth-child(3) {
+    background-color: #27ae60;
+  }
+  
+  .social-pillar-item:nth-child(4) {
+    background-color: #2980b9;
+  }
+  
+  .social-pillar-item:nth-child(5) {
+    background-color: #9b59b6;
+  }
+  
+  .social-pillar-item:nth-child(6) {
+    background-color: #f1c40f;
+  }
+  
+  .social-pillar-item:nth-child(7) {
+    background-color: #34495e; 
+  }
+  
+  .social-pillar-item:hover {
+    opacity: 0.9;
+  }
+  
