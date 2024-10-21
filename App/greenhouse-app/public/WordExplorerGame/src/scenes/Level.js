@@ -1,7 +1,6 @@
 class Level extends Phaser.Scene {
 	constructor() {
 		super("Level");
-		this.foundWords = [];
 	}
 
 	preload() {
@@ -17,6 +16,19 @@ class Level extends Phaser.Scene {
 		// Input target words from database (10 Words)
 		this.targetWords = ['GOALS', 'SOCIETY', 'DEVELOPMENT', 'ENVIRONMENT', 'PROJECT', 
 			'ECONOMY', 'LEO', 'JORDAN', 'FILIP', 'KEN'];
+
+		// Input descriptions that show on popups
+		this.descriptions = [
+			'P\'s get degrees',
+			'Its going down the drain',
+			'Can we colonise venus for banter',
+			'Democrats created hurricane Milton',
+			'Hopefully this can get me a job',
+			'I like money',
+			'Professional SWEN Hater',
+			'Pepsi-Max king',
+			'Swedish-looking Russian',
+			'Gigachad jaw'];
 
 		// Input grid of letters from database (generate using target words in a word search maker)
 		// Need to make grid size variable based on what the external generator spits out
@@ -39,6 +51,7 @@ class Level extends Phaser.Scene {
 		];
 
 		this.createTargetWordsList();
+		this.createDescriptionPopups();
 	}
 	
 	create() {
@@ -58,6 +71,7 @@ class Level extends Phaser.Scene {
         		fadeRectangle.destroy();
     		}
 		});
+		this.foundWords = [];
 		this.createWordSearchGrid(this.lettersArray);
 	}
 
@@ -74,6 +88,40 @@ class Level extends Phaser.Scene {
 			this.targetWordsText.push(text);
 		});
 	}
+
+	// Create popups (start invisible)
+	createDescriptionPopups() {
+		this.descriptionPopups = [];
+		const startX = 650;
+		const startY = 50;
+		const spacing = 30;
+	
+		this.targetWords.forEach((word, index) => {
+			// Create a semi-transparent background for the popup
+			const popupBackground = this.add.rectangle(
+				startX + 200,
+				startY + index * spacing,
+				200,
+				50,
+				0x000000,
+				0.8
+			).setOrigin(0, 0.5).setVisible(false).setDepth(3);
+	
+			// Create the description text
+			const popupText = this.add.text(
+				startX + 205,
+				startY + index * spacing,
+				this.descriptions[index],
+				{ fontSize: '18px', color: '#ffffff', wordWrap: { width: 190 } }
+			).setOrigin(0, 0.5).setVisible(false).setDepth(4);
+	
+			this.mainGroup.add(popupBackground);
+			this.mainGroup.add(popupText);
+	
+			this.descriptionPopups.push({ background: popupBackground, text: popupText });
+		});
+	}
+	
 	
 	createWordSearchGrid(lettersArray) {
 		const gridSize = 14;
@@ -266,10 +314,13 @@ class Level extends Phaser.Scene {
 		if (targetWordIndex !== -1) {
 			this.targetWordsText[targetWordIndex].setStyle({
 				fontSize: '24px', // Increase font size
-				backgroundColor: '#00ff00' // Add black background
+				backgroundColor: '#00ff00' // Add green background
 			});
 			this.targetWordsText[targetWordIndex].setFontStyle('bold'); // Make font bold
 		}
+
+        // Show the description popup
+        this.showDescriptionPopup(targetWordIndex);
 
 		// Check if all target words have been found
 		if (this.foundWords.length === this.targetWords.length) {
@@ -277,6 +328,36 @@ class Level extends Phaser.Scene {
 		}
 
 	}
+
+	showDescriptionPopup(index) {
+		const popup = this.descriptionPopups[index];
+		if (popup) {
+			// Make the popup visible
+			popup.background.setVisible(true);
+			popup.text.setVisible(true);
+	
+			this.tweens.add({
+				targets: [popup.background, popup.text],
+				alpha: { from: 0, to: 1 },
+				duration: 500,
+				onComplete: () => {
+					// Hide the popup after 5 seconds
+					this.time.delayedCall(5000, () => {
+						this.tweens.add({
+							targets: [popup.background, popup.text],
+							alpha: { from: 1, to: 0 },
+							duration: 500,
+							onComplete: () => {
+								popup.background.setVisible(false);
+								popup.text.setVisible(false);
+							}
+						});
+					});
+				}
+			});
+		}
+	}
+	
 	
 	calculateDirection(startTile, currentTile) {
 		const rowDiff = currentTile.row - startTile.row;
