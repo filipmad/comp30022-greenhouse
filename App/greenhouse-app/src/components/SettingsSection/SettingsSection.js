@@ -26,7 +26,7 @@ function SettingsButton({ type }) {
 export default function SettingsSection() {
   return (
     <div className="settingsSection">
-      <SettingsButton type="search" />
+      
       <SettingsButton type="account" />
     </div>
   );

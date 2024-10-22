@@ -16,7 +16,7 @@ import Garden from "./pages/Garden/Garden";
 import Community from "./pages/Community/Community";
 import News from "./pages/News/News";
 import Information from "./pages/Information/Information";
-import Account from "./pages/Account/Account"
+import Account from "./pages/Account/Account";
 import SignUp from "./pages/Account/SignUp";
 
 import Social from "./pages/Information/Social/Social";
@@ -41,14 +41,12 @@ import Goal13 from "./pages/Information/Environmental/EnvironmentalGoals/Goal13"
 import Goal14 from "./pages/Information/Environmental/EnvironmentalGoals/Goal14";
 import Goal15 from "./pages/Information/Environmental/EnvironmentalGoals/Goal15";
 
-
-
 import WordExplorer from "./pages/Games/WordExplorer/WordExplorer";
 import EcoAdventure from "./pages/Games/EcoAdventure/EcoAdventure";
 import CityScape from "./pages/Games/CityScape/CityScape";
 import SDGQuizzes from "./pages/Games/SDGQuizzes/SDGQuizzes";
 
-
+import ProtectedRoute from "./ProtectedRoute"; // Import the ProtectedRoute component
 
 export default function myApp() {
   return (
@@ -60,44 +58,46 @@ export default function myApp() {
           <SettingsSection />
         </div>
         <NavBar />
-        <Routes>
-          <Route path="/" element={<Navigate to="/home" />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/discover" element={<Information />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/signup" element={<SignUp />} />
+        <ProtectedRoute>
+          <Routes>
+            <Route path="/" element={<Navigate to="/home" />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/discover" element={<Information />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/signup" element={<SignUp />} />
 
-          <Route path="/discover/social" element={<Social />} />
-          <Route path="/discover/social/goal1" element={<Goal1 />} />
-          <Route path="/discover/social/goal2" element={<Goal2 />} />
-          <Route path="/discover/social/goal3" element={<Goal3 />} />
-          <Route path="/discover/social/goal4" element={<Goal4 />} />
-          <Route path="/discover/social/goal5" element={<Goal5 />} />
-          <Route path="/discover/social/goal10" element={<Goal10 />} />
-          <Route path="/discover/social/goal16" element={<Goal16 />} />
+            <Route path="/discover/social" element={<Social />} />
+            <Route path="/discover/social/goal1" element={<Goal1 />} />
+            <Route path="/discover/social/goal2" element={<Goal2 />} />
+            <Route path="/discover/social/goal3" element={<Goal3 />} />
+            <Route path="/discover/social/goal4" element={<Goal4 />} />
+            <Route path="/discover/social/goal5" element={<Goal5 />} />
+            <Route path="/discover/social/goal10" element={<Goal10 />} />
+            <Route path="/discover/social/goal16" element={<Goal16 />} />
 
-          <Route path="/discover/economical" element={<Economical />} />
-          <Route path="/discover/economical/goal8" element={<Goal8 />} />
-          <Route path="/discover/economical/goal9" element={<Goal9 />} />
-          <Route path="/discover/economical/goal11" element={<Goal11 />} />
-          <Route path="/discover/economical/goal12" element={<Goal12 />} />
+            <Route path="/discover/economical" element={<Economical />} />
+            <Route path="/discover/economical/goal8" element={<Goal8 />} />
+            <Route path="/discover/economical/goal9" element={<Goal9 />} />
+            <Route path="/discover/economical/goal11" element={<Goal11 />} />
+            <Route path="/discover/economical/goal12" element={<Goal12 />} />
 
-          <Route path="/discover/environmental" element={<Environmental />} />
-          <Route path="/discover/environmental/goal6" element={<Goal6 />} />
-          <Route path="/discover/environmental/goal7" element={<Goal7 />} />
-          <Route path="/discover/environmental/goal13" element={<Goal13 />} />
-          <Route path="/discover/environmental/goal14" element={<Goal14 />} />
-          <Route path="/discover/environmental/goal15" element={<Goal15 />} />
+            <Route path="/discover/environmental" element={<Environmental />} />
+            <Route path="/discover/environmental/goal6" element={<Goal6 />} />
+            <Route path="/discover/environmental/goal7" element={<Goal7 />} />
+            <Route path="/discover/environmental/goal13" element={<Goal13 />} />
+            <Route path="/discover/environmental/goal14" element={<Goal14 />} />
+            <Route path="/discover/environmental/goal15" element={<Goal15 />} />
 
-          <Route path="/games" element={<Games />} />
-          <Route path="/grow" element={<Garden />} />
-          <Route path="/news" element={<News />} />
-          <Route path="/community" element={<Community />} />
-          <Route path="/games/WordExplorer" element={<WordExplorer />} />
-          <Route path="/games/EcoAdventure" element={<EcoAdventure />} />
-          <Route path="/games/CityScape" element={<CityScape />} />
-          <Route path="/games/SDGQuizzes" element={<SDGQuizzes />} />
-        </Routes>
+            <Route path="/games" element={<Games />} />
+            <Route path="/grow" element={<Garden />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/games/WordExplorer" element={<WordExplorer />} />
+            <Route path="/games/EcoAdventure" element={<EcoAdventure />} />
+            <Route path="/games/CityScape" element={<CityScape />} />
+            <Route path="/games/SDGQuizzes" element={<SDGQuizzes />} />
+          </Routes>
+        </ProtectedRoute>
       </div>
     </Router>
   );

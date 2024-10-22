@@ -1,98 +1,126 @@
-import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button'
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
+import { Link, useNavigate } from 'react-router-dom';
+import { Form, Button, Container, Row, Col } from 'react-bootstrap';
+import './SignUp.css';
 
 const UsernameCheck = () => {
-
     const navigate = useNavigate();
-
-    const handleClick = (inputValue) => {
-        navigate(`/${inputValue}`); // This will take you to the About page
-    };
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [result, setResult] = useState('');
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    // Check authentication status on component mount
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/check-auth', {
+                    withCredentials: true, 
+                });
+
+                if (response.data.success) {
+                    setIsAuthenticated(true);
+                    //navigate('/home'); // Redirect to home if already authenticated
+                }
+            } catch (error) {
+                console.error('Error checking authentication:', error);
+            }
+        };
+
+        checkAuth();
+    }, [navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/check-username', { username, password });
-            const { success, userid, message } = response.data;
-           
+            const response = await axios.post('http://localhost:8000/check-username', { email, password }, { withCredentials: true });
+            const { success, message } = response.data;
 
-            if (userid != -1) {
-                setResult(message);
-                console.log(userid);
-                document.cookie = "userid=" + userid;
-                console.log("set userid cookie")
-                console.log(getCookie("userid"));
-                handleClick('home')
+            if (success) {
+                setIsAuthenticated(true);
+                navigate('/home'); // Navigate to home after successful login
+            } else {
+                setResult(message); // Display any error message returned by the server
             }
         } catch (error) {
             console.error('Error checking username:', error);
-            setResult('An error occurred.');
+            setResult('Incorrect Email or Password');
         }
     };
 
-    const signOut = () => {
-        document.cookie = "userid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    }
+    const signOut = async (e) => {
+        e.preventDefault();
+        try {
+            // Optional: Call an API to handle logout on the server-side if needed
+            await axios.post('http://localhost:8000/logout', {}, { withCredentials: true });
+        } catch (error) {
+            console.error('Error signing out:', error);
+        } finally {
+            // Clear the cookies on the client-side and update the state
+            document.cookie = "userid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            document.cookie = "gardenid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            setIsAuthenticated(false);
+            navigate('/account'); // Redirect to the account page after signing out
+        }
+    };
 
-    if (getCookie("userid")) {
-        return <>
-        <h1>My Account</h1>
+    if (isAuthenticated) {
+        return (
+            <>
+                <h1>My Account</h1>
                 <div>
                     <form onSubmit={signOut}>
                         <button type="submit">Sign Out</button>
                     </form>
-                    
                 </div>
-        </>
+            </>
+        );
     } else {
         return (
-            <>
-                <h1>Login</h1>
-                <div>
-                    <form onSubmit={handleSubmit}>
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Enter username"
-                        />
-                        <br></br>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Enter password"
-                        />
-                        <br></br>
+            <Container>
+                <Row className="justify-content-md-center mt-5">
+                    <Col xs={12} md={6}>
+                        <h2 className="text-center mb-4">Login to Greenhouse</h2>
+                        <Form onSubmit={handleSubmit}>
+                            <Form.Group className="mb-3" controlId="formBasicEmail">
+                                <Form.Label>Email address</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    placeholder="Enter email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                            </Form.Group>
 
-                        <button type="submit">Login</button>
-                    </form>
-                    {result && <div>{result}</div>}
-                </div>
+                            <Form.Group className="mb-3" controlId="formBasicPassword">
+                                <Form.Label>Password</Form.Label>
+                                <Form.Control
+                                    type="password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </Form.Group>
 
-                <Button onClick={() => handleClick('signup')}>
-            </Button>
+                            <Button variant="link" onClick={() => navigate('/signup')} className="login-link">
+                                New to Greenhouse?
+                            </Button>
+                            <br />
+                            <Button variant="link" onClick={() => null} className="login-link">
+                                Forgot Password
+                            </Button>
 
-
-
-            </>
-
-
+                            <Button variant="primary" type="submit" className="w-100">
+                                Login
+                            </Button>
+                        </Form>
+                        {result && <div>{result}</div>}
+                    </Col>
+                </Row>
+            </Container>
         );
     }
-
-
 };
 
 export default UsernameCheck;
