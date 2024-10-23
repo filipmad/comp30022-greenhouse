@@ -48,6 +48,7 @@ import SDGQuizzes from "./pages/Games/SDGQuizzes/SDGQuizzes";
 
 import ProtectedRoute from "./ProtectedRoute"; // Import the ProtectedRoute component
 import NewsAdmin from "./pages/Admin/NewsAdmin";
+import CommunityAdmin from "./pages/Admin/CommunityAdmin";
 
 export default function myApp() {
   return (
@@ -98,6 +99,7 @@ export default function myApp() {
             <Route path="/games/CityScape" element={<CityScape />} />
             <Route path="/games/SDGQuizzes" element={<SDGQuizzes />} />
             <Route path="/news-admin" element={<NewsAdmin />} />
+            <Route path="/community-admin" element={<CommunityAdmin />} />
           </Routes>
         </ProtectedRoute>
       </div>

@@ -17,6 +17,7 @@
 	margin: 10px;
 	order: 2;
 	margin-left: 100px;
+	width: 50%;
   }
   
   .trendingSection {
@@ -60,12 +61,12 @@
   
   .newsItem {
 	flex: 0 0 auto;
-	width: 22%;
+	width: 30%;
 	margin-right: 5px;
 	margin-top: 5px;
   }
   
-  h2 {
+  h2 h3 {
 	text-align: center;
   }
 

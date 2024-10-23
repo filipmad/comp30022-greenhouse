@@ -64,6 +64,10 @@ func main() {
 	// Define the /check-username route
 	r.HandleFunc("/check-username", handleUsernameCheck(db)).Methods("POST")
 	r.HandleFunc("/create-profile", handleCreateProfile(db)).Methods("POST")
+	
+	r.HandleFunc("/create-newspost", uploadForumPost(db)).Methods("POST")
+	r.HandleFunc("/get-top-newspost", getMostRecentPost(db))
+
 	r.HandleFunc("/check-auth", handleCheckAuth(db)).Methods("GET")
 	r.HandleFunc("/logout", handleLogout)
 	r.HandleFunc("/update-user-details", updateUser(db)).Methods("POST")
