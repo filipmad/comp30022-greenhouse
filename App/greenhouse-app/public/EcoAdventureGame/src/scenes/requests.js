@@ -1,6 +1,8 @@
-import axios from 'axios';
+//import axios from 'axios';
 
 
 function getHighScoreFromDB() {
-    return 0;
+    return 3;
 }
+
+module.exports = {getHighScoreFromDB}

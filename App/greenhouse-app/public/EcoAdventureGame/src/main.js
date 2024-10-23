@@ -1,4 +1,4 @@
-import './scenes/Level.js'
+
 
 window.addEventListener('load', function () {
 
@@ -21,7 +21,7 @@ window.addEventListener('load', function () {
 	});
 
 	game.scene.add("Preload", Preload);
-	game.scene.add("Level", Leve);
+	game.scene.add("Level", Level);
 	game.scene.add("EndScreen", EndScreen);
 	game.scene.add("Boot", Boot, true);
 });

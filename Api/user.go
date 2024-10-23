@@ -3,8 +3,8 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"strconv"
 	"fmt"
+	"strconv"
 
 	"net/http"
 	"time"
@@ -13,29 +13,37 @@ import (
 )
 
 type User struct {
-	UserID             uint      `json:"userID" gorm:"primaryKey;autoIncrement"`
-	FirstName          string    `json:"firstName" gorm:"type:varchar(30);not null"`
-	LastName           string    `json:"lastName" gorm:"type:varchar(30);not null"`
-	Email              string    `json:"email" gorm:"type:varchar(50);not null;unique"`
-	Password           string    `json:"password" gorm:"type:varchar(50);not null"`
-	ProfilePic         string    `json:"profilePic" gorm:"type:varchar(250);not null"`
-	University         string    `json:"university" gorm:"type:varchar(45);not null"`
-	UserBalance        int       `json:"userBalance" gorm:"default:0;not null"`
-	DateCreated        time.Time `json:"dateCreated" gorm:"type:date;not null;default:CURRENT_DATE"`
-	GameOneHighScore   int       `json:"gameOneHighScore" gorm:"default:0;not null"`
-	GameTwoHighScore   int       `json:"gameTwoHighScore" gorm:"default:0;not null"`
-	GameThreeHighScore int       `json:"gameThreeHighScore" gorm:"default:0;not null"`
-	QuizOneHighScore   int       `json:"quizOneHighScore" gorm:"default:0;not null"`
-	QuizTwoHighScore   int       `json:"quizTwoHighScore" gorm:"default:0;not null"`
-	QuizThreeHighScore int       `json:"quizThreeHighScore" gorm:"default:0;not null"`
-	IsAdmin            bool      `json:"isAdmin" gorm:"default:false;not null"`
+	UserID             uint      `json:"userID"`
+	FirstName          string    `json:"firstName"`
+	LastName           string    `json:"lastName"`
+	Email              string    `json:"email"`
+	Password           string    `json:"password"`
+	ProfilePic         string    `json:"profilePic"`
+	University         string    `json:"university"`
+	UserBalance        int       `json:"userBalance"`
+	DateCreated        time.Time `json:"dateCreated"`
+	GameOneHighScore   int       `json:"gameOneHighScore"`
+	GameTwoHighScore   int       `json:"gameTwoHighScore"`
+	GameThreeHighScore int       `json:"gameThreeHighScore"`
+	QuizOneHighScore   int       `json:"quizOneHighScore"`
+	QuizTwoHighScore   int       `json:"quizTwoHighScore"`
+	QuizThreeHighScore int       `json:"quizThreeHighScore"`
+	IsAdmin            bool      `json:"isAdmin"`
 }
 
 type ResponseMessage struct {
 	Success  bool   `json:"success"`
 	UserID   int    `json:"userid"`
 	GardenID int    `json:"gardenid"`
+	IsAdmin  int	`json:"isadmin"`
 	Message  string `json:"message"`
+}
+
+type UpdateUserRequest struct {
+	FirstName  string `json:"firstName"`
+	LastName   string `json:"lastName"`
+	Email      string `json:"email"`
+	University string `json:"university"`
 }
 
 func handleUsernameCheck(db *sql.DB) http.HandlerFunc {
@@ -54,14 +62,17 @@ func handleUsernameCheck(db *sql.DB) http.HandlerFunc {
 		}
 		// print("db is alive")
 
+		//print(input.Email)
+		//print(input.Password)
+
 		var gardenID, userID int
 		// QueryRow avoids SQL Injection attacks
 		err := db.QueryRow(`
 			SELECT u.userID, g.gardenID
 			FROM [Users] u
 			JOIN [Garden] g ON u.userID = g.userID
-			WHERE u.email = ? AND u.password = ?`, 
-		input.Email, input.Password).Scan(&userID, &gardenID)
+			WHERE u.email = ? AND u.password = ?`,
+			input.Email, input.Password).Scan(&userID, &gardenID)
 
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -86,8 +97,8 @@ func handleUsernameCheck(db *sql.DB) http.HandlerFunc {
 				Value:    strconv.Itoa(userID),
 				Path:     "/",
 				Expires:  time.Now().Add(24 * time.Hour), // 24-hour expiry
-				HttpOnly: true,                          // Prevent JavaScript access
-				Secure:   true,                          // Only send over HTTPS
+				HttpOnly: true,                           // Prevent JavaScript access
+				Secure:   true,                           // Only send over HTTPS
 			})
 
 			http.SetCookie(w, &http.Cookie{
@@ -95,25 +106,24 @@ func handleUsernameCheck(db *sql.DB) http.HandlerFunc {
 				Value:    strconv.Itoa(gardenID),
 				Path:     "/",
 				Expires:  time.Now().Add(24 * time.Hour), // 24-hour expiry
-				HttpOnly: true,                          // Prevent JavaScript access
-				Secure:   true,                          // Only send over HTTPS
+				HttpOnly: true,                           // Prevent JavaScript access
+				Secure:   true,                           // Only send over HTTPS
 			})
 
-
 			response = ResponseMessage{
-				Success: true,
-				UserID:  userID,
+				Success:  true,
+				UserID:   userID,
 				GardenID: gardenID,
-				Message: "Login Success",
+				Message:  "Login Success",
 			}
 
 		} else {
 
 			response = ResponseMessage{
-				Success: false,
-				UserID:  userID,
+				Success:  false,
+				UserID:   userID,
 				GardenID: gardenID,
-				Message: "Login Failed",
+				Message:  "Login Failed",
 			}
 		}
 
@@ -133,32 +143,34 @@ func handleCreateProfile(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		// Updated query with placeholders
+		// Updated User db
 		query := `
-		INSERT INTO [dbo].[Users] 
-		(
-			[firstName], 
-			[lastName], 
-			[email], 
-			[password], 
-			[profilePic], 
-			[university], 
-			[userBalance], 
-			[dateCreated], 
-			[gameOneHighScore], 
-			[gameTwoHighScore], 
-			[gameThreeHighScore], 
-			[quizOneHighScore], 
-			[quizTwoHighScore], 
-			[quizThreeHighScore], 
-			[isAdmin]
-		)
-		VALUES 
-		(?, ?, ?, ?, ?, ?, ?, CAST(GETDATE() AS DATE), ?, ?, ?, ?, ?, ?, ?);
-		`
+			INSERT INTO [dbo].[Users] 
+			(
+				[firstName], 
+				[lastName], 
+				[email], 
+				[password], 
+				[profilePic], 
+				[university], 
+				[userBalance], 
+				[dateCreated], 
+				[gameOneHighScore], 
+				[gameTwoHighScore], 
+				[gameThreeHighScore], 
+				[quizOneHighScore], 
+				[quizTwoHighScore], 
+				[quizThreeHighScore], 
+				[isAdmin]
+			)
+			OUTPUT INSERTED.userid 
+			VALUES 
+			(?, ?, ?, ?, ?, ?, ?, CAST(GETDATE() AS DATE), ?, ?, ?, ?, ?, ?, ?);
+			`
 
-		// Insert the new profile into the database
-		_, err := db.Exec(query,
+		// Prepare to execute the query and capture the new User ID
+		var newUserID int64 // Change the type to match your database
+		err := db.QueryRow(query,
 			profile.FirstName,          // First Name
 			profile.LastName,           // Last Name
 			profile.Email,              // Email
@@ -173,13 +185,28 @@ func handleCreateProfile(db *sql.DB) http.HandlerFunc {
 			profile.QuizTwoHighScore,   // Quiz Two High Score
 			profile.QuizThreeHighScore, // Quiz Three High Score
 			profile.IsAdmin,            // Is Admin
-		)
+		).Scan(&newUserID) // Use Scan to retrieve the new User ID
 
 		if err != nil {
 			fmt.Print(err)
 			http.Error(w, "Error creating profile in database", http.StatusInternalServerError)
 			return
 		}
+
+		// Insert a new garden using the userid
+		query = `
+			INSERT INTO [dbo].[Garden]
+    			(
+					[treeAge],
+					[userID]
+				)
+				VALUES
+				(
+					1,
+					?
+				);`
+
+		db.QueryRow(query, newUserID)
 
 		// Return success message
 		response := ResponseMessage{
@@ -194,61 +221,138 @@ func handleCreateProfile(db *sql.DB) http.HandlerFunc {
 }
 
 func handleCheckAuth(db *sql.DB) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-        // Read the userid cookie
-        cookie, err := r.Cookie("userid")
-        if err != nil || cookie.Value == "" {
-            // No cookie or cookie is empty, user is not authenticated
-            json.NewEncoder(w).Encode(ResponseMessage{
-                Success: false,
-                Message: "Not authenticated",
-            })
-            return
-        }
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Read the userid cookie
+		cookie, err := r.Cookie("userid")
+		if err != nil || cookie.Value == "" {
+			// No cookie or cookie is empty, user is not authenticated
+			json.NewEncoder(w).Encode(ResponseMessage{
+				Success: false,
+				Message: "Not authenticated",
+			})
+			return
+		}
 
-        // Optionally, you can verify the cookie against your database
-        // For example, check if the user exists based on the userid
-        var userID int
-        err = db.QueryRow("SELECT userID FROM Users WHERE userID = ?", cookie.Value).Scan(&userID)
-        if err != nil {
-            // User does not exist
-            json.NewEncoder(w).Encode(ResponseMessage{
-                Success: false,
-                Message: "Not authenticated",
-            })
-            return
-        }
+		// Optionally, you can verify the cookie against your database
+		// For example, check if the user exists based on the userid
+		var userID, isAdmin int
+		err = db.QueryRow("SELECT userID, isAdmin FROM Users WHERE userID = ?", cookie.Value).Scan(&userID, &isAdmin)
+		w.Header().Set("Content-Type", "application/json")
+		if err != nil {
+			// User does not exist
+			json.NewEncoder(w).Encode(ResponseMessage{
+				Success: false,
+				IsAdmin: isAdmin,
+				Message: "Not authenticated",
+			})
+			return
+		}
 
-        // If user exists, respond with success
-        json.NewEncoder(w).Encode(ResponseMessage{
-            Success: true,
-            Message: "Authenticated",
-        })
-    }
+		// If user exists, respond with success
+		json.NewEncoder(w).Encode(ResponseMessage{
+			Success: true,
+			IsAdmin: isAdmin,
+			Message: "Authenticated",
+		})
+	}
 }
 
 func handleLogout(w http.ResponseWriter, r *http.Request) {
 	// Clear the cookies by setting their expiration date in the past
 	http.SetCookie(w, &http.Cookie{
-		Name:   "userid",
-		Value:  "",
-		Path:   "/",
-		Expires: time.Now().Add(-1 * time.Hour), // Expire the cookie
+		Name:     "userid",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Now().Add(-1 * time.Hour), // Expire the cookie
 		HttpOnly: true,
-		Secure: true, // Use true if serving over HTTPS
+		Secure:   true, // Use true if serving over HTTPS
 	})
 
 	http.SetCookie(w, &http.Cookie{
-		Name:   "gardenid",
-		Value:  "",
-		Path:   "/",
-		Expires: time.Now().Add(-1 * time.Hour), // Expire the cookie
+		Name:     "gardenid",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Now().Add(-1 * time.Hour), // Expire the cookie
 		HttpOnly: true,
-		Secure: true, // Use true if serving over HTTPS
+		Secure:   true, // Use true if serving over HTTPS
 	})
 
 	// Optionally return a response to indicate the logout was successful
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"success": true, "message": "Logged out successfully"}`))
+}
+
+func updateUser(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Parse the JSON request
+		var userReq UpdateUserRequest
+		err := json.NewDecoder(r.Body).Decode(&userReq)
+		if err != nil {
+			http.Error(w, "Invalid request payload", http.StatusBadRequest)
+			return
+		}
+
+		// Extract userID from cookie or session (this example assumes you have a cookie-based session)
+		cookie, err := r.Cookie("userid")
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		userID := cookie.Value
+
+		// Use the globally defined `db` to update the user's details
+		query := `
+        UPDATE Users
+        SET firstName = ?, lastName = ?, email = ?, university = ?
+        WHERE userID = ?
+    `
+		_, err = db.Exec(query, userReq.FirstName, userReq.LastName, userReq.Email, userReq.University, userID)
+		if err != nil {
+			http.Error(w, "Failed to update user", http.StatusInternalServerError)
+			return
+		}
+
+		// Respond with success
+		response := map[string]interface{}{
+			"success": true,
+			"message": "User details updated successfully",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+func handleAdminAuth(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Read the userid cookie
+		cookie, err := r.Cookie("userid")
+		if err != nil || cookie.Value == "" {
+			// No cookie or cookie is empty, user is not authenticated
+			json.NewEncoder(w).Encode(ResponseMessage{
+				Success: false,
+				Message: "Not authenticated",
+			})
+			return
+		}
+
+		
+		// For example, check if the user exists based on the userid
+		var isAdmin int
+		err = db.QueryRow("SELECT isAdmin from dbo.Users where userID = ?", cookie.Value).Scan(&isAdmin)
+		if (err != nil && isAdmin == 0) {
+			// User does not exist
+			json.NewEncoder(w).Encode(ResponseMessage{
+				Success: false,
+				Message: "Not authenticated",
+			})
+			return
+		}
+
+		// If user exists, respond with success
+		json.NewEncoder(w).Encode(ResponseMessage{
+			Success: true,
+			Message: "Authenticated",
+		})
+	}
 }

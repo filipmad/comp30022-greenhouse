@@ -2,21 +2,79 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
+import Select from 'react-select';
 import './SignUp.css';
 
 const UsernameCheck = () => {
     const navigate = useNavigate();
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [university, setUniversity] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
     const [result, setResult] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [message, setMessage] = useState('Change Details')
+    const [isEditDisabled, setIsEditDisabled] = useState(true)
+
+
+    const universities = [
+        { value: '(The) University of Melboune', label: '(The) University of Melbourne' },
+        { value: '(The) University of Sydney', label: '(The) University of Sydney' },
+        { value: 'University of New South Wales', label: 'University of New South Wales' },
+        { value: 'RMIT University', label: 'RMIT University' },
+        { value: 'Swinburne University', label: 'Swinburne University' },
+        { value: 'Deakin University', label: 'Deakin University' },
+        // Add more universities as needed
+    ];
+
+    const handleSelectChange = (selectedOption) => {
+        setUniversity(selectedOption ? selectedOption.value : '');
+    }
+
+    const handleEditButtonClick = () => {
+        // Toggle the disabled state
+        setIsEditDisabled(!isEditDisabled);
+        
+        setMessage(isEditDisabled ? 'Save Details' : 'Edit Details');
+
+        // Send to Server
+        if (!isEditDisabled) {
+            console.log("updating...")
+            handleChange()
+        }
+    };
+
+    const handleChange = async (e) => {
+        
+        try {
+            const response = await axios.post('http://localhost:8000/update-user-details', { 
+                firstName, 
+                lastName,
+                email,
+                university
+            }, 
+            { withCredentials: true });
+            const { success, message } = response.data;
+
+            if (success) {
+                console.log("updated!")
+            } else {
+                setResult(message); // Display any error message returned by the server
+            }
+        } catch (error) {
+            console.error('Error changing details:', error);
+            setResult('Incorrect Email or Password');
+        }
+    }
 
     // Check authentication status on component mount
     useEffect(() => {
         const checkAuth = async () => {
             try {
                 const response = await axios.get('http://localhost:8000/check-auth', {
-                    withCredentials: true, 
+                    withCredentials: true,
                 });
 
                 if (response.data.success) {
@@ -68,11 +126,85 @@ const UsernameCheck = () => {
     if (isAuthenticated) {
         return (
             <>
-                <h1>My Account</h1>
+                {/* <h1>My Account</h1>
                 <div>
                     <form onSubmit={signOut}>
                         <button type="submit">Sign Out</button>
                     </form>
+                </div> */}
+                <Container>
+                    <Row className="justify-content-md-center mt-5">
+                        <Col xs={12} md={6}>
+                            <h2 className="text-center mb-4">My Account</h2>
+                            <div className="d-flex justify-content-center mb-4"><img width={60} src="./account.svg"></img></div>
+                            <Form onSubmit={signOut}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>First Name</Form.Label>
+                                    <Form.Control
+                                        type="firstName"
+                                        value={firstName}
+                                        placeholder=''
+                                        disabled={isEditDisabled}
+                                        onChange={(e) => setFirstName(e.target.value)}
+                                    />
+                                </Form.Group>
+
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Last Name</Form.Label>
+                                    <Form.Control
+                                        type="lastName"
+                                        value={lastName}
+                                        placeholder=''
+                                        disabled={isEditDisabled}
+                                        onChange={(e) => setLastName(e.target.value)}
+                                    />
+                                </Form.Group>
+
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Email</Form.Label>
+                                    <Form.Control
+                                        type="email"
+                                        value={email}
+                                        placeholder=''
+                                        disabled={isEditDisabled}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Password</Form.Label>
+                                    <Form.Control
+                                        type="password"
+                                        value={password}
+                                        placeholder=''
+                                        disabled
+                                    />
+                                </Form.Group>
+
+                                <Form.Group className="mb-3">
+                                    <Form.Label>University</Form.Label>
+                                    <Select
+                                        options={universities}
+                                        value={universities.find((u) => u.value === university)}
+                                        onChange={handleSelectChange}
+                                        placeholder="Select a university"
+                                        isDisabled={isEditDisabled}  // Bind the disabled state to the variable
+                                        isSearchable
+                                    />
+                                </Form.Group>
+
+
+                                <Button variant="secondary" onClick={handleEditButtonClick} className="w-100 mb-3">
+                                    {message}
+                                </Button>
+                                <Button variant="primary" type="submit" className="w-100">
+                                    Sign Out
+                                </Button>
+                            </Form>
+                            {result && <div>{result}</div>}
+                        </Col>
+                    </Row>
+                </Container >
+                <div>
                 </div>
             </>
         );

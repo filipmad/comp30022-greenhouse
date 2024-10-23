@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 class Level extends Phaser.Scene {
 
     constructor() {
@@ -194,6 +196,15 @@ class Level extends Phaser.Scene {
             this.velocityY = -this.jumpSpeed;
             this.character.play('jump');
         }
+        axios.post('https://your-api-url.com/highscores', {
+            highScore: score
+        })
+        .then(response => {
+            console.log('High score successfully sent:', response.data);
+        })
+        .catch(error => {
+            console.error('Error sending high score:', error);
+        });
     }
 
     hitTree(character, tree) {

@@ -66,6 +66,7 @@ func main() {
 	r.HandleFunc("/create-profile", handleCreateProfile(db)).Methods("POST")
 	r.HandleFunc("/check-auth", handleCheckAuth(db)).Methods("GET")
 	r.HandleFunc("/logout", handleLogout)
+	r.HandleFunc("/update-user-details", updateUser(db)).Methods("POST")
 
 	// Set up CORS to allow requests from the React frontend
 	c := cors.New(cors.Options{

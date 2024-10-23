@@ -4,6 +4,7 @@ import axios from 'axios';
 
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(0); 
   const [isAuthenticated, setIsAuthenticated] = useState(null); 
 
   useEffect(() => {
@@ -16,6 +17,7 @@ const ProtectedRoute = ({ children }) => {
 
         if (response.data.success) {
           setIsAuthenticated(true); 
+          setIsAdmin(response.data.isadmin);
         } else {
           setIsAuthenticated(false); 
           // Navigate to /account if user is not authenticated
@@ -36,10 +38,10 @@ const ProtectedRoute = ({ children }) => {
     checkAuth();
   }, [navigate]);
 
-  // While checking the authentication, you might want to show a loading state or nothing at all
-  // if (isAuthenticated === null) {
-  //   return <div>Loading...</div>;
-  // }
+  // If the user is authenticated but not an admin, restrict access to admin routes
+  if (isAuthenticated && !isAdmin && (window.location.pathname === '/news-admin' || window.location.pathname === '/community-admin')) {
+    return <div>Access Denied</div>; // Display a message or redirect
+  }
 
   return <>{children}</>;
 };
