@@ -115,7 +115,7 @@ func updateMilestone(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Deletes a User
+// Deletes a Milestone
 func deleteMilestone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
@@ -152,7 +152,7 @@ func getCommunityMilestones(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Gets specific user based on ID
+// Gets specific Milestone based on MilestoneID
 func getCommunityMilestone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
@@ -189,7 +189,7 @@ func createCommunityMilestone(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Updates data relating to user
+// Updates data relating to Community Milestone
 func updateCommunityMilestone(w http.ResponseWriter, r *http.Request) {
 	var updateCommunityMilestone CommunityMilestone
 	_ = json.NewDecoder(r.Body).Decode(&updateCommunityMilestone)
@@ -216,7 +216,7 @@ func updateCommunityMilestone(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Deletes a User
+// Deletes a Community Milestone based upon Community Milestone ID
 func deleteCommunityMilestone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
@@ -238,7 +238,7 @@ func deleteCommunityMilestone(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Gets all Users
+// Gets all Personal Milestones
 func getPersonalMilestones(w http.ResponseWriter, r *http.Request) {
 	db := connectToDB()
 	if db != nil {
@@ -251,12 +251,12 @@ func getPersonalMilestones(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Gets specific user based on ID
+// Gets specific Personal Milestone based on ID
 func getPersonalMilestone(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Creates a new user
+// Creates a new Milestone
 func createPersonalMilestone(w http.ResponseWriter, r *http.Request) {
 	var newMilestone PersonalMilestone
 	_ = json.NewDecoder(r.Body).Decode(&newMilestone)
@@ -272,7 +272,7 @@ func createPersonalMilestone(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Updates data relating to user
+// Updates data relating to Personal Milestone
 func updatePersonalMilestone(w http.ResponseWriter, r *http.Request) {
 
 	var updateMilestone PersonalMilestone
@@ -300,7 +300,7 @@ func updatePersonalMilestone(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Deletes a User
+// Deletes a Personal Milestone based upon ID
 func DeletePersonalMilestone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
@@ -322,7 +322,7 @@ func DeletePersonalMilestone(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Gets all users from the database
+// Gets all Milestone from the database
 func getMilestonesDB(db *sql.DB) ([]Milestone, error) {
 	ctx := context.Background()
 
@@ -370,7 +370,7 @@ func getMilestonesDB(db *sql.DB) ([]Milestone, error) {
 
 }
 
-// Creates  a New milestone in the db
+// Creates a New milestone in the db
 func createMilestoneDB(newMilestone Milestone, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
@@ -627,6 +627,8 @@ func createCommunityMilestoneDB(newMilestone CommunityMilestone, db *sql.DB) (in
 	return id, nil
 
 }
+
+// Deletes a Personal Milestone from the database
 func deletePersonalMilestoneDB(userID int, milestoneID int, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
@@ -636,7 +638,7 @@ func deletePersonalMilestoneDB(userID int, milestoneID int, db *sql.DB) (int64, 
 		return -1, err
 	}
 	//Command to delete Milestone
-	tsql := "DELETE FROM dbo.CommunityMilestone where userID = @p1 and milestoneID = @p2"
+	tsql := "DELETE FROM dbo.PersonalMilestone where userID = @p1 and milestoneID = @p2"
 	delete, err := db.ExecContext(ctx, tsql, userID, milestoneID)
 	if err != nil {
 		return -1, err
@@ -659,7 +661,7 @@ func getPersonalMilestoneDB(db *sql.DB) ([]PersonalMilestone, error) {
 	if err != nil {
 		return nil, err
 	}
-	tsql := (`SELECT [personalMilestoneID], [UserID], [mileStoneId], [status], [progress], [dateCreated], [dateFinished] FROM CommunityMilestone`)
+	tsql := (`SELECT [personalMilestoneID], [UserID], [mileStoneId], [status], [progress], [dateCreated], [dateFinished] FROM PersonalMilestone`)
 	// Check Validity of the db
 	if db == nil {
 		fmt.Printf("db is invalid\n")

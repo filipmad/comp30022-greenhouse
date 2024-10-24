@@ -60,6 +60,7 @@ func getPlantByPlantID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Get Plants by their garden ID
 func getPlantByGardenID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
@@ -155,6 +156,7 @@ func DeletePlant(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// Gets the Garden
 func getGarden(w http.ResponseWriter, r *http.Request) {
 
 	db := connectToDB()
@@ -167,6 +169,7 @@ func getGarden(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Creates the Garden
 func createGarden(w http.ResponseWriter, r *http.Request) {
 	var newGarden Garden
 	_ = json.NewDecoder(r.Body).Decode(&newGarden)
@@ -183,6 +186,7 @@ func createGarden(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// Deletes a Garden
 func deleteGarden(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
@@ -208,6 +212,7 @@ func deleteGarden(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// Update the Garden
 func updateGarden(w http.ResponseWriter, r *http.Request) {
 	var updateGarden Garden
 	_ = json.NewDecoder(r.Body).Decode(&updateGarden)
@@ -234,6 +239,7 @@ func updateGarden(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Reads information from the Garden
 func readGardenDB(db *sql.DB) ([]Garden, error) {
 	ctx := context.Background()
 
@@ -287,9 +293,9 @@ func createGardenDB(garden Garden, db *sql.DB) (int64, error) {
 		return -1, err
 	}
 
-	tsql := "INSERT INTO dbo.Garden(gardenID, treeAge, userID) VALUES(@p1, @p2, @p3)"
+	tsql := "INSERT INTO dbo.Garden( treeAge, userID) VALUES(@p1, @p2)"
 
-	insert, err := db.ExecContext(ctx, tsql, garden.GardenID, garden.TreeAge, garden.UserID)
+	insert, err := db.ExecContext(ctx, tsql, garden.TreeAge, garden.UserID)
 	if err != nil {
 		return -1, err
 
@@ -384,6 +390,7 @@ func deleteAllPlantDB(gardenID int, db *sql.DB) (int64, error) {
 	return check, nil
 }
 
+// Read all plants from DB
 func readPlantsDB(db *sql.DB) ([]Plant, error) {
 	ctx := context.Background()
 
@@ -430,6 +437,7 @@ func readPlantsDB(db *sql.DB) ([]Plant, error) {
 
 }
 
+// Create Plants within the Database
 func createPlantsDB(newPlant Plant, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 	// Check if database is alive.
@@ -451,6 +459,8 @@ func createPlantsDB(newPlant Plant, db *sql.DB) (int64, error) {
 	return id, nil
 
 }
+
+// Updates Plants within Database
 func updatePlantsDB(updatePlant Plant, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 	// Check if database is alive.

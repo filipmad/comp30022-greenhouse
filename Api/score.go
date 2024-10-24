@@ -1,15 +1,25 @@
 package main
 
 type PersonalScore struct {
-	HighScoreGame1 *Score
-	HighScoreGame2 *Score
-	HighScoreGame3 *Score
-	HighScoreQuiz1 *Score
-	HighScoreQuiz2 *Score
-	HighScoreQuiz3 *Score
+	UserID         int
+	Coins          int
+	HighScoreGame1 *EcoAdventure
+	HighScoreGame2 *CityScape
+	HighScoreGame3 *Crossword
+	HighScoreQuiz1 int
+	HighScoreQuiz2 int
+	HighScoreQuiz3 int
 }
 
-type Score struct {
-	ID    int
-	score int
+type EcoAdventure struct {
+	Score int
+	Coins int
+}
+type Crossword struct {
+	HasCompleted bool
+	Score        int
+	CoinsReward  int
+	Words        []string
+}
+type CityScape struct {
 }

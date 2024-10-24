@@ -71,7 +71,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Print(check)
 	}
-	Users = append(Users, newUser)
+
 	json.NewEncoder(w).Encode(newUser)
 }
 
@@ -123,7 +123,6 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	json.NewEncoder(w).Encode(Users)
 }
 
 // Gets all users from the database

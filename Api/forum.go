@@ -49,6 +49,7 @@ type Poll struct {
 	TimeCreated    time.Time `json:"TimeCreated"`
 }
 
+// Gets all comments from DB
 func getCommentDB(db *sql.DB) ([]Comment, error) {
 	ctx := context.Background()
 
@@ -95,6 +96,7 @@ func getCommentDB(db *sql.DB) ([]Comment, error) {
 	return comments, nil
 }
 
+// Creates a Comment from DB
 func createCommentDB(newComment Comment, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 	// Check if database is alive.
@@ -105,7 +107,7 @@ func createCommentDB(newComment Comment, db *sql.DB) (int64, error) {
 
 	tsql := "INSERT INTO dbo.Comment(text, datePosted, postID, commentAuthorID) VALUES(@p1, @p2, @p3, @p4)"
 
-	insert, err := db.ExecContext(ctx, tsql, newComment.Text, newComment.DatePosted, newComment.PostID, newComment.CommentAuthorID)
+	insert, err := db.ExecContext(ctx, tsql, newComment.Text, time.Now(), newComment.PostID, newComment.CommentAuthorID)
 	if err != nil {
 		return -1, err
 
@@ -118,6 +120,7 @@ func createCommentDB(newComment Comment, db *sql.DB) (int64, error) {
 	return id, nil
 }
 
+// deletes a comment from DB
 func deleteCommentDB(commentID int, postID int, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
@@ -140,6 +143,7 @@ func deleteCommentDB(commentID int, postID int, db *sql.DB) (int64, error) {
 	return check, nil
 }
 
+// Creates a new Poll in the DB
 func createPollDB(newPoll Poll, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
@@ -158,6 +162,7 @@ func createPollDB(newPoll Poll, db *sql.DB) (int64, error) {
 	return id, nil
 }
 
+// Delete Poll from database
 func deletePollDB(newPoll Poll, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
@@ -176,6 +181,7 @@ func deletePollDB(newPoll Poll, db *sql.DB) (int64, error) {
 	return id, nil
 }
 
+// Updates the Poll from the Database
 func updatePollDB(pollDetails Poll, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
@@ -199,6 +205,7 @@ func updatePollDB(pollDetails Poll, db *sql.DB) (int64, error) {
 	return id, nil
 }
 
+// Reads the poll from the database
 func readPollDB(db *sql.DB) ([]Poll, error) {
 	ctx := context.Background()
 
@@ -244,6 +251,7 @@ func readPollDB(db *sql.DB) ([]Poll, error) {
 	return polls, nil
 }
 
+// Delete Forum Post from the database
 func deleteForumPostDB(forumID int, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
@@ -263,6 +271,7 @@ func deleteForumPostDB(forumID int, db *sql.DB) (int64, error) {
 
 }
 
+// Creates a new Forum Post in the Database
 func createForumPostDB(newPost ForumPost, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 	// Check if database is alive.
@@ -271,9 +280,9 @@ func createForumPostDB(newPost ForumPost, db *sql.DB) (int64, error) {
 		return -1, err
 	}
 
-	tsql := "INSERT INTO dbo.ForumPost (postID, title, text, likes, datePosted, authorID) VALUES(@p1, @p2, @p3, @p4, @p5, @p6)"
+	tsql := "INSERT INTO dbo.ForumPost(title, text, likes, datePosted, authorID) VALUES(@p1, @p2, @p3, @p4, @p5)"
 
-	insert, err := db.ExecContext(ctx, tsql, newPost.PostID, newPost.Title, newPost.Text, newPost.Likes, time.Now(), newPost.AuthorID)
+	insert, err := db.ExecContext(ctx, tsql, newPost.Title, newPost.Text, newPost.Likes, time.Now(), newPost.AuthorID)
 	if err != nil {
 		return -1, err
 
@@ -287,6 +296,7 @@ func createForumPostDB(newPost ForumPost, db *sql.DB) (int64, error) {
 
 }
 
+// Reads all forum post into the Database
 func readForumPostDB(db *sql.DB) ([]ForumPost, error) {
 	ctx := context.Background()
 
@@ -330,6 +340,7 @@ func readForumPostDB(db *sql.DB) ([]ForumPost, error) {
 	return forumPosts, nil
 }
 
+// Updates a Forum Post within the Database
 func updateForumPostDB(updatedPost ForumPost, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
@@ -352,6 +363,7 @@ func updateForumPostDB(updatedPost ForumPost, db *sql.DB) (int64, error) {
 	return id, nil
 }
 
+// Create News Post in the database
 func createNewsPostDB(newPost NewsPost, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
@@ -376,6 +388,8 @@ func createNewsPostDB(newPost NewsPost, db *sql.DB) (int64, error) {
 
 }
 
+//Deletes a News Post in the Database
+
 func deleteNewsPostDB(deleteID int, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
@@ -399,6 +413,7 @@ func deleteNewsPostDB(deleteID int, db *sql.DB) (int64, error) {
 	return check, nil
 }
 
+// Get News Post in the Database
 func getNewsPostDB(db *sql.DB) ([]NewsPost, error) {
 	ctx := context.Background()
 
@@ -428,7 +443,7 @@ func getNewsPostDB(db *sql.DB) ([]NewsPost, error) {
 		var npID int
 		var title, author, text string
 		var timeCreated time.Time
-		err := rows.Scan(npID, title, author, text, timeCreated)
+		err := rows.Scan(&npID, &title, &author, &text, &timeCreated)
 		if err != nil {
 			return nil, err
 		}
@@ -437,6 +452,8 @@ func getNewsPostDB(db *sql.DB) ([]NewsPost, error) {
 	}
 	return newPosts, nil
 }
+
+// Updates the News Post in the Database
 func updateNewsPostDB(updatedPost NewsPost, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 
@@ -460,6 +477,7 @@ func updateNewsPostDB(updatedPost NewsPost, db *sql.DB) (int64, error) {
 
 }
 
+// Gets all News Post
 func getNewsPost(w http.ResponseWriter, r *http.Request) {
 	db := connectToDB()
 	if db != nil {
@@ -473,6 +491,7 @@ func getNewsPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Creates a new News Posts
 func createNewsPost(w http.ResponseWriter, r *http.Request) {
 	var newPost NewsPost
 	_ = json.NewDecoder(r.Body).Decode(&newPost)
@@ -488,6 +507,7 @@ func createNewsPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Delete a News Post based on the ID
 func deleteNewsPost(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
@@ -511,8 +531,10 @@ func deleteNewsPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Updates a News Post
 func updateNewsPost(w http.ResponseWriter, r *http.Request) {
 	var updatedNewsPost NewsPost
+	//Scan the information from the Json
 	_ = json.NewDecoder(r.Body).Decode(&updatedNewsPost)
 	db := connectToDB()
 	if db != nil {
@@ -542,6 +564,7 @@ func updateNewsPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Creates a New Comment
 func createComment(w http.ResponseWriter, r *http.Request) {
 	var newComment Comment
 	_ = json.NewDecoder(r.Body).Decode(&newComment)
@@ -557,6 +580,7 @@ func createComment(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Gets all comments
 func getComment(w http.ResponseWriter, r *http.Request) {
 	db := connectToDB()
 	if db != nil {
@@ -570,6 +594,7 @@ func getComment(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Delets a Comment
 func deleteComment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
@@ -595,6 +620,7 @@ func deleteComment(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Gets a Poll
 func getPoll(w http.ResponseWriter, r *http.Request) {
 	db := connectToDB()
 	if db != nil {
@@ -608,6 +634,7 @@ func getPoll(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Creates a Poll
 func createPoll(w http.ResponseWriter, r *http.Request) {
 	var newPoll Poll
 	_ = json.NewDecoder(r.Body).Decode(&newPoll)
@@ -623,6 +650,7 @@ func createPoll(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Delets a Poll
 func deletePoll(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
@@ -644,6 +672,8 @@ func deletePoll(w http.ResponseWriter, r *http.Request) {
 
 	}
 }
+
+//update the poll information
 
 func changePoll(w http.ResponseWriter, r *http.Request) {
 	var changedPoll Poll
@@ -674,6 +704,7 @@ func changePoll(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// Get all Forum Posts
 func getForumPost(w http.ResponseWriter, r *http.Request) {
 	db := connectToDB()
 	if db != nil {
@@ -687,6 +718,7 @@ func getForumPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Deletes all Forum Posts
 func deleteForumPost(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
@@ -709,6 +741,7 @@ func deleteForumPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Create a Forum Post
 func createForumPost(w http.ResponseWriter, r *http.Request) {
 	var newForumPost ForumPost
 	_ = json.NewDecoder(r.Body).Decode(&newForumPost)
