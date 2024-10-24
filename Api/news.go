@@ -77,7 +77,7 @@ func getMostRecentPost(db *sql.DB) http.HandlerFunc {
 				http.Error(w, "No news post found", http.StatusNotFound)
 			} else {
 				http.Error(w, "Failed to retrieve the most recent news post", http.StatusInternalServerError)
-				
+				//print(err)
 			}
 			return
 		}
@@ -86,7 +86,9 @@ func getMostRecentPost(db *sql.DB) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(post); err != nil {
 			http.Error(w, "Failed to encode the response", http.StatusInternalServerError)
+			//print(err)
 			return
 		}
 	}
 }
+

@@ -10,7 +10,7 @@ export default function News() {
 
 	const getRecentBlog = async () => {
 		try {
-			const response = await axios.post('http://localhost:8000/get-top-newspost', { title, author, text, dateCreated });
+			const response = await axios.get('http://localhost:8000/get-top-newspost', { title, author, text, dateCreated });
 
 			// Update the state with the fetched data
 			setAuthor(response.data.author);
@@ -29,7 +29,7 @@ export default function News() {
 
 	// API Key and endpoint
 	const API_KEY = 'f53a68759063421ea95f364052df870f';
-	const API_URL = `https://newsapi.org/v2/everything?q=sustainability&apiKey=${API_KEY}`;
+	const API_URL = `https://newsapi.org/v2/everything?q=sustainability +melbourne &apiKey=${API_KEY}`;
 
 	const fetchNews = async () => {
 		try {

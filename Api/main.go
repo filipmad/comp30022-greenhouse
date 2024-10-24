@@ -72,6 +72,16 @@ func main() {
 	r.HandleFunc("/logout", handleLogout)
 	r.HandleFunc("/update-user-details", updateUser(db)).Methods("POST")
 
+	r.HandleFunc("/add-poll", uploadPoll(db)).Methods("POST")
+	r.HandleFunc("/get-polls", getPolls(db))
+	r.HandleFunc("/update-poll", updatePoll(db))
+	r.HandleFunc("/delete-poll", deletePoll(db))
+
+	// r.HandleFunc("/polls", getPolls(db)).Methods("GET")        // Fetch all polls
+	// r.HandleFunc("/polls/add", addPoll(db))     // Add a new poll
+	// r.HandleFunc("/polls/update", updatePoll(db)) // Update an existing poll
+	// r.HandleFunc("/polls/delete", deletePoll(db)) // Delete a poll
+
 	// Set up CORS to allow requests from the React frontend
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000"}, // Frontend origin

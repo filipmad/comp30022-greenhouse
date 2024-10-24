@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import axios from 'axios';
-
-
-
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
+import AddNewsPostTab from './NewsAdminTabs/NewsPostController';
 
 
 export default function NewsAdmin() {
@@ -27,32 +27,17 @@ export default function NewsAdmin() {
     }
 
     return (
+        // Add, Update and Delete News Posts
         <>
-            <Form onSubmit={handleCreateNewsPost}>
-                <Form.Group controlId="formBasicName">
-                    <Form.Label>Newsletter Title</Form.Label>
-                    <Form.Control
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)} />
-                </Form.Group>
+        
+        <h1>News Page Admin</h1>
+        
+        {/* <Tabs> */}
+            {AddNewsPostTab()}
 
-                <Form.Group controlId="formBasicEmail">
-                    <Form.Label>Author</Form.Label>
-                    <Form.Control
-                        value={author}
-                        onChange={(e) => setAuthor(e.target.value)} />
-                </Form.Group>
-
-                <Form.Group controlId="formBasicTextField">
-                    <Form.Label>Text</Form.Label>
-                    <Form.Control
-                        value={text}
-                        onChange={(e) => setText(e.target.value)} />
-                </Form.Group>
-
-                <Button variant="success" type="submit">Submit
-                </Button>
-            </Form>
+        {/* </Tabs> */}
+        
         </>
+        
     );
 }
