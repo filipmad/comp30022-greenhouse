@@ -4,15 +4,7 @@ class Level extends Phaser.Scene {
         super("Level");
 
 		//initialize stats from the database
-		this.stats = {
-            population: 1000,
-            happiness: 75,
-            bank: 5000,
-            income: 10,
-            education: 80,
-            poverty: 10,
-            energyQuota: 90
-        };
+        this.loadStats()
 
 		// Track the last time income was added
         this.lastIncomeTime = 0;
@@ -52,7 +44,7 @@ class Level extends Phaser.Scene {
         this.createSaveButton();
 
 
-        this.updateStats();
+        this.updateStatText();
     }
 
     update(time, delta) {
@@ -71,12 +63,13 @@ class Level extends Phaser.Scene {
             
             // Check if one second has passed since last income was added
             if (time - this.lastIncomeTime > 1000) {
-                this.addIncomeToBank();
+                this.updateStats();
                 this.lastIncomeTime = time;
             }
 
             // Check if 60 seconds have passed since the last coin update
             if(time - this.lastCoinAdditionTime > 60000) {
+                this.determineRandomEvent();
                 this.saveStats();
                 this.addCoins();
                 this.lastCoinAdditionTime = time;
@@ -84,8 +77,15 @@ class Level extends Phaser.Scene {
         }
     }
 
-    addIncomeToBank() {
-        this.updateStat('bank', this.stats.income);
+    // Also need to add changes to stats as population increases (not implemented yet)
+    updateStats() {
+        this.updateStat('funds', this.hiddenStats.fundsChange);
+        this.updateStat('population', this.hiddenStats.populationChange);
+        this.updateStat('happiness', this.hiddenStats.happinessChange);
+        this.updateStat('pollution', this.hiddenStats.pollutionChange);
+        this.updateStat('education', this.hiddenStats.educationChange);
+        this.updateStat('poverty', this.hiddenStats.povertyChange);
+        this.updateStat('energyQuota', this.hiddenStats.energyQuotaChange);
     }
 
     // Add coins based on the percentage stats (not implemented)
@@ -106,42 +106,157 @@ class Level extends Phaser.Scene {
         console.log("Coins added:", coins);
     }
 
-	createButtons() {
-        const buttonNames = ['Build Housing', 'Supply Jobs', 'Build Parks', 'Build Schools', 'Build Food Banks', 'Build Sustainable Power'];
-        const buttonActions = [
-            () => {this.updateStat('population', 100); this.updateStat('bank', -100)},
-            () => {this.updateStat('income', 10); this.updateStat('bank', -100)},
-            () => {this.updateStat('happiness', 1); this.updateStat('bank', -100)},
-            () => {this.updateStat('education', 1); this.updateStat('bank', -100)},
-            () => {this.updateStat('poverty', -1); this.updateStat('bank', -100)},
-            () => {this.updateStat('energyQuota', 5); this.updateStat('bank', -100)}
+    // Need to change to manually make the buttons so the positions are distributed more evenly based on text size
+    // Create main and SDG management buttons
+    createButtons() {
+        const buttonData = [
+            { name: 'Build Housing', action: () => { this.buildHousing(); } },
+            { name: 'Support Local Business', action: () => { this.supportLocalBusiness(); } },
+            { name: 'Build Parks', action: () => { this.buildParks(); } },
+            { name: 'Build Schools', action: () => { this.buildSchools(); } },
+            { name: 'Build Food Banks', action: () => { this.buildFoodBanks(); } },
+            { name: 'Build Sustainable Power', action: () => { this.buildSustainablePower(); } },
+            { name: 'Fund Recycling Programs', action: () => { this.fundRecyclingPrograms(); } }
         ];
+    
+        const buttonWidth = 200;
+        const buttonHeight = 40;
+        const startX = 50;
+        const startY = 200;
+        const padding = 10;
+        const buttonsPerRow = 3;
+    
+        buttonData.forEach((button, index) => {
+            const row = Math.floor(index / buttonsPerRow);
+            const col = index % buttonsPerRow;
+            const x = startX + col * (buttonWidth + padding);
+            const y = startY + row * (buttonHeight + padding);
+    
+            const buttonObject = this.add.text(x, y, button.name, {
+                fontSize: '16px',
+                fill: '#fff',
+                backgroundColor: '#000',
+                padding: { x: 10, y: 5 },
+                borderRadius: 5
+            })
+                .setInteractive({ useHandCursor: true })
+                .on('pointerdown', button.action)
+                .on('pointerover', () => {
+                    buttonObject.setStyle({ backgroundColor: '#555' });
+                })
+                .on('pointerout', () => {
+                    buttonObject.setStyle({ backgroundColor: '#000' });
+                });
+        });
+    }
+    
 
-        for (let i = 0; i < buttonNames.length; i++) {
-            const x = 50 + (i % 3) * 250;
-            const y = 50 + Math.floor(i / 3) * 50;
-            const button = this.add.text(x, y, buttonNames[i], { fontSize: '20px', fill: '#fff', backgroundColor: '#000' })
-                .setInteractive()
-                .on('pointerdown', buttonActions[i]);
+    // Button Action Methods
+    buildHousing() {
+        const cost = 100;
+        if (this.stats.funds >= cost) {
+            this.updateHiddenStat('populationGrowth', 1);
+            this.updateStat('funds', -cost);
+            console.log("Built Housing");
+        } else {
+            console.log("Insufficient funds to build housing.");
+        }
+    }
+
+    supportLocalBusiness() {
+        const cost = 100;
+        if (this.stats.funds >= cost) {
+            this.updateHiddenStat('income', 10);
+            this.updateStat('funds', -cost);
+            console.log("Supported Local Business");
+        } else {
+            console.log("Insufficient funds to support local business.");
+        }
+    }
+
+    buildParks() {
+        const cost = 100;
+        if (this.stats.funds >= cost) {
+            this.updateHiddenStat('happinessIncrease', 0.05);
+            this.updateStat('funds', -cost);
+            console.log("Built Parks");
+        } else {
+            console.log("Insufficient funds to build parks.");
+        }
+    }
+
+    buildSchools() {
+        const cost = 100;
+        if (this.stats.funds >= cost) {
+            this.updateHiddenStat('educationIncrease', 0.05);
+            this.updateStat('funds', -cost);
+            console.log("Built Schools");
+        } else {
+            console.log("Insufficient funds to build schools.");
+        }
+    }
+
+    buildFoodBanks() {
+        const cost = 100;
+        if (this.stats.funds >= cost) {
+            this.updateHiddenStat('povertyIncrease', -0.05);
+            this.updateStat('funds', -cost);
+            console.log("Built Food Banks");
+        } else {
+            console.log("Insufficient funds to build food banks.");
+        }
+    }
+
+    buildSustainablePower() {
+        const cost = 100;
+        if (this.stats.funds >= cost) {
+            this.updateHiddenStat('energyQuotaIncrease', 0.1);
+            this.updateStat('funds', -cost);
+            console.log("Built Sustainable Power");
+        } else {
+            console.log("Insufficient funds to build sustainable power.");
+        }
+    }
+
+    fundRecyclingPrograms() {
+        const cost = 100;
+        if (this.stats.funds >= cost) {
+            this.updateHiddenStat('pollutionIncrease', -0.05);
+            this.updateStat('funds', -cost);
+            console.log("Funded Recycling Programs");
+        } else {
+            console.log("Insufficient funds to fund recycling programs.");
         }
     }
 
     getStatsText() {
-        return `Population: ${this.stats.population}\n` +
-               `Happiness %: ${this.stats.happiness}\n` +
-               `Bank: ${this.stats.bank}\n` +
-               `Income: ${this.stats.income}\n` +
-               `Education %: ${this.stats.education}\n` +
-               `Poverty %: ${this.stats.poverty}\n` +
-               `Energy Quota %: ${this.stats.energyQuota}`;
+        return `Population: ${Math.round(this.stats.population)}\n` +
+            `Funds: $${this.stats.funds}\n` +
+            `Happiness: ${Math.round(this.stats.happiness)}%\n` +
+            `Pollution: ${Math.round(this.stats.pollution)}%\n` +
+            `Education: ${Math.round(this.stats.education)}%\n` +
+            `Poverty: ${Math.round(this.stats.poverty)}%\n` +
+            `Energy Quota: ${Math.round(this.stats.energyQuota)}%`;
     }
 
-	updateStat(stat, value) {
-        this.stats[stat] += value;
-        this.updateStats();
+    updateStat(stat, value) {
+        // Ensure stats remain within 0-100 for percentage-based stats
+        if (['happiness', 'pollution', 'education', 'poverty'].includes(stat)) {
+            this.stats[stat] = Phaser.Math.Clamp(this.stats[stat] + value, 0, 100);
+
+        } else {
+            // For non-percentage stats like population and funds
+            this.stats[stat] += value;
+            this.stats[stat] = Math.max(this.stats[stat], 0); // All stats should be non-negative
+        }
+        this.updateStatText();
     }
 
-    updateStats() {
+	updateHiddenStat(stat, value) {
+        this.hiddenStats[stat] += value;
+    }
+
+    updateStatText() {
         this.statsText.setText(this.getStatsText());
     }
 
@@ -149,9 +264,11 @@ class Level extends Phaser.Scene {
         const saveButton = this.add.text(this.cameras.main.width - 80, this.cameras.main.height - 50, "Save", {
             fontSize: '20px',
             fill: '#fff',
-            backgroundColor: '#000'
+            backgroundColor: '#000',
+            padding: { x: 10, y: 5 },
+            borderRadius: 5
         }).setOrigin(1, 0.5) // Align to the bottom right
-          .setInteractive();
+            .setInteractive({ useHandCursor: true });
 
         saveButton.on('pointerdown', () => {
             this.saveStats();
@@ -159,17 +276,112 @@ class Level extends Phaser.Scene {
 
         // Add hover effects for the save button
         saveButton.on('pointerover', () => {
-            saveButton.setScale(1.1);
+            saveButton.setStyle({ backgroundColor: '#555' });
         });
 
         saveButton.on('pointerout', () => {
-            saveButton.setScale(1);
+            saveButton.setStyle({ backgroundColor: '#000' });
         });
     }
 
     saveStats() {
         // Implement saving logic
         console.log("Saving stats:", this.stats); // Currently just logging the stats to the console
+    }
+
+    loadStats() {
+        // Implement loading logic
+        console.log("Loading stats..."); // Currently just logging the message to the console
+        // Format: Stats, Hidden Stats
+
+        // Example:
+        this.stats = {
+            population: 1000,
+            funds: 5000,            
+            happiness: 75,
+            pollution: 10,
+            education: 80,
+            poverty: 10,
+            energyQuota: 90
+        };
+
+        this.hiddenStats = {
+            populationChange: 10,
+            fundsChange: 10,
+            happinessChange: -0.1,
+            pollutionChange: 0.1,
+            educationChange: 0,
+            povertyChange: 0.1,
+            energyQuotaChange: -0.1
+        };
+    }
+
+    loadRandomEvent() {
+        // Implement logic to load a random event
+        console.log("Loading random event..."); // Currently just logging the message to the console
+
+        // Load a random event from a predefined list of events (in the database)
+        // Would load numEvents as a count from the database and then select a random event ID from that list.
+        const numEvents = 3;
+        const randomnumber = Math.floor(Math.random() * numEvents);
+
+        // Format: ID, Name, Description, Stats Increase/Decrease, Hidden Stat Increase/Decrease
+
+        // Example:
+        const randomEvent = {
+            id: 1,
+            name: "Climate Change",
+            description: "A drought has caused significant water loss in the city.",
+            statChange: {
+                population: 50,
+                funds: -100,
+                happiness: -0.5,
+                pollution: 0.5,
+                education: 0,
+                poverty: 0,
+                energyQuota: 0
+            },
+            hiddenStatChange: {
+                populationChange: 50,
+                fundsChange: -100,
+                happinessChange: -0.5,
+                pollutionChange: 0.5,
+                educationChange: 0,
+                povertyChange: 0,
+                energyQuotaChange: 0
+            }
+        };
+        // A random event could also be extended to include an image or sound effect
+        // to provide more immersive user experience
+
+        return randomEvent;
+    }
+
+    randomEvent() {
+        const randomEvent = this.loadRandomEvent();
+        this.updateStat('population', randomEvent.statChange.population);
+        this.updateStat('funds', randomEvent.statChange.funds);
+        this.updateStat('happiness', randomEvent.statChange.happiness);
+        this.updateStat('pollution', randomEvent.statChange.pollution);
+        this.updateStat('education', randomEvent.statChange.education);
+        this.updateStat('poverty', randomEvent.statChange.poverty);
+        this.updateStat('energyQuota', randomEvent.statChange.energyQuota);
+        this.updateHiddenStat('populationChange', randomEvent.hiddenStatChange.populationChange);
+        this.updateHiddenStat('fundsChange', randomEvent.hiddenStatChange.fundsChange);
+        this.updateHiddenStat('happinessChange', randomEvent.hiddenStatChange.happinessChange);
+        this.updateHiddenStat('pollutionChange', randomEvent.hiddenStatChange.pollutionChange);
+        this.updateHiddenStat('educationChange', randomEvent.hiddenStatChange.educationChange);
+        this.updateHiddenStat('povertyChange', randomEvent.hiddenStatChange.povertyChange);
+        this.updateHiddenStat('energyQuotaChange', randomEvent.hiddenStatChange.energyQuotaChange);
+        console.log("Random Event:", randomEvent);
+    }
+
+    determineRandomEvent() {
+        // 1/5 change a random event occurs
+        const randomNumber = Math.random();
+        if(randomNumber < 0.2) {
+            this.randomEvent();
+        }
     }
 
 }
