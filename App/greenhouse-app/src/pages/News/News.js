@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"; // Import useEffect
+import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import "./News.css";
 
@@ -8,11 +8,12 @@ export default function News() {
     const [text, setText] = useState('');
     const [dateCreated, setDateCreated] = useState('');
 
+    const [currentPage, setCurrentPage] = useState(0); // To track current page for "Other News"
+    const articlesPerPage = 3; // Number of articles to display per page
+
     const getRecentBlog = async () => {
         try {
             const response = await axios.get('http://localhost:8000/get-top-newspost', { title, author, text, dateCreated });
-
-            // Update the state with the fetched data
             setAuthor(response.data.author);
             setTitle(response.data.title);
             setText(response.data.text);
@@ -25,14 +26,13 @@ export default function News() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // API Key and endpoint
     const API_KEY = 'f53a68759063421ea95f364052df870f';
     const API_URL = `https://newsapi.org/v2/everything?q=sustainability +melbourne &apiKey=${API_KEY}`;
 
     const fetchNews = async () => {
         try {
             const response = await axios.get(API_URL);
-            setArticles(response.data.articles.slice(0, 3));
+            setArticles(response.data.articles); // Fetch all articles
         } catch (err) {
             setError(err);
             console.error('Error fetching news:', err);
@@ -46,22 +46,36 @@ export default function News() {
         fetchNews();
     }, []);
 
+    // Function to handle left arrow click
+    const handlePrev = () => {
+        setCurrentPage((prevPage) => Math.max(prevPage - 1, 0)); // Prevent going below 0
+    };
+
+    // Function to handle right arrow click
+    const handleNext = () => {
+        const maxPages = Math.ceil(articles.slice(2).length / articlesPerPage) - 1;
+        setCurrentPage((prevPage) => Math.min(prevPage + 1, maxPages)); // Prevent going over max pages
+    };
+
+    // Get the articles to display based on current page (skip first two for Other News)
+    const displayedArticles = articles.slice(2).slice(currentPage * articlesPerPage, (currentPage + 1) * articlesPerPage);
+
     return (
         <div className="newsContainer">
             <div className="blogSection">
                 <h1>Weekly Blog</h1>
                 <div className="blog">
-                    {/* Displaying the fetched blog post */}
                     <h3>{title || "Loading..."}</h3>
                     <h5>{author || "Loading..."}</h5>
                     <p>{text || "Loading..."}</p>
                 </div>
             </div>
             <div className="rightSection">
+                {/* Trending Section */}
                 <div className="trendingSection">
                     <h1>Trending</h1>
                     <div className="trendingItems">
-                        {articles.map((article, index) => (
+                        {articles.slice(0, 2).map((article, index) => (
                             <div className="trendingItem" key={index}>
                                 {article.urlToImage && (
                                     <img src={article.urlToImage} alt={article.title} className="trendingImage" />
@@ -73,21 +87,25 @@ export default function News() {
                         ))}
                     </div>
                 </div>
+
+                {/* Other News Section with Arrows */}
                 <div className="newsSection">
                     <h1>Other News</h1>
                     <div className="newsItemsContainer">
-                        <button className="arrowButton leftArrow"></button>
+                        <button className="arrowButton leftArrow" onClick={handlePrev} disabled={currentPage === 0}></button>
                         <div className="newsItems">
-                            {articles.map((article, index) => (
+                            {displayedArticles.map((article, index) => (
                                 <div className="newsItem" key={index}>
+                                    {article.urlToImage && (
+                                        <img src={article.urlToImage} alt={article.title} className="newsImage" />
+                                    )}
                                     <h2>{article.title}</h2>
                                     <p>{article.description}</p>
                                     <a href={article.url} target="_blank" rel="noopener noreferrer">Read more</a>
-                                    <hr />
                                 </div>
                             ))}
                         </div>
-                        <button className="arrowButton rightArrow"></button>
+                        <button className="arrowButton rightArrow" onClick={handleNext} disabled={currentPage === Math.ceil(articles.slice(2).length / articlesPerPage) - 1}></button>
                     </div>
                 </div>
             </div>
