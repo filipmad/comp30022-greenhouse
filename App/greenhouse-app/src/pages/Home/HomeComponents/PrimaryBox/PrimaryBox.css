@@ -1,5 +1,5 @@
 
-.informationBox, .communityBox, .trendingHomeItem, .gamesBox, .gardenBox, .wordExplorerBox {
+.informationBox, .communityBox, .gamesBox, .gardenBox, .wordExplorerBox {
 	display: flex;
 	flex-direction: column;
 	padding: 3rem;
@@ -163,48 +163,5 @@
     color: white;
 }
 
-  .trendingHomeItems {
-	display: flex;
-	gap: 1.5rem; 
-	justify-content: space-between; 
-	width: 100%;
-  }
   
-  .trendingHomeItem {
-	flex: 1 1 48%; 
-	color: black;
-	padding: 2rem;
-	text-align: center;
-	border-radius: 4px;
-	transition: background-color 0.3s ease;
-	height: 200px; 
-	display: flex;
-	padding: 2rem;
-	justify-content: center;
-	box-sizing: border-box;
-	align-items: center;
-	border: 1px solid black;
-  }
-  
-  @media (max-width: 1024px) {
-	.mainContent {
-		flex-direction: column;
-	}
-
-	.informationBox, .communityBox, .trendingHomeItem, .gamesBox, .gardenBox, .wordExplorerBox {
-		flex: 1 1 100%;  
-	}
-
-	.trendingHomeItems {
-		flex-direction: column; 
-		gap: 1rem;
-	}
-}
-
-@media (max-width: 768px) {
-	.wordExplorerBox, .gamesBox {
-		width: 100px;
-		height: 100px;
-	}
-  }
   
