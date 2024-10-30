@@ -26,7 +26,7 @@ class StreakTree extends Phaser.Scene {
 		const SeedTree = this.add.image(0, 0, "SeedTree").setOrigin(0, 0);
 		SeedTree.displayWidth = 1068;
 		SeedTree.displayHeight = 600;
-		SeedTree.visible = true;
+		SeedTree.visible = false;
 
         this.streakIcon1 = this.add.sprite(-20, 120, 'StreakIcon').setOrigin(0, 1);
 		this.streakIcon2 = this.add.sprite(290, 120, 'StreakIcon').setOrigin(0, 1);
@@ -62,46 +62,19 @@ class StreakTree extends Phaser.Scene {
 		.setStroke('#ffffff', 6)
 		.setShadow(2, 2, "#000000", 4, true, true);
 
-
-		// Switch background image on click (just to show different slides for now. Normally it would switch depending on the player's streak)
-		FullTree.setInteractive();
-		FullTree.on('pointerdown', () => {
-			FullTree.visible = false;
-			SeedTree.visible = true;
-			this.streak = 0;
-		});
-
-		HalfTree.setInteractive();
-		HalfTree.on('pointerdown', () => {
-			HalfTree.visible = false;
+		if (this.streak >= 20) {
 			FullTree.visible = true;
-			this.streak = 20;
-		});
+		}
+		else if (this.streak >= 10) {
+            HalfTree.visible = true;
+        }
+		else if (this.streak >= 5) {
+            SmallTree.visible = true;
+        }
+		else {
+            SeedTree.visible = true;
+        }
 
-		SmallTree.setInteractive();
-		SmallTree.on('pointerdown', () => {
-			SmallTree.visible = false;
-			HalfTree.visible = true;
-			this.streak = 10;
-		});
-
-		SeedTree.setInteractive();
-		SeedTree.on('pointerdown', () => {
-			SeedTree.visible = false;
-			SmallTree.visible = true;
-			this.streak = 5;
-		});
-
-		const sign = this.add.image(80, 425, "StreakTreeSign").setOrigin(0, 0);
-		sign.displayWidth = 250;
-		sign.displayHeight = 250;
-		sign.setInteractive();
-		sign.on('pointerdown', () => {
-			this.scene.start("Level");
-		});
-	}
-
-	update() {
 		this.streakNumber.text = `Streak: ${this.streak}`;
 		if (this.streak <= 0) {
 			this.streakNumber.setColor("#ff0000");
@@ -123,10 +96,19 @@ class StreakTree extends Phaser.Scene {
 			this.streakIcon1.visible = true;
 			this.streakIcon2.visible = true;
 		}
+
+		const sign = this.add.image(80, 425, "StreakTreeSign").setOrigin(0, 0);
+		sign.displayWidth = 250;
+		sign.displayHeight = 250;
+		//make interactive and see mouse pointer
+		sign.setInteractive({ useHandCursor: true });
+		sign.on('pointerdown', () => {
+			this.scene.start("Level");
+		});
 	}
 
 	getStreak() {
 		// Get the player's streak from the database
-		return 0;
+		return 20;
 	}
 }
