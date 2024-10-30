@@ -5,6 +5,7 @@ class Level extends Phaser.Scene {
 
         // Initialize plants from the database
         this.plants = this.getPlayerPlants();
+        this.inventoryPosition = 0;
         this.smallPositions = [1, 2, 4, 5, 6, 7, 12, 13, 14, 15, 17, 18];
         this.mediumPositions = [3, 8, 11, 16];
         this.largePositions = [9, 10];
@@ -28,7 +29,7 @@ class Level extends Phaser.Scene {
         this.createRectanglePopUps();
 
         for(const plant of this.plants) {
-            this.addPlant(plant.position, plant.sprite, plant.name, plant.size);
+            this.addPlant(plant.position, plant.name, plant.size);
         }
 
         const frames = [];
@@ -169,7 +170,7 @@ class Level extends Phaser.Scene {
             .setVisible(false)
             .setDepth(11);
 
-        this.streakTreeText = this.add.text(400, 260, "Go to Streak Tree", { 
+        this.streakTreeText = this.add.text(400, 300, "Go to Streak Tree", { 
             fontSize: "20px", 
             fill: "#ffffff", 
             fontStyle: "bold", 
@@ -180,7 +181,7 @@ class Level extends Phaser.Scene {
             .setVisible(false)
             .setDepth(12);
 
-        this.shopText = this.add.text(700, 260, "Go to Shop", { 
+        this.shopText = this.add.text(700, 300, "Go to Shop", { 
             fontSize: "20px", 
             fill: "#ffffff", 
             fontStyle: "bold", 
@@ -605,20 +606,28 @@ class Level extends Phaser.Scene {
     
 
     getPlayerPlants() {
-        // Example plant data for now but we'd retrieve this from the database
+        // data format for plant: { id, name, size, value }
+        // data format for garden: { plant, position }
+        // sprite keys will just be the name of the plant
+        // position 0 is the player's inventory
+
+        // Example plant data for now but we'd retrieve this from the database (position would probs be at the end after all the plant data)
+        // don't know if we actually need to store the ids or not outside of the database (leaving it in this example)
+
+
         return [
-            { id: 1, position: 1, sprite: "SmallBud", name: "Basic Bud", size: 'small' },
-            { id: 2, position: 2, sprite: "SmallBud1", name: "Rare Bud", size: 'small' },
-            { id: 3, position: 3, sprite: "MediumBud", name: "Regular Bush", size: 'medium' },
-            { id: 4, position: 6, sprite: "SmallBud", name: "Basic Bud", size: 'small' },
-            { id: 5, position: 7, sprite: "SmallBud1", name: "Rare Bud", size: 'small' },
-            { id: 6, position: 10, sprite: "LargeBud", name: "Baby Tree", size: 'large' },
-            { id: 7, position: 11, sprite: "MediumBud", name: "Regular Bush", size: 'medium' },
-            { id: 8, position: 12, sprite: "SmallBud", name: "Basic Bud", size: 'small' },
-            { id: 9, position: 13, sprite: "SmallBud1", name: "Rare Bud", size: 'small' },
-            { id: 10, position: 15, sprite: "SmallBud1", name: "Rare Bud", size: 'small' },
-            { id: 11, position: 17, sprite: "SmallBud", name: "Basic Bud", size: 'small' },
-            { id: 12, position: 18, sprite: "SmallBud1", name: "Rare Bud", size: 'small' }
+            { id: 1, position: 1, name: "Basic Bud", size: 'small', value: 10 },
+            { id: 2, position: 2, name: "Rare Bud", size: 'small', value: 50 },
+            { id: 3, position: 3, name: "Regular Bush", size: 'medium', value: 30},
+            { id: 1, position: 6, name: "Basic Bud", size: 'small', value: 10 },
+            { id: 2, position: 7, name: "Rare Bud", size: 'small' , value: 50 },
+            { id: 4, position: 10, name: "Baby Tree", size: 'large', value: 100 },
+            { id: 3, position: 11, name: "Regular Bush", size: 'medium', value: 30 },
+            { id: 1, position: 12, name: "Basic Bud", size: 'small', value: 10 },
+            { id: 2, position: 13, name: "Rare Bud", size: 'small', value: 50 },
+            { id: 2, position: 15, name: "Rare Bud", size: 'small', value: 50 },
+            { id: 1, position: 17, name: "Basic Bud", size: 'small', value: 10 },
+            { id: 2, position: 18, name: "Rare Bud", size: 'small', value: 50 }
         ];
     }
     
@@ -631,12 +640,16 @@ class Level extends Phaser.Scene {
         this.scene.start("StreakTree");
     }
 
-    addPlant(position, spriteKey, name, size) {
+    addPlant(position, name, size) {
+        if(position === this.inventoryPosition) {
+            this.addPlantToInventory(name, size);
+        }
+
         const posData = this.getPositionCoordinates()[position];
     
         const { x, y, scale } = posData;
     
-        const plantImage = this.add.image(x, y, spriteKey).setOrigin(0, 0);
+        const plantImage = this.add.image(x, y, name).setOrigin(0, 0);
         plantImage.scale = scale;
         plantImage.setInteractive({ useHandCursor: true });
     
@@ -657,6 +670,32 @@ class Level extends Phaser.Scene {
     
         this.plantGroup.add(plantImage);
     }
+
+    addPlantToInventory(name, size) {
+        // Add plant to inventory
+        // Update inventory and display it
+    }
+
+    movePlantToInventory(plant) {
+        // Move plant from its current position to inventory
+        // Update inventory and display it
+
+        // Database: Update plant position to 0
+    }
+
+    sellPlant(plant) {
+        // Remove plant from the garden
+
+        // Database: Remove plant from user garden then add coins to user
+        this.addCoins(plant.value * 0.5);
+    }
+
+    addCoins(amount) {
+        // Add coins to user in the database
+        console.log("Coins added: " + amount);
+    }
+
+    // Only thing left to implement is inventory system and sell system
     
     
 }

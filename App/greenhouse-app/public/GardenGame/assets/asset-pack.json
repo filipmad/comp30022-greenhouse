@@ -319,12 +319,12 @@
             {
                 "url": "assets/LargeBud.png",
                 "type": "image",
-                "key": "LargeBud"
+                "key": "Baby Tree"
             },
             {
                 "url": "assets/MediumBud.png",
                 "type": "image",
-                "key": "MediumBud"
+                "key": "Regular Bush"
             },
             {
                 "url": "assets/StreakIcon.png",
@@ -352,12 +352,12 @@
             {
                 "url": "assets/SmallBud.png",
                 "type": "image",
-                "key": "SmallBud"
+                "key": "Basic Bud"
             },
             {
                 "url": "assets/SmallBud1.png",
                 "type": "image",
-                "key": "SmallBud1"
+                "key": "Rare Bud"
             },
             {
                 "url": "assets/SmallTree.webp",
