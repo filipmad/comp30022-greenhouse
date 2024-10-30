@@ -144,6 +144,9 @@ class SocialQuiz extends Phaser.Scene {
 		// get random questions from the database
 		// Probably 10 questions per quiz
 
+        // Format: {question, answers, correctAnswerIndex} 
+        // Again not 100% sure how this will look in the database
+
 		// sample questions for now
 		this.questions = [
             {

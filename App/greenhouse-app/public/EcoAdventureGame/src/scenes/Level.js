@@ -2,7 +2,8 @@ class Level extends Phaser.Scene {
 
     constructor() {
         super("Level");
-        this.highScore = 0; // Initialize the high score (from the database)
+        this.highScore = this.getHighScore();
+        this.coinsGained = 0;
     }
 
     initValues() {
@@ -216,7 +217,7 @@ class Level extends Phaser.Scene {
 
     hitCollectible(character, collectible) {
         collectible.destroy();
-        this.addCoin();
+        this.coinsGained++;
     }
 
     spawnTree(xPosition) {
@@ -314,6 +315,8 @@ class Level extends Phaser.Scene {
 
         // Send high score to the database
         this.sendHighScoreToDatabase(this.highScore);
+        // Add coins to the database after round
+        this.addCoins();
 
 		// Delay a little to show the game over message
 		this.time.delayedCall(3000, () => {
@@ -330,20 +333,22 @@ class Level extends Phaser.Scene {
 	
 	}
 
-    // highScore, addedCoins
-
-    // NEED TO CHANGE TO SEND HIGH SCORE AT END OF GAME
     sendHighScoreToDatabase(score) {
-        // Send the high score to the database
+        // Send the high score to the database at end of round
         console.log('High score: ' + score);
     }
 
 
-    // NEED TO CHANGE TO ADD COINS AT END OF GAME
-    addCoin() {
-        // Add coins to the database
-        console.log('Coin collected!');
+    addCoins() {
+        // Add coins to the database after round
+        console.log(this.coinsGained + ' coins collected');
     }
+
+    getHighScore() {
+        // Retrieve the high score from the database
+        return 0;
+    }
+    
 }
 
 

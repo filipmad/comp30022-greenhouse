@@ -1,19 +1,10 @@
 class Level extends Phaser.Scene {
 	constructor() {
 		super("Level");
-	}
 
-	preload() {
-		this.mainGroup = this.add.group();
-		const background = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0xffffff);
-		background.setOrigin(0, 0);
-		background.setDepth(1);
-		this.mainGroup.add(background);
+		this.puzzleID = 1; // Replace with actual puzzle ID from database
 
-
-		this.events.emit("scene-awake");
-
-		// Input target words from database (10 Words)
+		// Input target words from database (10 Words probs for consistency)
 		this.targetWords = ['GOALS', 'SOCIETY', 'DEVELOPMENT', 'ENVIRONMENT', 'PROJECT', 
 			'ECONOMY', 'LEO', 'JORDAN', 'FILIP', 'KEN'];
 
@@ -29,10 +20,22 @@ class Level extends Phaser.Scene {
 			'Pepsi-Max king',
 			'Swedish-looking Russian',
 			'Gigachad jaw'];
+	}
 
-		// Input grid of letters from database (generate using target words in a word search maker)
-		// Need to make grid size variable based on what the external generator spits out
-		// For now its just an example
+	preload() {
+		this.mainGroup = this.add.group();
+		const background = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0xffffff);
+		background.setOrigin(0, 0);
+		background.setDepth(1);
+		this.mainGroup.add(background);
+
+
+		this.events.emit("scene-awake");
+
+		// Input structure {puzzleId, targetWords, descriptions}
+		// Not too sure how this looks in the database but should be fine
+
+		// Need to implement a grid generator to make a grid from the target words array
 		this.lettersArray = [
 			["T", "O", "I", "R", "L", "K", "E", "N", "N", "J", "G", "T", "A", "G"],
 			["N", "O", "T", "E", "A", "J", "N", "P", "K", "O", "D", "N" ,"O", "O"],
@@ -449,6 +452,8 @@ class Level extends Phaser.Scene {
 
 		this.addCoins();
 
+		this.puzzleComplete();
+
 		// Delay a little to show the congratulations message
 		this.time.delayedCall(3000, () => {
 			this.transitionToEndScreen();
@@ -468,4 +473,8 @@ class Level extends Phaser.Scene {
 		// Add coins to the player's account
 		console.log("+100 coins");
 	}
+
+	puzzleComplete() {
+        // Update the player's completion of puzzle ID
+    }
 }
