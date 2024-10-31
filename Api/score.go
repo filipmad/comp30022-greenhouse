@@ -1,25 +1,581 @@
 package main
 
+import (
+	"context"
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
+)
+
 type PersonalScore struct {
-	UserID         int
-	Coins          int
-	HighScoreGame1 *EcoAdventure
-	HighScoreGame2 *CityScape
-	HighScoreGame3 *Crossword
-	HighScoreQuiz1 int
-	HighScoreQuiz2 int
-	HighScoreQuiz3 int
+	ScoreID        int           `json:"ScoreID"`
+	UserID         int           `json:"UserID"`
+	Coins          int           `json:"Coins"`
+	HighScoreGame1 *EcoAdventure `json:"EcoAdventure"`
+	HighScoreGame2 *CityScape    `json:"CityScape"`
+	HighScoreGame3 *Crossword    `json:"Crossword"`
+	HighScoreQuiz1 int           `json:"HighScoreQuiz1"`
+	HighScoreQuiz2 int           `json:"HighScoreQuiz2"`
+	HighScoreQuiz3 int           `json:"HighScoreQuiz3"`
 }
 
 type EcoAdventure struct {
-	Score int
-	Coins int
+	Score int `json:"Score"`
+	Coins int `json:"Coins"`
 }
+
 type Crossword struct {
-	HasCompleted bool
-	Score        int
-	CoinsReward  int
-	Words        []string
+	HasCompleted bool     `json:"HasCompleted"`
+	crosswordID  int      `json:"crosswordID"`
+	words        []string `json:"words`
 }
 type CityScape struct {
+	Population        int `json:"Population"`
+	Funds             int `json:"Funds"`
+	Happiness         int `json:"Happiness"`
+	Pollution         int `json:"Pollution"`
+	Education         int `json:"Education"`
+	Poverty           int `json:"Poverty"`
+	EnergyQuota       int `json:"EnergyQuota"`
+	PopulationChange  int `json:"PopulationChange"`
+	PollutionChange   int `json:"PollutionChange"`
+	FundsChange       int `json:"FundsChange"`
+	EducationChange   int `json:"EducationChange"`
+	PovertyChange     int `json:"PovertyChange"`
+	EnergyQuotaChange int `json:"EnergyQuotaChange"`
+	HappinessChange   int `json:"HappinessChange"`
+}
+
+// Gets Score relating to User
+func getScores(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	db := connectToDB()
+	userID, err := strconv.Atoi(params["userID"])
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	if db != nil {
+		var userScore PersonalScore
+		var err error
+		if params["gameType"] == "EcoAdventure" {
+			userScore, err = ReadEcoAdventureDB(db, userID)
+		} else if params["gameType"] == "CityScape" {
+			userScore, err = ReadCityScapeDB(db, userID)
+		} else if params["gameType"] == "Crossword" {
+			userScore, err = ReadCrosswordDB(db, userID)
+
+		} else if params["gameType"] == "Quiz" {
+			userScore, err = ReadQuizDB(db, userID)
+		} else {
+			userScore = PersonalScore{}
+		}
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		json.NewEncoder(w).Encode(userScore)
+
+	}
+
+}
+
+// Updates the EcoAdventure
+func updateEcoAdventure(w http.ResponseWriter, r *http.Request) {
+	var updated PersonalScore
+	_ = json.NewDecoder(r.Body).Decode(&updated)
+	db := connectToDB()
+	if db != nil {
+		scores, err := getUserID(db, updated.UserID)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			for _, item := range scores {
+				if item.UserID == updated.UserID {
+					updatedCoins := item.Coins + updated.Coins
+					updatedScore := PersonalScore{UserID: updated.UserID, ScoreID: updated.ScoreID, Coins: updatedCoins, HighScoreGame1: updated.HighScoreGame1}
+					updateScore(db, updatedScore)
+					break
+				}
+
+			}
+
+		}
+
+	}
+}
+
+// Update the values of CityScape
+func updateCityScape(w http.ResponseWriter, r *http.Request) {
+	var updated PersonalScore
+	_ = json.NewDecoder(r.Body).Decode(&updated)
+	db := connectToDB()
+	if db != nil {
+		scores, err := getUserID(db, updated.UserID)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			for _, item := range scores {
+				if item.UserID == updated.UserID {
+					updatedScore := PersonalScore{UserID: updated.UserID, ScoreID: updated.ScoreID, HighScoreGame2: updated.HighScoreGame2}
+					updateScore(db, updatedScore)
+					break
+				}
+
+			}
+
+		}
+
+	}
+}
+
+// Update the Value of Crossword
+func updateCrossword(w http.ResponseWriter, r *http.Request) {
+	var updated PersonalScore
+	_ = json.NewDecoder(r.Body).Decode(&updated)
+	db := connectToDB()
+	if db != nil {
+		scores, err := getUserID(db, updated.UserID)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			for _, item := range scores {
+				if item.UserID == updated.UserID {
+					updatedScore := PersonalScore{UserID: updated.UserID, ScoreID: updated.ScoreID, HighScoreGame2: updated.HighScoreGame2}
+					updateScore(db, updatedScore)
+					break
+				}
+
+			}
+
+		}
+
+	}
+}
+
+// Update Quiz1 Score
+func UpdateQuiz1Score(w http.ResponseWriter, r *http.Request) {
+	var updated PersonalScore
+	_ = json.NewDecoder(r.Body).Decode(&updated)
+	db := connectToDB()
+	if db != nil {
+		users, err := getUserID(db, updated.UserID)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			for _, item := range users {
+				if item.UserID == updated.UserID {
+					updatedScore := PersonalScore{UserID: updated.UserID, ScoreID: updated.ScoreID, HighScoreQuiz1: updated.HighScoreQuiz1}
+					updateScore(db, updatedScore)
+					break
+				}
+
+			}
+
+		}
+
+	}
+}
+
+// Update Quiz 2 score
+func UpdateQuiz2Score(w http.ResponseWriter, r *http.Request) {
+	var updated PersonalScore
+	_ = json.NewDecoder(r.Body).Decode(&updated)
+	db := connectToDB()
+	if db != nil {
+		users, err := getUserID(db, updated.UserID)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			for _, item := range users {
+				if item.UserID == updated.UserID {
+					updatedScore := PersonalScore{UserID: updated.UserID, ScoreID: updated.ScoreID, HighScoreQuiz2: updated.HighScoreQuiz2}
+					updateScore(db, updatedScore)
+					break
+				}
+
+			}
+
+		}
+
+	}
+}
+
+// Update Quiz 3 Score
+func UpdateQuiz3Score(w http.ResponseWriter, r *http.Request) {
+	var updated PersonalScore
+	_ = json.NewDecoder(r.Body).Decode(&updated)
+	db := connectToDB()
+	if db != nil {
+		users, err := getUserID(db, updated.UserID)
+		if err != nil {
+			log.Fatal(err.Error())
+		} else {
+			for _, item := range users {
+				if item.UserID == updated.UserID {
+					updatedScore := PersonalScore{UserID: updated.UserID, ScoreID: updated.ScoreID, HighScoreQuiz3: updated.HighScoreQuiz3}
+					updateScore(db, updatedScore)
+					break
+				}
+
+			}
+
+		}
+
+	}
+}
+
+// Gets the UserID
+func getUserID(db *sql.DB, userID int) ([]PersonalScore, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Custom SQL Selection Query
+	//Needs to put in server
+	tsql := (`SELECT [scoreID], [userID] FROM Score where userID = @p1`)
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return nil, err
+	}
+
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var score []PersonalScore
+	//Scans every row and converts it into a user struct to be returned
+	for rows.Next() {
+		var uID, sID int
+
+		err := rows.Scan(&uID, &sID)
+		if err != nil {
+			return nil, err
+		}
+		newScore := PersonalScore{UserID: uID, ScoreID: sID}
+		score = append(score, newScore)
+
+	}
+
+	return score, nil
+
+}
+
+// Updates the score of a player based on the game
+func updateScore(db *sql.DB, updated PersonalScore) (int64, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return -1, err
+	}
+	tsql := (`UPDATE dbo.Score SET coins = @p1 where UserID = @p1`)
+	rows, err := db.QueryContext(ctx, tsql, updated.UserID)
+	if err != nil {
+		return -1, err
+	}
+
+	defer rows.Close()
+
+	var modified sql.Result
+	var check error
+	//EcoAdventure updated
+	if updated.HighScoreGame1 != nil {
+		tsql := (`UPDATE dbo.Ecoadventure SET highscore = @p1 where userID = @p2`)
+		modified, check = db.ExecContext(ctx, tsql, updated.HighScoreGame1.Score, updated.UserID)
+		//CityScape Updated
+	} else if updated.HighScoreGame2 != nil {
+		tsql := (`UPDATE dbo.Cityscape SET highscore = @p1 where userID = @p2`)
+		modified, check = db.ExecContext(ctx, tsql, updated.UserID)
+		//CrossWord updated
+	} else if updated.HighScoreGame3 != nil {
+		tsql := (`UPDATE dbo.Crossword SET HasCompleted = @p1 where userID == @p2`)
+		modified, check = db.ExecContext(ctx, tsql, updated.HighScoreGame3.HasCompleted, updated.UserID)
+		//Highscore quiz updated
+	} else if updated.HighScoreQuiz1 != 0 {
+		tsql := (`UPDATE dbo.Score SET quiz1 = @p1 where UserID == @p2`)
+		modified, check = db.ExecContext(ctx, tsql, updated.HighScoreQuiz1, updated.UserID)
+		//Highscore quiz 2 updated
+	} else if updated.HighScoreQuiz2 != 0 {
+		tsql := (`UPDATE dbo.Score SET quiz2 = @p1 where UserID == @p2`)
+		modified, check = db.ExecContext(ctx, tsql, updated.UserID)
+	} else {
+		//Highscore quiz 3 updated
+		tsql := (`UPDATE dbo.Score SET quiz3 = @p1 where UserID == @p2`)
+		modified, check = db.ExecContext(ctx, tsql, updated.UserID)
+	}
+	if check != nil {
+		return -1, check
+	} else {
+		changed, err := modified.RowsAffected()
+		if err != nil {
+			return -1, check
+
+		} else {
+			return changed, nil
+
+		}
+	}
+}
+
+func ReadEcoAdventureDB(db *sql.DB, userID int) (PersonalScore, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return PersonalScore{}, err
+	}
+
+	// Custom SQL Selection Query
+	//Needs to put in server
+	tsql := (`SELECT [scoreID], [userID], [totalcoins], [score], [coins] FROM dbo.Score INNER JOIN dbo.Ecoadventure on dbo.Score.userID = dbo.EcoAdventure.userID where userID = @p1`)
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return PersonalScore{}, err
+	}
+
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql, userID)
+	if err != nil {
+		return PersonalScore{}, err
+	}
+
+	defer rows.Close()
+
+	//Scans every row and converts it into a user struct to be returned
+	for rows.Next() {
+		var uID, sID int
+		var score, totalcoins, coins int
+
+		err := rows.Scan(&uID, &sID, &score, &totalcoins, &coins)
+		if err != nil {
+			return PersonalScore{}, err
+		}
+		ecoAdventure := EcoAdventure{Score: score, Coins: coins}
+		newScore := PersonalScore{UserID: uID, ScoreID: sID, Coins: totalcoins, HighScoreGame1: &ecoAdventure}
+		return newScore, nil
+
+	}
+	return PersonalScore{}, nil
+}
+
+func ReadCityScapeDB(db *sql.DB, userID int) (PersonalScore, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return PersonalScore{}, err
+	}
+
+	// Custom SQL Selection Query
+	//Needs to put in server
+	tsql := (`SELECT [scoreID], [userID], [totalcoins], [score], [coins] FROM dbo.Score INNER JOIN dbo.Ecoadventure on dbo.Score.userID = dbo.EcoAdventure.userID where userID = @p1`)
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return PersonalScore{}, err
+	}
+
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql, userID)
+	if err != nil {
+		return PersonalScore{}, err
+	}
+
+	defer rows.Close()
+
+	//Scans every row and converts it into a user struct to be returned
+	for rows.Next() {
+		var uID, sID int
+		var score, totalcoins, coins int
+
+		err := rows.Scan(&uID, &sID, &score, &totalcoins, &coins)
+		if err != nil {
+			return PersonalScore{}, err
+		}
+		ecoAdventure := EcoAdventure{Score: score, Coins: coins}
+		newScore := PersonalScore{UserID: uID, ScoreID: sID, Coins: totalcoins, HighScoreGame1: &ecoAdventure}
+
+		return newScore, nil
+	}
+	return PersonalScore{}, nil
+}
+
+func ReadCrosswordDB(db *sql.DB, userID int) (PersonalScore, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return PersonalScore{}, err
+	}
+
+	// Custom SQL Selection Query
+	//Needs to put in server
+	tsql := (`SELECT [scoreID], [userID],[totalcoins],  [crosswordID], [hasCompleted] FROM dbo.Score INNER JOIN dbo.Crossword on dbo.Score.userID = dbo.Crossword.userID where userID = @p1`)
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return PersonalScore{}, err
+	}
+
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql, userID)
+	if err != nil {
+		return PersonalScore{}, err
+	}
+
+	defer rows.Close()
+
+	//Scans every row and converts it into a user struct to be returned
+	for rows.Next() {
+		var uID, sID, cwID, totalcoins int
+		var hascompleted bool
+
+		err := rows.Scan(&sID, &uID, &totalcoins, &cwID, &hascompleted)
+		if err != nil {
+			return PersonalScore{}, err
+		}
+		crossword := Crossword{HasCompleted: hascompleted, crosswordID: cwID}
+		newScore := PersonalScore{UserID: uID, ScoreID: sID, Coins: totalcoins, HighScoreGame3: &crossword}
+
+		return newScore, nil
+	}
+	return PersonalScore{}, nil
+}
+
+func ReadQuizDB(db *sql.DB, userID int) (PersonalScore, error) {
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return PersonalScore{}, err
+	}
+
+	// Custom SQL Selection Query
+	//Needs to put in server
+	tsql := (`SELECT [scoreID], [userID], [quiz1Score],  [quiz2Score], [quiz3Score] FROM dbo.Score where userID = @p1`)
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return PersonalScore{}, err
+	}
+
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql, userID)
+	if err != nil {
+		return PersonalScore{}, err
+	}
+
+	defer rows.Close()
+
+	//Scans every row and converts it into a user struct to be returned
+	for rows.Next() {
+		var uID, sID, totalcoins, q1, q2, q3 int
+
+		err := rows.Scan(&sID, &uID, &q1, &q2, &q3)
+		if err != nil {
+			return PersonalScore{}, err
+		}
+
+		newScore := PersonalScore{UserID: uID, ScoreID: sID, Coins: totalcoins, HighScoreQuiz1: q1, HighScoreQuiz2: q2, HighScoreQuiz3: q3}
+
+		return newScore, nil
+	}
+	return PersonalScore{}, nil
+}
+
+func createScoreDB(db *sql.DB, userID int) (int64, error) {
+
+	ctx := context.Background()
+
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+
+	// Custom SQL Selection Query
+	//Insert command
+	tsql := "INSERT INTO dbo.Score(userID, totalcoins, quiz1, quiz2, quiz3) VALUES (@p1, @p2, @p3, @p4, @p5)"
+
+	// Check Validity of the db
+	if db == nil {
+		fmt.Printf("db is invalid\n")
+		var err error
+		return -1, err
+	}
+
+	// Execute query
+	insert, err := db.ExecContext(ctx, tsql, userID, 0, 0, 0, 0)
+	//Error if
+	if err != nil {
+		fmt.Printf("Execution error")
+		return -1, err
+
+	}
+	id, err := insert.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+	ecoAdventure := "INSERT INTO dbo.EcoAdventure(userID, score) VALUES (@p1, @p2)"
+	insertEco, err := db.ExecContext(ctx, ecoAdventure, userID, 0, 0, 0, 0)
+	if err != nil {
+		fmt.Printf("Execution error")
+		return -1, err
+
+	}
+	ecoID, err := insertEco.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+
+	cityScape := "INSERT INTO dbo.CityScape(userID, score, population, funds, pollution, happiness, education, poverty, energyQuota, populationChange, fundChange, pollutionChange, happinessChange, educationChange. povertyChange) VALUES (@p1, @p2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)"
+	insertCity, err := db.ExecContext(ctx, cityScape, userID)
+	if err != nil {
+		fmt.Printf("Execution error")
+		return -1, err
+
+	}
+	cityID, err := insertCity.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+
+	return ecoID + id + cityID, nil
+
 }
