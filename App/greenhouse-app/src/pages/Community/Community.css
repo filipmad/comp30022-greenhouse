@@ -1,0 +1,50 @@
+.community-container {
+	display: flex;
+	justify-content: space-between;
+	margin: 30px;
+	background-color: #F5F5DC;
+  }
+  
+  .section {
+	flex: 1;
+	margin-top: 20px;
+	padding: 10px;
+	height: 630px;
+  }
+
+  .section h2 {
+	text-align: center;
+	text-decoration: underline;
+	font-size: 40px;
+  }
+
+  .posts, .milestone {
+	border-left: 2px solid #000000;
+  }
+
+  .posts, .milestone {
+	border-right: 2px solid #000000;
+  }
+
+  .posts { 
+	flex: 2;
+  }
+
+
+  .element {
+	margin: 5px 0;
+	padding: 10px;
+	
+	border: 1px solid #F5F5DC;
+	border-radius: 3px;
+	background-color: #fff;
+	height: 120px;
+	width: 70%;
+	text-align: center;
+	margin: auto;
+	margin-top: 20px;
+  }
+
+  .posts .element {
+	width: 85%;
+  }
