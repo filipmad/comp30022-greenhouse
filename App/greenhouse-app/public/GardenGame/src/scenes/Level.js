@@ -606,14 +606,14 @@ class Level extends Phaser.Scene {
     
 
     getPlayerPlants() {
-        // data format for plant: { id, name, size, value }
+        // data format for plant: { id, name, size, description, value }
         // data format for garden: { plant, position }
         // sprite keys will just be the name of the plant
         // position 0 is the player's inventory
 
         // Example plant data for now but we'd retrieve this from the database (position would probs be at the end after all the plant data)
         // don't know if we actually need to store the ids or not outside of the database (leaving it in this example)
-
+        // Left out descriptions in example but will be used
 
         return [
             { id: 1, position: 1, name: "Basic Bud", size: 'small', value: 10 },
