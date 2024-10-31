@@ -22,6 +22,8 @@ type Plant struct {
 	Age      int    `json:"Age"`
 	Name     string `json:"Name"`
 	GardenID int    `json:"GardenID"`
+	Value    int    `json:"Value"`
+	Position int    `"json:"Value"`
 }
 
 // Gets all Plants
@@ -293,7 +295,7 @@ func createGardenDB(garden Garden, db *sql.DB) (int64, error) {
 		return -1, err
 	}
 
-	tsql := "INSERT INTO dbo.Garden( treeAge, userID) VALUES(@p1, @p2)"
+	tsql := "INSERT INTO dbo.Garden(treeAge, userID) VALUES(@p1, @p2)"
 
 	insert, err := db.ExecContext(ctx, tsql, garden.TreeAge, garden.UserID)
 	if err != nil {
@@ -402,7 +404,7 @@ func readPlantsDB(db *sql.DB) ([]Plant, error) {
 
 	// Custom SQL Selection Query
 	//Needs to put in server
-	tsql := (`SELECT [PlantID], [Age], [Name], [GardenID] FROM Plant`)
+	tsql := (`SELECT [PlantID], [Age], [Name], [GardenID], [value], [position] FROM Plant`)
 
 	// Check Validity of the db
 	if db == nil {
@@ -421,10 +423,10 @@ func readPlantsDB(db *sql.DB) ([]Plant, error) {
 
 	var plants []Plant
 	for rows.Next() {
-		var pID, pAge, gID int
+		var pID, pAge, gID, value, position int
 		var name string
 		var newPlant Plant
-		err := rows.Scan(&pID, &pAge, &name, &gID)
+		err := rows.Scan(&pID, &pAge, &name, &gID, &value, &position)
 		if err != nil {
 			return nil, err
 		}
