@@ -5,39 +5,50 @@ import axios from 'axios';
 const NewsletterManagement = () => {
     const [newsletters, setNewsletters] = useState([]);
     const [newTitle, setNewTitle] = useState('');
-    const [newContent, setNewContent] = useState('');
+    const [newText, setNewText] = useState('');
+    const [newsletterID, setNewsLetterID] = useState(null);
+
+
     const [editingNewsletter, setEditingNewsletter] = useState(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [showModal, setShowModal] = useState(false);
 
+    const fetchNewsletters = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/get-all-newsletters', { withCredentials: true });
+            if (Array.isArray(response.data)) {
+                setNewsletters(response.data);
+            } else {
+                console.error("Invalid data format:", response.data);
+                setError("Failed to load newsletters");
+            }
+        } catch (error) {
+            console.error('Error fetching newsletters:', error);
+            setError('Failed to load newsletters');
+        }
+    };
+
     // Fetch all newsletters on component mount
     useEffect(() => {
-        const fetchNewsletters = async () => {
-            try {
-                const response = await axios.get('http://localhost:8000/newsletters', { withCredentials: true });
-                setNewsletters(response.data);
-            } catch (error) {
-                console.error('Error fetching newsletters:', error);
-                setError('Failed to load newsletters');
-            }
-        };
+       
         fetchNewsletters();
     }, []);
+    
 
     // Function to handle new newsletter creation
     const handleCreateNewsletter = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/newsletters', 
-                { title: newTitle, content: newContent },
+            const response = await axios.post('http://localhost:8000/create-newsletter', 
+                { title: newTitle, text: newText },
                 { withCredentials: true }
             );
             if (response.data.success) {
-                setNewsletters([...newsletters, response.data.newsletter]);
+                fetchNewsletters();
                 setSuccess('Newsletter created successfully');
                 setNewTitle('');
-                setNewContent('');
+                setNewText('');
             } else {
                 setError('Failed to create newsletter');
             }
@@ -50,7 +61,7 @@ const NewsletterManagement = () => {
     // Function to delete a newsletter
     const handleDeleteNewsletter = async (newsletterId) => {
         try {
-            await axios.delete(`http://localhost:8000/newsletters/${newsletterId}`, { withCredentials: true });
+            await axios.post(`http://localhost:8000/delete-newsletter`, {newsletterID: newsletterId}, { withCredentials: true });
             setNewsletters(newsletters.filter((newsletter) => newsletter.id !== newsletterId));
             setSuccess('Newsletter deleted successfully');
         } catch (error) {
@@ -62,28 +73,28 @@ const NewsletterManagement = () => {
     // Function to open modal for editing
     const handleEditNewsletter = (newsletter) => {
         setEditingNewsletter(newsletter);
+        setNewsLetterID(newsletter.id)
         setNewTitle(newsletter.title);
-        setNewContent(newsletter.content);
+        setNewText(newsletter.text);
         setShowModal(true);
     };
 
     // Function to handle updating an existing newsletter
     const handleUpdateNewsletter = async () => {
         try {
-            const response = await axios.put(`http://localhost:8000/newsletters/${editingNewsletter.id}`, 
-                { title: newTitle, content: newContent },
+            const response = await axios.post(`http://localhost:8000/update-newsletter`, 
+                { id: newsletterID, title: newTitle, text: newText },
                 { withCredentials: true }
             );
-            if (response.data.success) {
-                setNewsletters(newsletters.map(n => n.id === editingNewsletter.id ? response.data.newsletter : n));
+            // if (response.data.success) {
+                fetchNewsletters();
                 setSuccess('Newsletter updated successfully');
                 setEditingNewsletter(null);
                 setShowModal(false);
                 setNewTitle('');
-                setNewContent('');
-            } else {
-                setError('Failed to update newsletter');
-            }
+            // } else {
+            //     setError('Failed to update newsletter');
+            // }
         } catch (error) {
             console.error('Error updating newsletter:', error);
             setError('Failed to update newsletter');
@@ -100,14 +111,20 @@ const NewsletterManagement = () => {
             <Table striped bordered hover>
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Title</th>
+                        <th>Author</th>
+                        <th>Text</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {newsletters.map((newsletter) => (
                         <tr key={newsletter.id}>
+                            <td>{newsletter.id}</td>
                             <td>{newsletter.title}</td>
+                            <td>{newsletter.author}</td>
+                            <td>{newsletter.text}</td>
                             <td>
                                 <Button variant="warning" onClick={() => handleEditNewsletter(newsletter)} className="me-2">
                                     Edit
@@ -139,8 +156,8 @@ const NewsletterManagement = () => {
                         as="textarea"
                         rows={6}
                         placeholder="Enter newsletter content"
-                        value={newContent}
-                        onChange={(e) => setNewContent(e.target.value)}
+                        value={newText}
+                        onChange={(e) => setNewText(e.target.value)}
                         required
                     />
                 </Form.Group>
@@ -165,12 +182,12 @@ const NewsletterManagement = () => {
                             />
                         </Form.Group>
                         <Form.Group className="mb-3">
-                            <Form.Label>Content</Form.Label>
+                            <Form.Label>Text</Form.Label>
                             <Form.Control
                                 as="textarea"
                                 rows={6}
-                                value={newContent}
-                                onChange={(e) => setNewContent(e.target.value)}
+                                value={newText}
+                                onChange={(e) => setNewText(e.target.value)}
                             />
                         </Form.Group>
                     </Form>

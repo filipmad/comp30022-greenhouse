@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Table, Modal } from 'react-bootstrap';
 import axios from 'axios';
 
-export default function PollManager() {
+export default function ForumManager() {
     const [newTitle, setNewTitle] = useState('');
     const [newText, setNewText] = useState('');
     const [newOptionOneText, setNewOptionOneText] = useState('');
@@ -107,16 +107,17 @@ export default function PollManager() {
     return (
         <div>
             <Container>
-                <h2 className="text-center mt-4">Poll Manager</h2>
+                <h2 className="text-center mt-4">Forum Manager</h2>
 
-                <h4 className="mt-5">View Polls</h4>
+                <h4 className="mt-5">View Forum</h4>
                 <Table striped bordered hover>
                     <thead>
                         <tr>
                             <th>Title</th>
                             <th>Text</th>
-                            <th>Option One</th>
-                            <th>Option Two</th>
+                            <th>Author</th>
+                            <th>Likes</th>
+                            <th>Comments Off</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -125,13 +126,14 @@ export default function PollManager() {
                             <tr key={poll.pollID}>
                                 <td>{poll.title}</td>
                                 <td>{poll.text}</td>
+                                <td>Filip Madyarov</td>
                                 <td>{poll.optionOneText}</td>
                                 <td>{poll.optionTwoText}</td>
                                 <td>
-                                    <Button variant="warning" onClick={() => handleEditPoll(poll)} className="me-2">
+                                    <Button disabled variant="warning" onClick={() => handleEditPoll(poll)} className="me-2">
                                         Edit
                                     </Button>
-                                    <Button variant="danger" onClick={() => handleDeletePoll(poll.pollID)}>
+                                    <Button disabled variant="danger" onClick={() => handleDeletePoll(poll.pollID)}>
                                         Delete
                                     </Button>
                                 </td>
@@ -140,13 +142,13 @@ export default function PollManager() {
                     </tbody>
                 </Table>
 
-                <h4 className="mt-5">Create New Poll</h4>
+                <h4 className="mt-5">Create New Forum Post</h4>
                 <Form onSubmit={handleCreatePoll}>
                     <Form.Group className="mb-3">
                         <Form.Label>Title</Form.Label>
                         <Form.Control
                             type="text"
-                            placeholder="Enter poll title"
+                            placeholder="Enter forum title"
                             value={newTitle}
                             onChange={(e) => setNewTitle(e.target.value)}
                             required
@@ -157,34 +159,23 @@ export default function PollManager() {
                         <Form.Control
                             as="textarea"
                             rows={3}
-                            placeholder="Enter poll description"
+                            placeholder="Enter forum text"
                             value={newText}
                             onChange={(e) => setNewText(e.target.value)}
                             required
                         />
                     </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Option One</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Enter first option"
-                            value={newOptionOneText}
-                            onChange={(e) => setNewOptionOneText(e.target.value)}
-                            required
-                        />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Option Two</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Enter second option"
-                            value={newOptionTwoText}
-                            onChange={(e) => setNewOptionTwoText(e.target.value)}
-                            required
-                        />
-                    </Form.Group>
-                    <Button variant="primary" type="submit">
-                        Create Poll
+                    <Form.Check // prettier-ignore
+                        type="switch"
+                        id="custom-switch"
+                        label="Enable Likes"
+                    /><Form.Check // prettier-ignore
+                        type="switch"
+                        id="custom-switch"
+                        label="Enable Comments"
+                    />
+                    <Button disabled variant="primary" type="submit">
+                        Create Forum Post
                     </Button>
                 </Form>
 
@@ -231,10 +222,10 @@ export default function PollManager() {
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={resetForm}>
+                        <Button disabled variant="secondary" onClick={resetForm}>
                             Cancel
                         </Button>
-                        <Button variant="primary" onClick={handleUpdatePoll}>
+                        <Button disabled variant="primary" onClick={handleUpdatePoll}>
                             Save Changes
                         </Button>
                     </Modal.Footer>

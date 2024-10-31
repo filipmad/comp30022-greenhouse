@@ -2,19 +2,20 @@ import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import "./News.css";
 import { Container, Card, Row, Col, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 export default function News() {
     const [title, setTitle] = useState('d');
     const [author, setAuthor] = useState('');
     const [text, setText] = useState('');
     const [dateCreated, setDateCreated] = useState('');
-
+    
     const [currentPage, setCurrentPage] = useState(0); // To track current page for "Other News"
     const articlesPerPage = 3; // Number of articles to display per page
 
     const getRecentBlog = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-top-newspost', { title, author, text, dateCreated });
+            const response = await axios.get('http://localhost:8000/get-recent-newspost', { title, author, text, dateCreated });
             setAuthor(response.data.author);
             setTitle(response.data.title);
             setText(response.data.text);
@@ -61,6 +62,13 @@ export default function News() {
     // Get the articles to display based on current page (skip first two for Other News)
     const displayedArticles = articles.slice(2).slice(currentPage * articlesPerPage, (currentPage + 1) * articlesPerPage);
 
+    const navigate = useNavigate();
+
+    // Function to navigate to newsletters
+    const handleNavigateToNewsletters = () => {
+        navigate('/news/newsletters')
+    };
+
     return (
         <div className="newsContainer">
             <div className="blogSection">
@@ -76,19 +84,19 @@ export default function News() {
                                 </Card.Body>
                             </Card>
                         </Col>
-                        <Col md={8}>
-                            <Card className="p-4 shadow">
-                                <Card.Body>
-                                    <Card.Title as="h3">{title || "Loading..."}</Card.Title>
-                                    <Card.Subtitle className="mb-3 text-muted">{author || "Loading..."}</Card.Subtitle>
-                                    <Card.Text>{text || "Loading..."}</Card.Text>
-                                </Card.Body>
-                            </Card>
+                    </Row>
+                    <Row className="justify-content-center mt-4">
+                        <Col md={4}>
+                            <Button 
+                                variant="primary" 
+                                onClick={handleNavigateToNewsletters} 
+                                style={{ width: '100%' }}
+                            >
+                                View All Newsletters
+                            </Button>
                         </Col>
                     </Row>
-                    
                 </Container>
-                
             </div>
             <div className="rightSection">
                 {/* Trending Section */}

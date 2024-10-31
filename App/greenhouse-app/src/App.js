@@ -50,6 +50,8 @@ import ProtectedRoute from "./ProtectedRoute"; // Import the ProtectedRoute comp
 import NewsAdmin from "./pages/Admin/NewsAdmin";
 import CommunityAdmin from "./pages/Admin/CommunityAdmin";
 import AdminManagement from "./pages/Admin/ManageAdmins";
+import Newsletters from "./pages/News/NewsLetters";
+import Newsletter from "./pages/News/Newsletter";
 
 export default function myApp() {
   return (
@@ -102,6 +104,10 @@ export default function myApp() {
             <Route path="/news-admin" element={<NewsAdmin />} />
             <Route path="/community-admin" element={<CommunityAdmin />} />
             <Route path="/admin-manager" element={<AdminManagement/>} />
+            <Route path="/news/newsletters" element={<Newsletters/>} />
+            <Route path="/news/newsletters/:id" element={<Newsletter />} />
+
+
           </Routes>
         </ProtectedRoute>
       </div>

@@ -64,9 +64,12 @@ func main() {
 	r.HandleFunc("/check-username", handleUsernameCheck(db)).Methods("POST")
 	r.HandleFunc("/create-profile", handleCreateProfile(db)).Methods("POST")
 
-	r.HandleFunc("/create-newspost", uploadForumPost(db)).Methods("POST")
-	r.HandleFunc("/get-top-newspost", getMostRecentPost(db))
+	r.HandleFunc("/create-newsletter", uploadNewsletter(db)).Methods("POST")
+	r.HandleFunc("/get-recent-newspost", getMostRecentPost(db))
 	r.HandleFunc("/get-all-newsletters", getAllNewsletters(db))
+	r.HandleFunc("/delete-newsletter", deleteNewsletter(db))
+	r.HandleFunc("/update-newsletter", updateNewsletter(db)).Methods("POST")
+	r.HandleFunc("/get-newsletter", getNewsLetterByID(db))
 
 	r.HandleFunc("/check-auth", handleCheckAuth(db)).Methods("GET")
 	r.HandleFunc("/logout", handleLogout)
@@ -86,7 +89,7 @@ func main() {
 	// Set up CORS to allow requests from the React frontend
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000"}, // Frontend origin
-		AllowedMethods:   []string{"GET", "POST"},
+		AllowedMethods:   []string{"GET", "POST", "DELETE"},
 		AllowedHeaders:   []string{"Content-Type"},
 		AllowCredentials: true,
 	})

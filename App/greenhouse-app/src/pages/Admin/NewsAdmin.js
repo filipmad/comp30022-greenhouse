@@ -13,19 +13,19 @@ export default function NewsAdmin() {
     const [author, setAuthor] = useState('');
     const [text, setText] = useState('');
 
-    const handleCreateNewsPost = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post('http://localhost:8000/create-newspost', { title, author, text });
-            const { success, message } = response.data;
-            if (success) {
-                console.log("success!")
-            }
-        } catch (error) {
-            console.error('Error creating post:', error);
-            //setDisplayedError('An error occurred.');
-        }
-    }
+    // const handleCreateNewsPost = async (e) => {
+    //     e.preventDefault();
+    //     try {
+    //         const response = await axios.post('http://localhost:8000/create-newspost', { title, author, text });
+    //         const { success, message } = response.data;
+    //         if (success) {
+    //             console.log("success!")
+    //         }
+    //     } catch (error) {
+    //         console.error('Error creating post:', error);
+    //         //setDisplayedError('An error occurred.');
+    //     }
+    // }
 
     return (
         // Add, Update and Delete News Posts

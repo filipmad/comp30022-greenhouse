@@ -3,6 +3,7 @@ import { Form, Button, Tabs } from 'react-bootstrap';
 import axios from 'axios';
 import PollManager from './CommunityAdminTabs/PollAdminController';
 import CommunityMilestoneManager from './CommunityAdminTabs/CommunityMilestonesController';
+import ForumManager from './CommunityAdminTabs/ForumAdminController';
  
 
 
@@ -15,7 +16,8 @@ export default function CommunityAdmin() {
         
             {/* Add, Update, and Delete Polls*/}
             {PollManager()}
-            
+            {ForumManager()}
+            {CommunityMilestoneManager()}
 
         
         

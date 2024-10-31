@@ -11,23 +11,8 @@ import Login from './Components/Login'
 
 const UsernameCheck = () => {
     const navigate = useNavigate();
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [university, setUniversity] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [isAdmin, setIsAdmin] = useState('');
-
-    const [result, setResult] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [message, setMessage] = useState('Change Details')
-    const [isEditDisabled, setIsEditDisabled] = useState(true)
-
-
-
-
-    
-
 
     // Check authentication status on component mount
     useEffect(() => {
