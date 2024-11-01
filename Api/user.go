@@ -28,7 +28,7 @@ type User struct {
 	QuizOneHighScore   int       `json:"quizOneHighScore"`
 	QuizTwoHighScore   int       `json:"quizTwoHighScore"`
 	QuizThreeHighScore int       `json:"quizThreeHighScore"`
-	IsAdmin            bool      `json:"isAdmin"`
+	IsAdmin            int       `json:"isAdmin"`
 }
 
 type ResponseMessage struct {
@@ -62,8 +62,8 @@ func handleUsernameCheck(db *sql.DB) http.HandlerFunc {
 		}
 		// print("db is alive")
 
-		//print(input.Email)
-		//print(input.Password)
+		// print(input.Email)
+		// print(input.Password)
 
 		var gardenID, userID int
 		// QueryRow avoids SQL Injection attacks
@@ -245,7 +245,7 @@ func handleCheckAuth(db *sql.DB) http.HandlerFunc {
 				IsAdmin: isAdmin,
 				Message: "Not authenticated",
 			})
-			print(isAdmin);
+			print(isAdmin)
 			return
 		}
 
@@ -354,5 +354,155 @@ func handleAdminAuth(db *sql.DB) http.HandlerFunc {
 			Success: true,
 			Message: "Authenticated",
 		})
+	}
+}
+
+func handleDeleteProfile(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Parse the email and password from the request body
+		var credentials struct {
+			Email    string `json:"email"`
+			Password string `json:"password"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
+			http.Error(w, "Invalid request payload", http.StatusBadRequest)
+			return
+		}
+
+		// Retrieve userID from cookie
+		cookie, err := r.Cookie("userid")
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		userID := cookie.Value
+
+		// Delete associated records
+		tx, err := db.Begin()
+		if err != nil {
+			http.Error(w, "Failed to begin transaction", http.StatusInternalServerError)
+			return
+		}
+		defer tx.Rollback() // Rollback in case of any failure
+
+		// Delete Plants associated with the user's garden
+		_, err = tx.Exec("DELETE FROM dbo.Plant WHERE gardenID IN (SELECT gardenID FROM dbo.Garden WHERE userID = ?)", userID)
+		if err != nil {
+			http.Error(w, "Failed to delete plants", http.StatusInternalServerError)
+			return
+		}
+
+		// Delete Garden associated with the user
+		_, err = tx.Exec("DELETE FROM dbo.Garden WHERE userID = ?", userID)
+		if err != nil {
+			http.Error(w, "Failed to delete garden", http.StatusInternalServerError)
+			return
+		}
+
+		// Delete User record
+		_, err = tx.Exec("DELETE FROM dbo.Users WHERE userID = ?", userID)
+		if err != nil {
+			http.Error(w, "Failed to delete user", http.StatusInternalServerError)
+			return
+		}
+
+		// Commit transaction
+		if err = tx.Commit(); err != nil {
+			http.Error(w, "Failed to commit transaction", http.StatusInternalServerError)
+			return
+		}
+
+		// Respond with success
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	}
+}
+
+func handleAdminProfiles(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		query := `SELECT userid, email, university FROM Users WHERE isAdmin = 1;`
+
+		// Get Records of Admin Profiles
+		rows, err := db.Query(query)
+		if err != nil {
+			fmt.Println("Failed to execute query:", err)
+			http.Error(w, "Failed to retrieve admin accounts", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		// Slice to store all news posts
+		var users []User
+
+		// Iterate over the rows
+		for rows.Next() {
+			var user User
+			err := rows.Scan(&user.UserID, &user.Email, &user.University)
+			if err != nil {
+				fmt.Println("Failed to scan row:", err)
+				http.Error(w, "Failed to process news posts", http.StatusInternalServerError)
+				return
+			}
+			users = append(users, user)
+		}
+
+		// Check for errors from iterating over rows
+		if err = rows.Err(); err != nil {
+			fmt.Println("Row iteration error:", err)
+			http.Error(w, "Error iterating over Admin Profiles", http.StatusInternalServerError)
+			return
+		}
+
+		// Set the response header and return the admin profiles as a JSON array
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(users); err != nil {
+			fmt.Println("Failed to encode response:", err)
+			http.Error(w, "Failed to encode the response", http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+func handleProfileDetails(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Retrieve userID from cookie
+		cookie, err := r.Cookie("userid")
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		userID := cookie.Value
+
+		// Query to retrieve user details
+		query := `SELECT firstName, lastName, email, university FROM Users WHERE userID = ?;`
+
+		// Execute the query
+		row := db.QueryRow(query, userID)
+		
+		// Initialize a UserProfile struct to hold the result
+		var profile User
+
+		// Scan the result into the struct
+		err = row.Scan(&profile.FirstName, &profile.LastName, &profile.Email, &profile.University)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				http.Error(w, "User not found", http.StatusNotFound)
+			} else {
+				fmt.Println("Failed to retrieve profile details:", err)
+				http.Error(w, "Failed to retrieve profile details", http.StatusInternalServerError)
+			}
+			return
+		}
+
+		// Set response content type to JSON
+		w.Header().Set("Content-Type", "application/json")
+		
+		// Encode the profile as JSON and send the response
+		err = json.NewEncoder(w).Encode(profile)
+		if err != nil {
+			fmt.Println("Failed to encode response:", err)
+			http.Error(w, "Failed to send response", http.StatusInternalServerError)
+			return
+		}
 	}
 }

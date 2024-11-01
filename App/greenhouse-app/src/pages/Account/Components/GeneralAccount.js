@@ -1,30 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-//import { Link, useNavigate } from 'react-router-dom';
-import { Form, Button, Container, Row, Col } from 'react-bootstrap';
+import { Form, Button, Container, Row, Col, Modal } from 'react-bootstrap';
 import Select from 'react-select';
-import AdminSettings from './AdminSettings'; // Make sure this is the correct import path
+import AdminSettings from './AdminSettings';
 
 const AccountPage = ({ getAdmin }) => {
-
-    //const navigate = useNavigate();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [university, setUniversity] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const [message, setMessage] = useState('Change Details')
+    // New states for deletion guard
+    const [emailDeletionGuard, setEmailDeletionGuard] = useState('');
+    const [passwordDeletionGuard, setPasswordDeletionGuard] = useState('');
+
+    const [message, setMessage] = useState('Change Details');
     const [isEditDisabled, setIsEditDisabled] = useState(true);
+    const [showModal, setShowModal] = useState(false);
 
     const universities = [
-        { value: '(The) University of Melboune', label: '(The) University of Melbourne' },
+        { value: '(The) University of Melbourne', label: '(The) University of Melbourne' },
         { value: '(The) University of Sydney', label: '(The) University of Sydney' },
         { value: 'University of New South Wales', label: 'University of New South Wales' },
         { value: 'RMIT University', label: 'RMIT University' },
         { value: 'Swinburne University', label: 'Swinburne University' },
         { value: 'Deakin University', label: 'Deakin University' },
     ];
+
+    useEffect(() => {
+        // Fetch the current user details on component mount
+        const fetchUserDetails = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/get-profile-details', { withCredentials: true });
+                const userData = response.data;
+                setFirstName(userData.firstName);
+                setLastName(userData.lastName);
+                setEmail(userData.email);
+                setUniversity(userData.university);
+            } catch (error) {
+                console.error('Error fetching user details:', error);
+            }
+        };
+
+        fetchUserDetails();
+    }, []);
 
     const signOut = async (e) => {
         e.preventDefault();
@@ -35,21 +55,18 @@ const AccountPage = ({ getAdmin }) => {
         } finally {
             document.cookie = "userid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             document.cookie = "gardenid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-
-            window.location.reload(); 
+            window.location.reload();
         }
     };
 
     const handleChange = async () => {
         try {
-           await axios.post('http://localhost:8000/update-user-details', {
+            await axios.post('http://localhost:8000/update-user-details', {
                 firstName,
                 lastName,
                 email,
                 university,
             }, { withCredentials: true });
-
-            
         } catch (error) {
             console.error('Error changing details:', error);
         }
@@ -67,9 +84,50 @@ const AccountPage = ({ getAdmin }) => {
         }
     };
 
-    const checkAdmin = () => {
-        return getAdmin === 1;
-    }
+    const checkAdmin = () => getAdmin === 1;
+
+    const handleShowModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
+
+    const handleDeleteAccountCheck = async () => {
+        try {
+            const response = await axios.post('http://localhost:8000/check-username', {
+                email: emailDeletionGuard, 
+                password: passwordDeletionGuard
+            }, { withCredentials: true });
+            const { success, message } = response.data;
+
+            if (success) {
+                handleDeleteAccount();
+                handleCloseModal();
+                setEmailDeletionGuard('');
+                setPasswordDeletionGuard('');
+            } else {
+                console.log("Information is not correct!");
+            }
+        } catch (error) {
+            console.error('Error checking username:', error);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        try {
+            const response = await axios.post(
+                'http://localhost:8000/delete-profile', 
+                { email: emailDeletionGuard, password: passwordDeletionGuard }, 
+                { withCredentials: true }
+            );
+            const { success } = response.data;
+
+            if (success) {
+                window.location.reload();
+            } else {
+                console.error('Account deletion failed');
+            }
+        } catch (error) {
+            console.error('Error deleting account:', error);
+        }
+    };
 
     return (
         <Container>
@@ -133,18 +191,55 @@ const AccountPage = ({ getAdmin }) => {
                         <Button variant="secondary" onClick={handleEditButtonClick} className="w-100 mb-3">
                             {message}
                         </Button>
+                        <Button variant="secondary" onClick={handleShowModal} className="w-100 mb-3">
+                            Delete Account
+                        </Button>
                         <Button variant="primary" type="submit" className="w-100">
                             Sign Out
                         </Button>
                     </Form>
-                    
-                    <br></br>
 
-                    {/* Conditional Rendering of AdminSettings */}
+                    <br />
                     {checkAdmin() && <AdminSettings />}
                 </Col>
             </Row>
             <br />
+            <Modal show={showModal} onHide={handleCloseModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Account Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Enter your email and password to confirm account deletion:</p>
+                    <Form>
+                        <Form.Group controlId="emailDeletionGuard">
+                            <Form.Label>Email</Form.Label>
+                            <Form.Control
+                                type="text"
+                                placeholder="Enter your email"
+                                value={emailDeletionGuard}
+                                onChange={(e) => setEmailDeletionGuard(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="passwordDeletionGuard" className="mt-3">
+                            <Form.Label>Password</Form.Label>
+                            <Form.Control
+                                type="password"
+                                placeholder="Enter your password"
+                                value={passwordDeletionGuard}
+                                onChange={(e) => setPasswordDeletionGuard(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseModal}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={handleDeleteAccountCheck}>
+                        Confirm Deletion
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 };
