@@ -23,7 +23,7 @@ type Plant struct {
 	Name     string `json:"Name"`
 	GardenID int    `json:"GardenID"`
 	Value    int    `json:"Value"`
-	Position int    `"json:"Value"`
+	Position int    `json:"Position"`
 }
 
 // Gets all Plants
@@ -116,10 +116,11 @@ func updatePlant(w http.ResponseWriter, r *http.Request) {
 				ID := updatedPlant.PlantID
 				age := updatedPlant.Age
 				name := updatedPlant.Name
+				position := updatedPlant.Position
 				if err != nil {
 					log.Fatal(err.Error())
 				}
-				updatedPlant := Plant{PlantID: ID, Age: age, Name: name}
+				updatedPlant := Plant{PlantID: ID, Age: age, Name: name, Position: position}
 				changed, err := updatePlantsDB(updatedPlant, db)
 				if err != nil {
 					fmt.Errorf(err.Error())
@@ -160,10 +161,14 @@ func DeletePlant(w http.ResponseWriter, r *http.Request) {
 
 // Gets the Garden
 func getGarden(w http.ResponseWriter, r *http.Request) {
-
+	params := mux.Vars(r)
+	userID, err := strconv.Atoi(params["userID"])
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 	db := connectToDB()
 	if db != nil {
-		gardens, err := readGardenDB(db)
+		gardens, err := readGardenDB(db, userID)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -193,35 +198,28 @@ func deleteGarden(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
 	if db != nil {
-		gardens, err := readGardenDB(db)
+		ID, err := strconv.Atoi(params["UserID"])
 		if err != nil {
 			log.Fatal(err.Error())
 		}
 
-		for _, item := range gardens {
-			if strconv.Itoa(item.UserID) == params["UserID"] {
+		deleteGardenDB(ID, db)
 
-				ID, err := strconv.Atoi(params["UserID"])
-				if err != nil {
-					log.Fatal(err.Error())
-				}
-
-				deleteGardenDB(ID, db)
-				break
-			}
-		}
 	}
-
 }
 
 // Update the Garden
 func updateGarden(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
 	var updateGarden Garden
 	_ = json.NewDecoder(r.Body).Decode(&updateGarden)
-
+	userID, err := strconv.Atoi(params["userID"])
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 	db := connectToDB()
 	if db != nil {
-		gardens, err := readGardenDB(db)
+		gardens, err := readGardenDB(db, userID)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -242,7 +240,7 @@ func updateGarden(w http.ResponseWriter, r *http.Request) {
 }
 
 // Reads information from the Garden
-func readGardenDB(db *sql.DB) ([]Garden, error) {
+func readGardenDB(db *sql.DB, userID int) ([]Garden, error) {
 	ctx := context.Background()
 
 	// Check if database is alive.
@@ -253,7 +251,7 @@ func readGardenDB(db *sql.DB) ([]Garden, error) {
 
 	// Custom SQL Selection Query
 	//Needs to put in server
-	tsql := (`SELECT [gardenID], [treeAge], [userID] FROM Garden`)
+	tsql := (`SELECT [gardenID], [treeAge], [userID] FROM Garden where userID = @p1`)
 
 	// Check Validity of the db
 	if db == nil {
@@ -263,7 +261,7 @@ func readGardenDB(db *sql.DB) ([]Garden, error) {
 	}
 
 	// Execute query
-	rows, err := db.QueryContext(ctx, tsql)
+	rows, err := db.QueryContext(ctx, tsql, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -430,7 +428,7 @@ func readPlantsDB(db *sql.DB) ([]Plant, error) {
 		if err != nil {
 			return nil, err
 		}
-		newPlant = Plant{PlantID: pID, Age: pAge, Name: name, GardenID: gID}
+		newPlant = Plant{PlantID: pID, Age: pAge, Name: name, GardenID: gID, Value: value, Position: position}
 		plants = append(plants, newPlant)
 
 	}
@@ -448,8 +446,8 @@ func createPlantsDB(newPlant Plant, db *sql.DB) (int64, error) {
 		return -1, err
 	}
 
-	tsql := "INSERT INTO dbo.Plant(age, name, gardenID) VALUES(1, @p1, @p2)"
-	insert, err := db.ExecContext(ctx, tsql, newPlant.Name, newPlant.GardenID)
+	tsql := "INSERT INTO dbo.Plant(age, name, gardenID, Value, Position) VALUES(1, @p1, @p2, @p3, @p4)"
+	insert, err := db.ExecContext(ctx, tsql, newPlant.Name, newPlant.GardenID, newPlant.Value, newPlant.Position)
 	if err != nil {
 		return -1, err
 
@@ -471,8 +469,8 @@ func updatePlantsDB(updatePlant Plant, db *sql.DB) (int64, error) {
 		return -1, err
 	}
 
-	tsql := "UPDATE dbo.Plant SET age = @p1, name = @p2 WHERE plantID = @p3"
-	insert, err := db.ExecContext(ctx, tsql, updatePlant.Age, updatePlant.Name, updatePlant.PlantID)
+	tsql := "UPDATE dbo.Plant SET age = @p1, name = @p2, position = @4 WHERE plantID = @p3"
+	insert, err := db.ExecContext(ctx, tsql, updatePlant.Age, updatePlant.Name, updatePlant.PlantID, updatePlant.Position)
 	if err != nil {
 		return -1, err
 
