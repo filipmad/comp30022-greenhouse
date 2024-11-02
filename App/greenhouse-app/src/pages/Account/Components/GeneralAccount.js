@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Form, Button, Container, Row, Col, Modal } from 'react-bootstrap';
 import Select from 'react-select';
 import AdminSettings from './AdminSettings';
+import { useNavigate } from 'react-router-dom';
 
 const AccountPage = ({ getAdmin }) => {
     const [firstName, setFirstName] = useState('');
@@ -10,6 +11,8 @@ const AccountPage = ({ getAdmin }) => {
     const [university, setUniversity] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    const navigate = useNavigate();
 
     // New states for deletion guard
     const [emailDeletionGuard, setEmailDeletionGuard] = useState('');
@@ -55,7 +58,7 @@ const AccountPage = ({ getAdmin }) => {
         } finally {
             document.cookie = "userid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             document.cookie = "gardenid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            window.location.reload();
+            navigate('/home')
         }
     };
 
@@ -92,7 +95,7 @@ const AccountPage = ({ getAdmin }) => {
     const handleDeleteAccountCheck = async () => {
         try {
             const response = await axios.post('http://localhost:8000/check-username', {
-                email: emailDeletionGuard, 
+                email: emailDeletionGuard,
                 password: passwordDeletionGuard
             }, { withCredentials: true });
             const { success, message } = response.data;
@@ -113,8 +116,8 @@ const AccountPage = ({ getAdmin }) => {
     const handleDeleteAccount = async () => {
         try {
             const response = await axios.post(
-                'http://localhost:8000/delete-profile', 
-                { email: emailDeletionGuard, password: passwordDeletionGuard }, 
+                'http://localhost:8000/delete-profile',
+                { email: emailDeletionGuard, password: passwordDeletionGuard },
                 { withCredentials: true }
             );
             const { success } = response.data;

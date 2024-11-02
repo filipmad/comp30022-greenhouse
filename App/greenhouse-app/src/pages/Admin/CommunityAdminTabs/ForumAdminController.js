@@ -3,105 +3,121 @@ import { Form, Button, Container, Table, Modal } from 'react-bootstrap';
 import axios from 'axios';
 
 export default function ForumManager() {
+    // State variables for creating a new forum post
     const [newTitle, setNewTitle] = useState('');
     const [newText, setNewText] = useState('');
-    const [newOptionOneText, setNewOptionOneText] = useState('');
-    const [newOptionTwoText, setNewOptionTwoText] = useState('');
+    const [newLikes, setNewLikes] = useState(-1);
+    const [newCommentsEnabled, setNewCommentsEnabled] = useState(0); // 0 means disabled
 
-    const [polls, setPolls] = useState([]);
-    const [title, setTitle] = useState('');
-    const [text, setText] = useState('');
-    const [optionOnetext, setOptionOneText] = useState('');
-    const [optionTwotext, setOptionTwoText] = useState('');
-    const [editPollID, setEditPollID] = useState(null);
+    // State variables for editing an existing forum post
+    const [editTitle, setEditTitle] = useState('');
+    const [editText, setEditText] = useState('');
+    const [editLikes, setEditLikes] = useState(-1);
+    const [editCommentsEnabled, setEditCommentsEnabled] = useState(0); // 0 means disabled
+    const [editPostID, setEditPostID] = useState(null);
     const [showModal, setShowModal] = useState(false);
 
-    const handleCreatePoll = async (e) => {
+    const [posts, setPosts] = useState([]); // Initialize posts to an empty array
+
+    const handleCreateForumPost = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/add-poll', {
-                title: newTitle,
-                text: newText,
-                optionOnetext: newOptionOneText,
-                optionTwotext: newOptionTwoText,
-            });
+            const response = await axios.post(
+                'http://localhost:8000/create-forumpost',
+                {
+                    title: newTitle,
+                    text: newText,
+                    likes: newLikes,
+                    commentsEnabled: newCommentsEnabled,
+                },
+                { withCredentials: true } // This enables cookies
+            );
             if (response.data.success) {
-                console.log("Poll created successfully!");
-                getPolls();
+                console.log("Forum post created successfully!");
+                getPosts();
                 resetForm();
             }
         } catch (error) {
-            console.error('Error creating poll:', error);
+            console.error('Error creating forum post:', error);
         }
     };
 
-    // Fetch polls
-    const getPolls = async () => {
+    const handleLikesChange = (e) => {
+        setNewLikes(e.target.checked ? 0 : -1);
+    };
+
+    const handleCommentsChange = (e) => {
+        setNewCommentsEnabled(e.target.checked ? 1 : 0); // 1 for enabled, 0 for disabled
+    };
+
+    // Fetch Forum Posts
+    const getPosts = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-polls');
-            setPolls(response.data);
+            const response = await axios.get('http://localhost:8000/get-forumposts');
+            setPosts(response.data || []); // Set posts to empty array if response.data is null
         } catch (error) {
-            console.log('Error loading polls:', error);
+            console.log('Error loading forum posts:', error);
+            setPosts([]); // Ensure posts is set to an empty array on error
         }
     };
 
-    // Handle updating a poll
-    const handleUpdatePoll = async () => {
+    // Handle updating a post
+    const handleUpdatePost = async () => {
         try {
-            await axios.post('http://localhost:8000/update-poll', {
-                pollID: editPollID,
-                title: title,
-                text: text,
-                optionOnetext: optionOnetext,
-                optionTwotext: optionTwotext,
+            await axios.post('http://localhost:8000/update-forumposts', {
+                postID: editPostID,
+                title: editTitle,
+                text: editText,
+                likes: editLikes,
+                commentsEnabled: editCommentsEnabled,
             });
-            console.log("Poll updated successfully!");
-            getPolls();
+            console.log("Forum post updated successfully!");
+            getPosts();
             resetForm();
         } catch (error) {
-            console.error('Error updating poll:', error);
+            console.error('Error updating forum post:', error);
         }
     };
 
-    // Handle deleting a poll
-    const handleDeletePoll = async (pollId) => {
+    // Handle deleting a post
+    const handleDeletePost = async (postId) => {
         try {
-            await axios.post('http://localhost:8000/delete-poll', {
-                pollID: pollId,
+            await axios.post('http://localhost:8000/delete-forumpost', {
+                postID: postId,
             });
-            console.log("Poll deleted successfully!");
-            getPolls();
+            console.log("Forum post deleted successfully!");
+            getPosts();
         } catch (error) {
-            console.error('Error deleting poll:', error);
+            console.error('Error deleting forum post:', error);
         }
     };
 
-    // Set the poll data in state when editing
-    const handleEditPoll = (poll) => {
-        setEditPollID(poll.pollID);
-        setTitle(poll.title);
-        setText(poll.text);
-        setOptionOneText(poll.optionOneText);
-        setOptionTwoText(poll.optionTwoText);
+    // Set the post data in state when editing
+    const handleEditPost = (post) => {
+        setEditPostID(post.postID);
+        setEditTitle(post.title);
+        setEditText(post.text);
+        setEditLikes(post.likes);
+        setEditCommentsEnabled(post.commentsEnabled); // Already set as 0 or 1
         setShowModal(true);
     };
 
     // Reset form state
     const resetForm = () => {
-        setEditPollID(null);
-        setTitle('');
-        setText('');
-        setOptionOneText('');
-        setOptionTwoText('');
+        setEditPostID(null);
         setNewTitle('');
         setNewText('');
-        setNewOptionOneText('');
-        setNewOptionTwoText('');
+        setNewLikes(-1); // Reset to default (-1 means likes are disabled)
+        setNewCommentsEnabled(0); // Reset comments to disabled (0)
+        setEditTitle('');
+        setEditText('');
+        setEditLikes(-1);
+        setEditCommentsEnabled(0); // Reset edit comments to disabled (0)
         setShowModal(false);
     };
 
     useEffect(() => {
-        getPolls();
+        getPosts();
     }, []);
 
     return (
@@ -117,33 +133,39 @@ export default function ForumManager() {
                             <th>Text</th>
                             <th>Author</th>
                             <th>Likes</th>
-                            <th>Comments Off</th>
+                            <th>Comments</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {polls.map((poll) => (
-                            <tr key={poll.pollID}>
-                                <td>{poll.title}</td>
-                                <td>{poll.text}</td>
-                                <td>Filip Madyarov</td>
-                                <td>{poll.optionOneText}</td>
-                                <td>{poll.optionTwoText}</td>
-                                <td>
-                                    <Button disabled variant="warning" onClick={() => handleEditPoll(poll)} className="me-2">
-                                        Edit
-                                    </Button>
-                                    <Button disabled variant="danger" onClick={() => handleDeletePoll(poll.pollID)}>
-                                        Delete
-                                    </Button>
-                                </td>
+                        {posts.length === 0 ? (
+                            <tr>
+                                <td colSpan="6" className="text-center">No forum posts available</td>
                             </tr>
-                        ))}
+                        ) : (
+                            posts.map((post) => (
+                                <tr key={post.postID}>
+                                    <td>{post.title}</td>
+                                    <td>{post.text}</td>
+                                    <td>{post.authorID}</td>
+                                    <td>{post.likes === -1 ? 'Disabled' : post.likes}</td>
+                                    <td>{post.commentsEnabled === 0 ? 'Disabled' : 'Enabled'}</td>
+                                    <td>
+                                        <Button variant="warning" onClick={() => handleEditPost(post)} className="me-2">
+                                            Edit
+                                        </Button>
+                                        <Button variant="danger" onClick={() => handleDeletePost(post.postID)}>
+                                            Delete
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </Table>
 
                 <h4 className="mt-5">Create New Forum Post</h4>
-                <Form onSubmit={handleCreatePoll}>
+                <Form onSubmit={handleCreateForumPost}>
                     <Form.Group className="mb-3">
                         <Form.Label>Title</Form.Label>
                         <Form.Control
@@ -165,24 +187,29 @@ export default function ForumManager() {
                             required
                         />
                     </Form.Group>
-                    <Form.Check // prettier-ignore
+                    <Form.Check
                         type="switch"
-                        id="custom-switch"
+                        id="likes-switch"
                         label="Enable Likes"
-                    /><Form.Check // prettier-ignore
-                        type="switch"
-                        id="custom-switch"
-                        label="Enable Comments"
+                        checked={newLikes === 0}
+                        onChange={handleLikesChange}
                     />
-                    <Button disabled variant="primary" type="submit">
+                    <Form.Check
+                        type="switch"
+                        id="comments-switch"
+                        label="Enable Comments"
+                        checked={newCommentsEnabled === 1} // Enable when newCommentsEnabled is 1
+                        onChange={handleCommentsChange}
+                    />
+                    <Button variant="primary" type="submit">
                         Create Forum Post
                     </Button>
                 </Form>
 
-                {/* Modal for editing a poll */}
+                {/* Modal for editing a post */}
                 <Modal show={showModal} onHide={resetForm}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Edit Poll</Modal.Title>
+                        <Modal.Title>Edit Forum Post</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form>
@@ -190,8 +217,8 @@ export default function ForumManager() {
                                 <Form.Label>Title</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
+                                    value={editTitle}
+                                    onChange={(e) => setEditTitle(e.target.value)}
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3">
@@ -199,33 +226,31 @@ export default function ForumManager() {
                                 <Form.Control
                                     as="textarea"
                                     rows={3}
-                                    value={text}
-                                    onChange={(e) => setText(e.target.value)}
+                                    value={editText}
+                                    onChange={(e) => setEditText(e.target.value)}
                                 />
                             </Form.Group>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Option One</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={optionOnetext}
-                                    onChange={(e) => setOptionOneText(e.target.value)}
-                                />
-                            </Form.Group>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Option Two</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    value={optionTwotext}
-                                    onChange={(e) => setOptionTwoText(e.target.value)}
-                                />
-                            </Form.Group>
+                            <Form.Check
+                                type="switch"
+                                id="likes-switch-edit"
+                                label="Enable Likes"
+                                checked={editLikes === 0}
+                                onChange={(e) => setEditLikes(e.target.checked ? 0 : -1)}
+                            />
+                            <Form.Check
+                                type="switch"
+                                id="comments-switch-edit"
+                                label="Enable Comments"
+                                checked={editCommentsEnabled === 1} // Enable when editCommentsEnabled is 1
+                                onChange={(e) => setEditCommentsEnabled(e.target.checked ? 1 : 0)}
+                            />
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button disabled variant="secondary" onClick={resetForm}>
+                        <Button variant="secondary" onClick={resetForm}>
                             Cancel
                         </Button>
-                        <Button disabled variant="primary" onClick={handleUpdatePoll}>
+                        <Button variant="primary" onClick={handleUpdatePost}>
                             Save Changes
                         </Button>
                     </Modal.Footer>

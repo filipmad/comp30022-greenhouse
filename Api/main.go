@@ -60,7 +60,6 @@ func main() {
 
 	r := mux.NewRouter()
 
-	// Define the /check-username route
 	r.HandleFunc("/check-username", handleUsernameCheck(db)).Methods("POST")
 	r.HandleFunc("/get-profile-details", handleProfileDetails(db))
 	r.HandleFunc("/create-profile", handleCreateProfile(db)).Methods("POST")
@@ -84,10 +83,14 @@ func main() {
 	r.HandleFunc("/update-poll", updatePollData(db)).Methods("POST")
 	r.HandleFunc("/delete-poll", deletePoll(db))
 
-	// r.HandleFunc("/polls", getPolls(db)).Methods("GET")        // Fetch all polls
-	// r.HandleFunc("/polls/add", addPoll(db))     // Add a new poll
-	// r.HandleFunc("/polls/update", updatePoll(db)) // Update an existing poll
-	// r.HandleFunc("/polls/delete", deletePoll(db)) // Delete a poll
+	r.HandleFunc("/create-forumpost", uploadForumPost(db)).Methods("POST")
+	r.HandleFunc("/get-forumposts", getForumPosts(db))
+	r.HandleFunc("/update-forumposts", updateForumPosts(db)).Methods("POST")
+	r.HandleFunc("/delete-forumpost", deleteForumPost(db))
+
+	r.HandleFunc("/check-comments", checkCommentForUser(db))
+	r.HandleFunc("/create-comment", uploadComment(db)).Methods("POST")
+	r.HandleFunc("/get-comments", getComments(db))
 
 	// Set up CORS to allow requests from the React frontend
 	c := cors.New(cors.Options{
@@ -101,6 +104,7 @@ func main() {
 	handler := c.Handler(r)
 
 	log.Println("Starting server on :8000")
-	log.Fatal(http.ListenAndServe(":8000", handler))
+	err = http.ListenAndServe(":8000", handler)
+        log.Fatal(err)
 
 }

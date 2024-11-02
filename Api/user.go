@@ -99,6 +99,7 @@ func handleUsernameCheck(db *sql.DB) http.HandlerFunc {
 				Expires:  time.Now().Add(24 * time.Hour), // 24-hour expiry
 				HttpOnly: true,                           // Prevent JavaScript access
 				Secure:   true,                           // Only send over HTTPS
+				SameSite: http.SameSiteNoneMode, 		  // Adjust SameSite
 			})
 
 			http.SetCookie(w, &http.Cookie{
@@ -108,6 +109,7 @@ func handleUsernameCheck(db *sql.DB) http.HandlerFunc {
 				Expires:  time.Now().Add(24 * time.Hour), // 24-hour expiry
 				HttpOnly: true,                           // Prevent JavaScript access
 				Secure:   true,                           // Only send over HTTPS
+				SameSite: http.SameSiteNoneMode, 		  // Adjust SameSite
 			})
 
 			response = ResponseMessage{
@@ -129,6 +131,9 @@ func handleUsernameCheck(db *sql.DB) http.HandlerFunc {
 
 		// Send the success/failure response back to the frontend
 		w.Header().Set("Content-Type", "application/json")
+		//w.Header().Set("Access-Control-Allow-Origin", "https://greenhouse-app-deployment-f7avhccxfaa3ewhp.australiasoutheast-01.azurewebsites.net")
+		//w.Header().Set("Access-Control-Allow-Credentials", "true")
+
 		json.NewEncoder(w).Encode(response)
 	}
 }
@@ -267,6 +272,7 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(-1 * time.Hour), // Expire the cookie
 		HttpOnly: true,
 		Secure:   true, // Use true if serving over HTTPS
+		SameSite: http.SameSiteNoneMode, 		  // Adjust SameSite
 	})
 
 	http.SetCookie(w, &http.Cookie{
@@ -276,10 +282,13 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(-1 * time.Hour), // Expire the cookie
 		HttpOnly: true,
 		Secure:   true, // Use true if serving over HTTPS
+		SameSite: http.SameSiteNoneMode, 		  // Adjust SameSite
 	})
 
 	// Optionally return a response to indicate the logout was successful
 	w.Header().Set("Content-Type", "application/json")
+	// w.Header().Set("Access-Control-Allow-Origin", "https://greenhouse-app-deployment-f7avhccxfaa3ewhp.australiasoutheast-01.azurewebsites.net")
+	// w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"success": true, "message": "Logged out successfully"}`))
 }

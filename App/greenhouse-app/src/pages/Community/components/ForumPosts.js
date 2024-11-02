@@ -1,92 +1,126 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Card, Row, Col, Image, Button, ListGroup, Form, InputGroup } from 'react-bootstrap';
 import { FaThumbsUp } from 'react-icons/fa';
+import axios from 'axios';
 
-const ForumPost = ({ /*profilePic,*/ title, datePosted, text, likes }) => {
-  // Example list of comments with local state to manage them
-  const [comments, setComments] = useState([
-    { author: "Jane Doe", content: "Great post! Really insightful." },
-    { author: "John Smith", content: "I completely agree with your points." },
-    { author: "Alice Johnson", content: "Thanks for sharing this information!" },
-    { author: "Bob Brown", content: "Interesting perspective!" },
-  ]);
-  
-  // State for the new comment input
+const ForumPost = ({ postID, title, datePosted, text, likes, commentsEnabled }) => {
+  // State for comments and likes
+  const [comments, setComments] = useState([]);
+  const [localLikes, setLocalLikes] = useState(likes);
   const [newComment, setNewComment] = useState("");
 
-  // Handle adding a new comment
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      setComments([...comments, { author: "Current User", content: newComment }]);
-      setNewComment("");
+  // Function to fetch all comments for the post
+  const fetchComments = async () => {
+    try {
+      const response = await axios.post(`http://localhost:8000/get-comments`, { id: postID }, { withCredentials: true });
+      // Ensure comments is always an array
+      console.log("comments: ", response.data.comments)
+      
+      setComments(response.data.comments || []); 
+    } catch (error) {
+      console.log('Error fetching comments', error);
     }
+  };
+
+  useEffect(() => {
+    // Fetch comments when the component mounts or postID changes
+    fetchComments();
+  }, [postID]);
+
+  const checkComments = async () => {
+    try {
+      const response = await axios.post('http://localhost:8000/check-comments', { postID: postID }, { withCredentials: true });
+      return response.data.hasCommented;
+    } catch (error) {
+      console.log('Error checking comments', error);
+      return false;
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (newComment.trim()) {
+      const hasCommented = await checkComments();
+
+      if (!hasCommented) {
+        try {
+          const commentData = { text: newComment, postID: postID };
+          const response = await axios.post('http://localhost:8000/create-comment', commentData, { withCredentials: true });
+
+          // Update comments with the new comment
+          setComments([...comments, { author: response.data.authorName, text: newComment }]);
+          setNewComment(""); // Clear input after adding comment
+        } catch (error) {
+          console.log('Error adding comment', error);
+        }
+      } else {
+        alert("You can only comment once!");
+      }
+    }
+  };
+
+  const handleLikes = () => {
+    setLocalLikes(localLikes + 1); // Increment likes
   };
 
   return (
     <Container className="my-4">
-      {/* Card wrapper for the post with padding and shadow styling */}
       <Card className="p-3 shadow-sm">
         <Row className="align-items-center">
-          {/* Profile Picture */}
           <Col xs="auto">
-            <Image 
-              src={/*profilePic ||*/ "https://via.placeholder.com/50"} 
-              roundedCircle 
-              width={50} 
-              height={50} 
-              alt="Profile" 
+            <Image
+              src="https://via.placeholder.com/50"
+              roundedCircle
+              width={50}
+              height={50}
+              alt="Profile"
             />
           </Col>
-          
-          {/* Title and Date Section */}
           <Col>
             <Card.Title as="h5" className="mb-0">{title || "Loading..."}</Card.Title>
             <Card.Subtitle className="text-muted">{datePosted || "Loading date..."}</Card.Subtitle>
           </Col>
         </Row>
-        
-        {/* Post Text Section */}
         <Card.Body className="pt-3">
           <Card.Text>{text || "Loading post content..."}</Card.Text>
         </Card.Body>
-        
-        {/* Likes Section */}
-        <Card.Footer className="d-flex align-items-center justify-content-between p-2">
-          <Button variant="outline-primary" size="sm" className="d-flex align-items-center">
-            <FaThumbsUp className="me-1" /> Like
-          </Button>
-          <span className="text-muted">{likes || 0} Likes</span>
-        </Card.Footer>
-        
-        {/* Comments Section */}
-        <Card.Body>
-          <h6>Comments</h6>
-          <ListGroup variant="flush">
-            {comments && comments.length > 0 ? (
-              comments.map((comment, index) => (
-                <ListGroup.Item key={index}>
-                  <strong>{comment.author}:</strong> {comment.content}
-                </ListGroup.Item>
-              ))
-            ) : (
-              <p className="text-muted">No comments yet. Be the first to comment!</p>
-            )}
-          </ListGroup>
-        </Card.Body>
-
-        {/* Add Comment Section */}
-        <Card.Footer>
-          <InputGroup>
-            <Form.Control 
-              placeholder="Add a comment..." 
-              value={newComment} 
-              onChange={(e) => setNewComment(e.target.value)} 
-            />
-            <Button variant="primary" onClick={handleAddComment}>
-              Comment
+        {likes !== -1 && (
+          <Card.Footer className="d-flex align-items-center justify-content-between p-2">
+            <Button variant="outline-primary" size="sm" className="d-flex align-items-center" onClick={handleLikes}>
+              <FaThumbsUp className="me-1" /> Like
             </Button>
-          </InputGroup>
-        </Card.Footer>
+            <span className="text-muted">{localLikes || 0} Likes</span>
+          </Card.Footer>
+        )}
+        {commentsEnabled === 1 && (
+          <Card.Body>
+            <h6>Comments</h6>
+            <ListGroup variant="flush">
+              {Array.isArray(comments) && comments.length > 0 ? (
+                comments.map((comment, index) => (
+                  <ListGroup.Item key={index}>
+                    <strong>{comment.author}:</strong> {comment.text}
+                  </ListGroup.Item>
+                ))
+              ) : (
+                <p className="text-muted">No comments yet. Be the first to comment!</p>
+              )}
+            </ListGroup>
+          </Card.Body>
+        )}
+        {commentsEnabled === 1 && (
+          <Card.Footer>
+            <InputGroup>
+              <Form.Control
+                placeholder="Add a comment..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+              />
+              <Button variant="primary" onClick={handleAddComment}>
+                Comment
+              </Button>
+            </InputGroup>
+          </Card.Footer>
+        )}
       </Card>
     </Container>
   );

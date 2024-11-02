@@ -9,41 +9,36 @@ import Poll from "./components/Poll";
 
 export default function Community() {
 	const [polls, setPolls] = useState([]);
+	const [forumPosts, setForumPosts] = useState([]); // State to hold forum posts
 	const [title, setTitle] = useState('');
 	const [author, setAuthor] = useState('');
 	const [text, setText] = useState('');
 	const [dateCreated, setDateCreated] = useState('');
 
 	// Fetch the recent blog post
-	const getRecentBlog = async () => {
-		try {
-			const response = await axios.post('http://localhost:8000/get-top-newspost', { title, author, text, dateCreated });
-			setAuthor(response.data.author);
-			setTitle(response.data.title);
-			setText(response.data.text);
-		} catch (error) {
-			console.error('Error fetching recent blog:', error);
-		}
-	};
 
 	// Fetch the polls data
 	const getPolls = async () => {
 		try {
 			const response = await axios.post('http://localhost:8000/get-polls');
-
-			const pollsData = response.data; 
+			const pollsData = response.data;
 			if (Array.isArray(pollsData) && pollsData != null) {
 				setPolls(pollsData); // Update the polls state with the actual data
-				console.log(response.data)
-			} else if (!pollsData) {
-				console.log("no array")
-			}
-
-			else {
+			} else {
 				console.error('Expected an array but got:', pollsData);
 			}
 		} catch (error) {
 			console.log('Error loading polls', error);
+		}
+	};
+
+	// Fetch forum posts
+	const getForumPosts = async () => {
+		try {
+			const response = await axios.get('http://localhost:8000/get-forumposts');
+			setForumPosts(response.data); // Update forumPosts state with the fetched data
+		} catch (error) {
+			console.error('Error fetching forum posts:', error);
 		}
 	};
 
@@ -72,16 +67,14 @@ export default function Community() {
 	};
 
 	useEffect(() => {
-		getRecentBlog();
 		getPolls(); // Fetch polls when the component mounts
+		getForumPosts(); // Fetch forum posts when the component mounts
 	}, []);
-
 
 	return (
 		<div className="community-container">
 			<div className="section polls">
 				<h2>Community Polls</h2>
-
 				{polls.length === 0 ? (
 					<div className="element"><p>No polls uploaded</p></div>
 				) : (
@@ -92,28 +85,28 @@ export default function Community() {
 							handleVote={handleVote}
 						/>
 					))
-					
 				)}
 			</div>
 
 			<div className="section posts">
 				<h2>Top Posts</h2>
-				<ForumPost
-				title={title}
-				datePosted={"01/01/2002"}
-				text={text}
-				/>
-				<ForumPost
-				title={title}
-				datePosted={"01/01/2002"}
-				text={text}
-				/>
-				<ForumPost
-				title={title}
-				datePosted={"01/01/2002"}
-				text={text}
-				/>
+				{forumPosts == null ? (
+					<p>No forum posts available</p>
+				) : (
+					forumPosts.map(post => (
+						<ForumPost
+							key={post.postID} // Use post.postID for a unique key for each ForumPost
+							postID={post.postID}
+							title={post.title}
+							datePosted={new Date(post.datePosted).toLocaleDateString()} // Assuming datePosted is part of the post
+							text={post.text}
+							likes={post.likes}
+							commentsEnabled={post.commentsEnabled}
+						/>
+					))
+				)}
 			</div>
+
 
 			<div className="section milestones">
 				<h2>Community Milestones</h2>
@@ -127,7 +120,6 @@ export default function Community() {
 					text={"do it for the people"}
 					progress={31}
 				/>
-
 			</div>
 		</div>
 	);
