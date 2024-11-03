@@ -108,7 +108,12 @@ class StreakTree extends Phaser.Scene {
 	}
 
 	getStreak() {
-		// Get the player's streak from the database
+
+        window.parent.postMessage('streak', '*');
+
+		// Handle response from the iframe
+
+		// sample
 		return 20;
 	}
 }

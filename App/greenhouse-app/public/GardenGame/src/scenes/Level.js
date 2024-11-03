@@ -568,6 +568,10 @@ class Level extends Phaser.Scene {
 
         console.log(`Swapped positions: ${plant1.name} is now at ${plant1.position}, ${plant2.name} is now at ${plant2.position}`);
 
+        // Send data to react container
+        window.parent.postMessage('swap', '*');
+        window.parent.postMessage([plant1.position, plant2.position], '*');
+
         // Update the plants in the database (not sure again on specific implementation)
         this.updatePlantPosition(plant1);
         this.updatePlantPosition(plant2);
@@ -575,14 +579,21 @@ class Level extends Phaser.Scene {
         // Update the display
         this.updatePlantDisplay(plant1);
         this.updatePlantDisplay(plant2);
+
+        
     }
 
     // Move a plant to a new position
     movePlant(plant, targetPosition) {
+        originalPosition = plant.position;
         console.log(`Moving plant ${plant.name} from position ${plant.position} to position ${targetPosition}.`);
         plant.position = targetPosition;
         this.updatePlantPosition(plant);
         this.updatePlantDisplay(plant);
+
+        // Send data to react container
+        window.parent.postMessage('move', '*');
+        window.parent.postMessage([originalPosition, targetPosition], '*');
     }
 
     // Update plant position in the database for the database (need to implement but just gonna log for now)
@@ -628,8 +639,12 @@ class Level extends Phaser.Scene {
     
 
     getPlayerPlants() {
-        // data format for garden: { plant, position }
 
+        // Ask react container for player plants
+        window.parent.postMessage('get', '*');
+        // Handle response from react container (need to implement)
+
+        // sample data
         return [
             { position: 1, name: "Basic Bud" },
             { position: 2, name: "Rare Bud" },
@@ -644,6 +659,7 @@ class Level extends Phaser.Scene {
             { position: 17, name: "Basic Bud" },
             { position: 18, name: "Rare Bud" }
         ];
+
     }
     
 
@@ -686,9 +702,15 @@ class Level extends Phaser.Scene {
     addCoins(amount) {
         // Add coins to user in the database
         console.log("Coins added: " + amount);
+
+        // Send data to react container
+        window.parent.postMessage(amount, '*');
     }
     
     sellPlant(plant) {
+        // notify that next 2 messages to react container are selling the plant
+        window.parent.postMessage('sell', '*');
+
         // Remove the plant's sprite from the scene
         if (plant.sprite) {
             plant.sprite.destroy();
@@ -697,8 +719,11 @@ class Level extends Phaser.Scene {
         // Remove the plant from the plants array
         this.plants = this.plants.filter(p => p !== plant);
     
-        // Update the database (currently just logging, will be replaced with actual implementation)
+        // Update the database
         console.log(`Removed plant ${plant.name} from position ${plant.position} in the database.`);
+
+        // Send position to database to remove the plant on the server side
+        window.parent.postMessage(plant.position, '*');
     
         // Add coins to the user
         this.addCoins(plant.value * 0.5);

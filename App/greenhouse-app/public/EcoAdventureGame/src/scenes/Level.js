@@ -334,14 +334,14 @@ class Level extends Phaser.Scene {
 	}
 
     sendHighScoreToDatabase(score) {
-        // Send the high score to the database at end of round
-        console.log('High score: ' + score);
+        // Send data to react container
+        window.parent.postMessage(score, '*');
     }
 
 
     addCoins() {
-        // Add coins to the database after round
-        console.log(this.coinsGained + ' coins collected');
+        // Send data to react container
+        window.parent.postMessage(this.coinsGained, '*');
     }
 
     getHighScore() {

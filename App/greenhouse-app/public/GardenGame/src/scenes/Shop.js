@@ -153,35 +153,53 @@ class Shop extends Phaser.Scene {
 	}
 
 	purchasePlant(name, price, description) {
+
+        window.parent.postMessage('buy', '*');
+
 		const coins = this.getPlayersCoins();
 		if (coins >= price) {
-			// Remove coins from player's account
-            this.setPlayersCoins(coins - price);
+
 			
             // Add the plant to the player's garden (need to query the database to find the next available position or give the user a message if there's no available position)
-			this.addPlantToGarden(name);
+			if(this.addPlantToGarden(name)) {
+				// Remove coins from player's account
+            	this.setPlayersCoins(coins - price);
 
-			console.log(`Bought ${description} for $${price}`);
+				console.log(`Bought ${description} for $${price}`);
+			}
+
+
 		}
 		else {
             // Display a message to the player saying they don't have enough coins.
             console.log("Not enough coins to buy this plant.");
-            return;
         }
+		window.parent.postMessage('complete', '*');
 	}
 
 	getPlayersCoins() {
         // Get the current number of coins the player has from the database.
+
+		// Handle input from container
+
 		const coins = 120;
         return coins;
     }
 
 	setPlayersCoins(coins) {
         // Update the current number of coins the player has in the database.
+		window.parent.postMessage(coins, '*');
     }
 
 	addPlantToGarden(name) {
         // Add the plant to the player's garden
         console.log(`Added plant ${name} to the garden.`);
+
+		// Send data to react container
+		window.parent.postMessage(name, '*');
+
+		// recieve conformation from react container or else failure to add plant in which case a message will be displayed.
+
+		return true;
     }
 }

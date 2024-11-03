@@ -483,9 +483,6 @@ class Level extends Phaser.Scene {
 
 	    // Disable input to prevent further selection of letters
 		this.input.enabled = false;
-
-		// Send comfirmation to the server that the game is complete
-		this.events.emit("game-complete");
 		
 		// Create a semi-transparent black background
 		const overlay = this.add.rectangle(
@@ -556,9 +553,12 @@ class Level extends Phaser.Scene {
 			duration: 1000,
 		});
 
-		this.addCoins();
+		window.parent.postMessage('complete', '*');
 
-		this.puzzleComplete();
+		if(!this.puzzleComplete()) {
+			this.addCoins();
+		}
+
 
 		// Delay a little to show the congratulations message
 		this.time.delayedCall(3000, () => {
@@ -577,10 +577,14 @@ class Level extends Phaser.Scene {
 
 	addCoins() {
 		// Add coins to the player's account
-		console.log("+100 coins");
+
+		window.parent.postMessage(100, '*');
 	}
 
 	puzzleComplete() {
-        // Update the player's completion of puzzle ID
+        window.parent.postMessage(this.puzzleID, '*');
+
+		// Check if the puzzle has already been completed by the player
+		return false;
     }
 }

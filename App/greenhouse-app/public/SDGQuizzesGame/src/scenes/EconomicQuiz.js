@@ -141,7 +141,6 @@ class EconomicQuiz extends Phaser.Scene {
     }
 
 	getQuestions() {
-		// get random questions from the database
 		// Probably 10 questions per quiz
 
         // Format: {question, answers, correctAnswerIndex} 
@@ -175,6 +174,8 @@ class EconomicQuiz extends Phaser.Scene {
 
 		// Add coins to user
 		console.log("Coins added: " + coins);
+
+        window.parent.postMessage(coins, '*');
 	}
 
 	addBonusCoins() {
@@ -182,5 +183,7 @@ class EconomicQuiz extends Phaser.Scene {
 
 		// Add bonus coins to user for completing the quiz
         console.log(coins + " Bonus coins added!");
+
+        window.parent.postMessage(coins, '*');
 	}
 }
