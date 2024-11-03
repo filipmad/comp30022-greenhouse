@@ -1,46 +1,27 @@
 class Level extends Phaser.Scene {
 	constructor() {
 		super("Level");
-
-		this.puzzleID = 1; // Replace with actual puzzle ID from database
-
-		// Input target words from database (10 Words probs for consistency)
-		this.targetWords = ['GOALS', 'SOCIETY', 'DEVELOPMENT', 'ENVIRONMENT', 'PROJECT', 
-			'ECONOMY', 'LEO', 'JORDAN', 'FILIP', 'KEN'];
-
-		// Input descriptions that show on popups
-		this.descriptions = [
-			'P\'s get degrees',
-			'Its going down the drain',
-			'Can we colonise venus for banter',
-			'Democrats created hurricane Milton',
-			'Hopefully this can get me a job',
-			'I like money',
-			'Professional SWEN Hater',
-			'Pepsi-Max king',
-			'Swedish-looking Russian',
-			'Gigachad jaw'];
 	}
 
 	preload() {
+
+	}
+	
+	create() {
+
+		this.puzzles = this.cache.json.get("puzzles", "assets/puzzles.json");
+		this.getRandomPuzzle();
+
 		this.mainGroup = this.add.group();
 		const background = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0xffffff);
 		background.setOrigin(0, 0);
 		background.setDepth(1);
 		this.mainGroup.add(background);
-
-
-		this.events.emit("scene-awake");
-
-		// Input structure {puzzleId, targetWords, descriptions}
 	
 		this.lettersArray = this.createWordSearch(this.targetWords);
 
 		this.createTargetWordsList();
 		this.createDescriptionPopups();
-	}
-	
-	create() {
 
 		// Start with a black rectangle covering the screen for fade-in
 		const fadeRectangle = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000);
@@ -60,6 +41,14 @@ class Level extends Phaser.Scene {
 		this.foundWords = [];
 		this.createWordSearchGrid(this.lettersArray);
 	}
+
+	getRandomPuzzle() {
+		const randomID = Math.ceil(Math.random() * this.puzzles.length);
+		const puzzle = this.puzzles.find(puzzle => puzzle.id === randomID)
+        this.targetWords = puzzle.words;
+		this.descriptions = puzzle.descriptions;
+		this.puzzleID = randomID;
+    }
 
 	createWordSearch(words) {
 		const gridSize = 14;
