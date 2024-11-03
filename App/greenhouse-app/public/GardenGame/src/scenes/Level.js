@@ -2,9 +2,6 @@ class Level extends Phaser.Scene {
 
     constructor() {
         super("Level");
-
-        // Initialize plants from the database
-        this.plants = this.getPlayerPlants();
         this.inventoryPosition = 0;
         this.smallPositions = [1, 2, 4, 5, 6, 7, 12, 13, 14, 15, 17, 18];
         this.mediumPositions = [3, 8, 11, 16];
@@ -28,8 +25,13 @@ class Level extends Phaser.Scene {
         this.createPlantPopUp();
         this.createRectanglePopUps();
 
-        for(const plant of this.plants) {
-            this.addPlant(plant.position, plant.name, plant.size);
+        this.plantCatalogue = this.cache.json.get('plant-catalogue');
+
+        this.initializePlants();
+        
+
+        for (const plant of this.plants) {
+            this.addPlant(plant);
         }
 
         const frames = [];
@@ -145,6 +147,25 @@ class Level extends Phaser.Scene {
             this.initiateMove(this.currentSelectedPlant);
             this.clickHandled = true;
         });
+
+        this.sellButton = this.add.text(400, 230, "Sell", { 
+            fontSize: "20px", 
+            fill: "#ff0000", 
+            fontStyle: "bold", 
+            fontFamily: "Arial",
+            backgroundColor: "#ffffff",
+            padding: { x: 10, y: 5 }
+        })
+            .setOrigin(0.5, 0.5)
+            .setVisible(false)
+            .setDepth(12)
+            .setInteractive({ useHandCursor: true });
+
+        this.sellButton.on('pointerdown', () => {
+            this.sellPlant(this.currentSelectedPlant);
+            this.hidePlantPopup();
+            this.clickHandled = true;
+        });
     }
 
     createRectanglePopUps() {
@@ -240,8 +261,7 @@ class Level extends Phaser.Scene {
         
         this.currentSelectedPlant = plantData; // Store the selected plant for move operations
 
-        // Get plant description (not sure if we get it from the database or load it in with the user data)
-        this.plantPopupText.setText(`This is ${plantName}`);
+        this.plantPopupText.setText(plantData.description);
 
         const popupWidth = 300;
         const popupHeight = 100;
@@ -267,7 +287,8 @@ class Level extends Phaser.Scene {
         this.plantPopupText.setPosition(popupX, popupY);
         this.plantPopupText.setVisible(true);
 
-        this.moveButton.setPosition(popupX, popupY + 30).setVisible(true);
+        this.moveButton.setPosition(popupX - 60, popupY + 30).setVisible(true);
+        this.sellButton.setPosition(popupX + 60, popupY + 30).setVisible(true);
 
         this.activePlantPopup = true;
 
@@ -282,6 +303,7 @@ class Level extends Phaser.Scene {
         this.plantPopup.setVisible(false);
         this.plantPopupText.setVisible(false);
         this.moveButton.setVisible(false);
+        this.sellButton.setVisible(false);
         this.activePlantPopup = false;
     }
 
@@ -606,28 +628,21 @@ class Level extends Phaser.Scene {
     
 
     getPlayerPlants() {
-        // data format for plant: { id, name, size, description, value }
         // data format for garden: { plant, position }
-        // sprite keys will just be the name of the plant
-        // position 0 is the player's inventory
-
-        // Example plant data for now but we'd retrieve this from the database (position would probs be at the end after all the plant data)
-        // don't know if we actually need to store the ids or not outside of the database (leaving it in this example)
-        // Left out descriptions in example but will be used
 
         return [
-            { id: 1, position: 1, name: "Basic Bud", size: 'small', value: 10 },
-            { id: 2, position: 2, name: "Rare Bud", size: 'small', value: 50 },
-            { id: 3, position: 3, name: "Regular Bush", size: 'medium', value: 30},
-            { id: 1, position: 6, name: "Basic Bud", size: 'small', value: 10 },
-            { id: 2, position: 7, name: "Rare Bud", size: 'small' , value: 50 },
-            { id: 4, position: 10, name: "Baby Tree", size: 'large', value: 100 },
-            { id: 3, position: 11, name: "Regular Bush", size: 'medium', value: 30 },
-            { id: 1, position: 12, name: "Basic Bud", size: 'small', value: 10 },
-            { id: 2, position: 13, name: "Rare Bud", size: 'small', value: 50 },
-            { id: 2, position: 15, name: "Rare Bud", size: 'small', value: 50 },
-            { id: 1, position: 17, name: "Basic Bud", size: 'small', value: 10 },
-            { id: 2, position: 18, name: "Rare Bud", size: 'small', value: 50 }
+            { position: 1, name: "Basic Bud" },
+            { position: 2, name: "Rare Bud" },
+            { position: 3, name: "Regular Bush" },
+            { position: 6, name: "Basic Bud" },
+            { position: 7, name: "Rare Bud" },
+            { position: 10, name: "Baby Tree" },
+            { position: 11, name: "Regular Bush" },
+            { position: 12, name: "Basic Bud" },
+            { position: 13, name: "Rare Bud" },
+            { position: 15, name: "Rare Bud" },
+            { position: 17, name: "Basic Bud" },
+            { position: 18, name: "Rare Bud" }
         ];
     }
     
@@ -640,11 +655,10 @@ class Level extends Phaser.Scene {
         this.scene.start("StreakTree");
     }
 
-    addPlant(position, name, size) {
-        if(position === this.inventoryPosition) {
-            this.addPlantToInventory(name, size);
-        }
-
+    addPlant(plant) {
+        const position = plant.position;
+        const name = plant.name;
+    
         const posData = this.getPositionCoordinates()[position];
     
         const { x, y, scale } = posData;
@@ -653,49 +667,69 @@ class Level extends Phaser.Scene {
         plantImage.scale = scale;
         plantImage.setInteractive({ useHandCursor: true });
     
-        // Find the plant data object corresponding to this position
-        const plantData = this.plants.find(p => p.position === position);
-    
-        plantData.sprite = plantImage;
+        // Assign the sprite to the plant data object
+        plant.sprite = plantImage;
     
         plantImage.on("pointerdown", () => {
             if (this.isAwaitingMoveTarget) {
-
                 // In Move Mode: Do not open popup or set clickHandled
                 return;
             }
-            this.showPlantDescription(name, plantImage.x, plantImage.y, plantData);
+            this.showPlantDescription(name, plantImage.x, plantImage.y, plant);
             this.clickHandled = true;
         });
     
         this.plantGroup.add(plantImage);
     }
-
-    addPlantToInventory(name, size) {
-        // Add plant to inventory
-        // Update inventory and display it
-    }
-
-    movePlantToInventory(plant) {
-        // Move plant from its current position to inventory
-        // Update inventory and display it
-
-        // Database: Update plant position to 0
-    }
-
-    sellPlant(plant) {
-        // Remove plant from the garden
-
-        // Database: Remove plant from user garden then add coins to user
-        this.addCoins(plant.value * 0.5);
-    }
+    
 
     addCoins(amount) {
         // Add coins to user in the database
         console.log("Coins added: " + amount);
     }
+    
+    sellPlant(plant) {
+        // Remove the plant's sprite from the scene
+        if (plant.sprite) {
+            plant.sprite.destroy();
+        }
+    
+        // Remove the plant from the plants array
+        this.plants = this.plants.filter(p => p !== plant);
+    
+        // Update the database (currently just logging, will be replaced with actual implementation)
+        console.log(`Removed plant ${plant.name} from position ${plant.position} in the database.`);
+    
+        // Add coins to the user
+        this.addCoins(plant.value * 0.5);
+    
+        // Optionally, show a message to the user (not sure how we want to do this)
+        console.log(`Sold plant ${plant.name} for ${plant.value * 0.5} coins.`);
+    }
 
-    // Only thing left to implement is inventory system and sell system
+    initializePlants() {
+        // Get player plants data
+        const playerPlantsData = this.getPlayerPlants();
+    
+        // Merge player plants with catalogue data
+        this.plants = playerPlantsData.map(playerPlant => {
+            // Find the plant details in the catalogue
+            const plantDetails = this.plantCatalogue.find(plant => plant.name === playerPlant.name);
+    
+            if (!plantDetails) {
+                console.error(`Plant with ID ${playerPlant.name} not found in the catalogue.`);
+                return null;
+            }
+    
+            // Merge the data
+            return {
+                ...plantDetails,
+                position: playerPlant.position,
+                sprite: null,
+            };
+        }).filter(plant => plant !== null); // Filter out any null entries due to missing data
+    }
+    
     
     
 }

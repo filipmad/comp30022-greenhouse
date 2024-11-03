@@ -2,7 +2,6 @@ class Shop extends Phaser.Scene {
 
 	constructor() {
 		super("Shop");
-		this.plants = this.getShopPlants();
 	}
 
 	create() {
@@ -40,9 +39,11 @@ class Shop extends Phaser.Scene {
 		smallPopup.visible = false;
 		mediumPopup.visible = false;
 		largePopup.visible = false;
+
+		this.plants = this.getShopPlants();
 	
 
-		const addItemToPopup = (popup, yPosition, iconKey, description, price, id) => {
+		const addItemToPopup = (popup, yPosition, iconKey, description, price, name) => {
 			// Plant icon on the left
 			const icon = this.add.image(45, yPosition, iconKey);
 			icon.displayWidth = 50;
@@ -73,7 +74,7 @@ class Shop extends Phaser.Scene {
 				color: "#ffffff",
 			});
 			buyButton.on("pointerdown", () => {
-				this.purchasePlant(id, price, description);
+				this.purchasePlant(name, price, description);
 			});
 			popup.add(buyButton);
 			popup.add(buyText);
@@ -85,17 +86,17 @@ class Shop extends Phaser.Scene {
 		for (const plant of this.plants) {
 			switch (plant.size) {
 				case "small": {
-					addItemToPopup(smallPopup, 50 + 100 * smallCount, plant.name, plant.name, plant.value, plant.id);
+					addItemToPopup(smallPopup, 50 + 100 * smallCount, plant.name, plant.name, plant.value, plant.name);
 					smallCount++;
                     break;
                 }
 				case "medium": {
-                    addItemToPopup(mediumPopup, 50 + 100 * mediumCount, plant.name, plant.name, plant.value, plant.id);
+                    addItemToPopup(mediumPopup, 50 + 100 * mediumCount, plant.name, plant.name, plant.value, plant.name);
 					mediumCount++;
                     break;
                 }
 				case "large": {
-                    addItemToPopup(largePopup, 50 + 100 * largeCount, plant.name, plant.name, plant.value, plant.id);
+                    addItemToPopup(largePopup, 50 + 100 * largeCount, plant.name, plant.name, plant.value, plant.name);
 					largeCount++;
                     break;
                 }
@@ -147,26 +148,18 @@ class Shop extends Phaser.Scene {
 	}
 
 	getShopPlants() {
-		// Get plants from the database (for simplicity, just provide all plants we have)
-		// data format for plant: { id, name, size, value }
-
-		// Example data:
-		return [
-            { id: 1, name: "Basic Bud", size: "small", value: 10 },
-            { id: 2, name: "Rare Bud", size: "small", value: 50 },
-            { id: 3, name: "Regular Bush", size: "medium", value: 30 },
-            { id: 4, name: "Baby Tree", size: "large", value: 100 },
-        ];
+		const plantCatalogue = this.cache.json.get('plant-catalogue');
+		return plantCatalogue;
 	}
 
-	purchasePlant(id, price, description) {
+	purchasePlant(name, price, description) {
 		const coins = this.getPlayersCoins();
 		if (coins >= price) {
 			// Remove coins from player's account
             this.setPlayersCoins(coins - price);
 			
-            // Add the plant to the player's inventory
-			this.addPlantToInventory(id);
+            // Add the plant to the player's garden (need to query the database to find the next available position or give the user a message if there's no available position)
+			this.addPlantToGarden(name);
 
 			console.log(`Bought ${description} for $${price}`);
 		}
@@ -187,7 +180,8 @@ class Shop extends Phaser.Scene {
         // Update the current number of coins the player has in the database.
     }
 
-	addPlantToInventory(id) {
-        // Add the plant with the given ID to the player's inventory (database with garden position 0).
+	addPlantToGarden(name) {
+        // Add the plant to the player's garden
+        console.log(`Added plant ${name} to the garden.`);
     }
 }

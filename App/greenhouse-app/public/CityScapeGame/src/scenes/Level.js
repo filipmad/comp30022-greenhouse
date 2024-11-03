@@ -16,6 +16,7 @@ class Level extends Phaser.Scene {
     create() {
         this.sceneStartTime = this.time.now;
 
+        this.randomEvents = this.cache.json.get("random-events", "assets/random-events.json");
 
 		// Start with a black rectangle covering the screen for fade-in
 		const fadeRectangle = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000);
@@ -317,42 +318,11 @@ class Level extends Phaser.Scene {
     }
 
     loadRandomEvent() {
-        // Implement logic to load a random event
-        console.log("Loading random event..."); // Currently just logging the message to the console
 
-        // Load a random event from a predefined list of events (in the database)
-        // Would load numEvents as a count from the database and then select a random event ID from that list.
-        const numEvents = 3;
-        const randomnumber = Math.floor(Math.random() * numEvents);
+        const numEvents = 5;
+        const randomID = Math.ceil(Math.random() * numEvents);
 
-        // Format: ID, Name, Description, Stats Increase/Decrease, Hidden Stat Increase/Decrease
-
-        // Example:
-        const randomEvent = {
-            id: 1,
-            name: "Climate Change",
-            description: "A drought has caused significant water loss in the city.",
-            statChange: {
-                population: 50,
-                funds: -100,
-                happiness: -0.5,
-                pollution: 0.5,
-                education: 0,
-                poverty: 0,
-                energyQuota: 0
-            },
-            hiddenStatChange: {
-                populationChange: 50,
-                fundsChange: -100,
-                happinessChange: -0.5,
-                pollutionChange: 0.5,
-                educationChange: 0,
-                povertyChange: 0,
-                energyQuotaChange: 0
-            }
-        };
-        // A random event could also be extended to include an image or sound effect
-        // to provide more immersive user experience
+        const randomEvent = this.randomEvents.find(event => event.id === randomID)
 
         return randomEvent;
     }
@@ -379,7 +349,7 @@ class Level extends Phaser.Scene {
     determineRandomEvent() {
         // 1/5 change a random event occurs
         const randomNumber = Math.random();
-        if(randomNumber < 0.2) {
+        if(randomNumber < 1) {
             this.randomEvent();
         }
     }
