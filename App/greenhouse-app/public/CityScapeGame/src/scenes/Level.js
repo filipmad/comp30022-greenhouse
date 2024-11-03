@@ -286,8 +286,8 @@ class Level extends Phaser.Scene {
     }
 
     saveStats() {
-        // Implement saving logic
-        console.log("Saving stats:", this.stats); // Currently just logging the stats to the console
+        // Send data to react container
+        window.parent.postMessage([this.stats, this.hiddenStats], '*');
     }
 
     loadStats() {

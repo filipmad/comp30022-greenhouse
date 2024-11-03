@@ -1,9 +1,41 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 const GameComponent = () => {
+  const iframeRef = useRef(null);
+
+  useEffect(() => {
+    function handleMessage(event) {
+      // Security check: Verify the origin of the message
+      if (event.origin !== window.location.origin) {
+        console.warn('Unknown origin:', event.origin);
+        return;
+      }
+
+      const data = event.data;
+
+      // Log for now until we add the connection
+      console.log('Data received from iframe:', data);
+
+      sendDataToDatabase(data);
+    }
+
+    // Add the event listener
+    window.addEventListener('message', handleMessage);
+
+    // Cleanup the event listener on unmount
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
+  function sendDataToDatabase(data) {
+    // we need to implement the logic to send data to the database
+  }
+
   return (
     <div style={{ textAlign: 'center' }}>
       <iframe
+        ref={iframeRef}
         title="phaser-game"
         src={`${process.env.PUBLIC_URL}/WordExplorerGame/index.html`}
         width="1067"
@@ -17,9 +49,9 @@ const GameComponent = () => {
 
 export default function WordExplorer() {
   return (
-	<div>
-		<h1>Word Explorer</h1>
-	  <GameComponent />
-	</div>
+    <div>
+      <h1>WordExplorer</h1>
+      <GameComponent />
+    </div>
   );
 }
