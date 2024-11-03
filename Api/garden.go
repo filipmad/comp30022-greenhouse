@@ -215,7 +215,7 @@ func updateGarden(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var updateGarden Garden
 	_ = json.NewDecoder(r.Body).Decode(&updateGarden)
-	userID, err := strconv.Atoi(params["userID"])
+	userID, err := strconv.Atoi(params["UserID"])
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -252,7 +252,7 @@ func readGardenDB(db *sql.DB, userID int) ([]Garden, error) {
 
 	// Custom SQL Selection Query
 	//Needs to put in server
-	tsql := (`SELECT Garden.gardenID, Garden.treeAge, Garden.userID, Users.userBalance FROM Garden INNER JOIN Users on Garden.userID = Users.userID where userID = @p1`)
+	tsql := (`SELECT Garden.gardenID, Garden.treeAge, Garden.userID, Users.userBalance FROM Garden INNER JOIN Users on Garden.userID = Users.userID where Users.userID = @p1`)
 
 	// Check Validity of the db
 	if db == nil {
@@ -319,17 +319,20 @@ func updateGardenDB(updated Garden, db *sql.DB) (int64, error) {
 	}
 	//Checks need to be implemented for both invalid values (negative vals, etc...)
 	//SQL statement
-	tsql := "UPDATE dbo.Garden INNER JOIN dbo.Users on dbo.Garden.userID == dbo.Users.userID SET treeAge = @p1, userBalance = @p2 WHERE gardenID = @p3"
-	modified, err := db.ExecContext(ctx, tsql, updated.TreeAge, updated.UserBalance, updated.GardenID)
+	qsql := "UPDATE dbo.Users SET userBalance = @p1 WHERE Users.userID = @p2"
+	tsql := " UPDATE dbo.Garden SET treeAge = @p1 WHERE gardenID = @p2"
+	update, err := db.ExecContext(ctx, qsql, updated.UserBalance, updated.UserID)
+	modified, err := db.ExecContext(ctx, tsql, updated.TreeAge, updated.GardenID)
 	if err != nil {
 		return -1, err
 	}
+	checkBalance, err := update.RowsAffected()
 	check, err := modified.RowsAffected()
 	if err != nil {
 		return -1, err
 	}
 
-	return check, nil
+	return check + checkBalance, nil
 }
 
 // Deletes Garden from DB based on userID
