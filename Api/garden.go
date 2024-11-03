@@ -13,9 +13,10 @@ import (
 )
 
 type Garden struct {
-	GardenID int `json:"GardenID"`
-	TreeAge  int `json:"TreeAge"`
-	UserID   int `json:"UserID"`
+	GardenID    int `json:"GardenID"`
+	TreeAge     int `json:"TreeAge"`
+	UserID      int `json:"UserID"`
+	UserBalance int `json:"UserBalance"`
 }
 type Plant struct {
 	PlantID  int    `json:"PlantID"`
@@ -41,7 +42,7 @@ func getPlants(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Gets specific user based on ID
+// Gets specific plant based on plant ID
 func getPlantByPlantID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
@@ -51,6 +52,7 @@ func getPlantByPlantID(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err.Error())
 
 		}
+		//For Every plant
 		for _, item := range plants {
 			if strconv.Itoa(item.PlantID) == params["PlantID"] {
 				json.NewEncoder(w).Encode(item)
@@ -101,7 +103,7 @@ func createPlant(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Updates data relating to user
+// Updates data relating to the Plant
 func updatePlant(w http.ResponseWriter, r *http.Request) {
 	var updatedPlant Plant
 	_ = json.NewDecoder(r.Body).Decode(&updatedPlant)
@@ -227,7 +229,6 @@ func updateGarden(w http.ResponseWriter, r *http.Request) {
 		for _, item := range gardens {
 
 			if item.UserID == updateGarden.UserID {
-
 				if err != nil {
 					log.Fatal(err.Error())
 				}
@@ -251,7 +252,7 @@ func readGardenDB(db *sql.DB, userID int) ([]Garden, error) {
 
 	// Custom SQL Selection Query
 	//Needs to put in server
-	tsql := (`SELECT [gardenID], [treeAge], [userID] FROM Garden where userID = @p1`)
+	tsql := (`SELECT Garden.gardenID, Garden.treeAge, Garden.userID, Users.userBalance FROM Garden INNER JOIN Users on Garden.userID = Users.userID where userID = @p1`)
 
 	// Check Validity of the db
 	if db == nil {
@@ -270,13 +271,13 @@ func readGardenDB(db *sql.DB, userID int) ([]Garden, error) {
 
 	var garden []Garden
 	for rows.Next() {
-		var gID, tAge, uID int
+		var gID, tAge, uID, userBalance int
 		var newGarden Garden
-		err := rows.Scan(&gID, &tAge, &uID)
+		err := rows.Scan(&gID, &tAge, &uID, &userBalance)
 		if err != nil {
 			return nil, err
 		}
-		newGarden = Garden{GardenID: gID, TreeAge: tAge, UserID: uID}
+		newGarden = Garden{GardenID: gID, TreeAge: tAge, UserID: uID, UserBalance: userBalance}
 		garden = append(garden, newGarden)
 
 	}
@@ -318,8 +319,8 @@ func updateGardenDB(updated Garden, db *sql.DB) (int64, error) {
 	}
 	//Checks need to be implemented for both invalid values (negative vals, etc...)
 	//SQL statement
-	tsql := "UPDATE dbo.Garden SET treeAge = @p1 WHERE gardenID = @p2"
-	modified, err := db.ExecContext(ctx, tsql, updated.TreeAge, updated.GardenID)
+	tsql := "UPDATE dbo.Garden INNER JOIN dbo.Users on dbo.Garden.userID == dbo.Users.userID SET treeAge = @p1, userBalance = @p2 WHERE gardenID = @p3"
+	modified, err := db.ExecContext(ctx, tsql, updated.TreeAge, updated.UserBalance, updated.GardenID)
 	if err != nil {
 		return -1, err
 	}
@@ -350,8 +351,7 @@ func deleteGardenDB(userID int, db *sql.DB) (int64, error) {
 	return check, nil
 }
 
-//Deletes a Specific Plant
-
+// Deletes a Specific Plant
 func deletePlantDB(flowerID int, db *sql.DB) (int64, error) {
 	ctx := context.Background()
 	// Check if database is alive.
@@ -370,7 +370,7 @@ func deletePlantDB(flowerID int, db *sql.DB) (int64, error) {
 	return check, nil
 }
 
-//Deletes All Plants
+//Deletes All Plants within a garden
 
 func deleteAllPlantDB(gardenID int, db *sql.DB) (int64, error) {
 	ctx := context.Background()
@@ -468,7 +468,6 @@ func updatePlantsDB(updatePlant Plant, db *sql.DB) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-
 	tsql := "UPDATE dbo.Plant SET age = @p1, name = @p2, position = @4 WHERE plantID = @p3"
 	insert, err := db.ExecContext(ctx, tsql, updatePlant.Age, updatePlant.Name, updatePlant.PlantID, updatePlant.Position)
 	if err != nil {
