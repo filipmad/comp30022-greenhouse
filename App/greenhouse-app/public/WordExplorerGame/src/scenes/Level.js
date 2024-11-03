@@ -191,16 +191,16 @@ class Level extends Phaser.Scene {
 	createDescriptionPopups() {
 		this.descriptionPopups = [];
 		const startX = 650;
-		const startY = 50;
+		const startY = 200;
 		const spacing = 30;
 	
 		this.targetWords.forEach((word, index) => {
 			// Create a semi-transparent background for the popup
 			const popupBackground = this.add.rectangle(
 				startX + 200,
-				startY + index * spacing,
-				200,
-				50,
+				startY,
+				220,
+				150,
 				0x000000,
 				0.8
 			).setOrigin(0, 0.5).setVisible(false).setDepth(3);
