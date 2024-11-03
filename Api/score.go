@@ -73,6 +73,9 @@ func getScores(w http.ResponseWriter, r *http.Request) {
 				log.Fatal(err.Error())
 			}
 			userScore, err = ReadCrosswordDB(db, userID, crosswordID)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
 
 		} else if params["gameType"] == "Quiz" {
 			userScore, err = ReadQuizDB(db, userID)
@@ -96,6 +99,7 @@ func updateEcoAdventure(w http.ResponseWriter, r *http.Request) {
 	}
 	var updated PersonalScore
 	_ = json.NewDecoder(r.Body).Decode(&updated)
+
 	db := connectToDB()
 	if db != nil {
 		scores, err := getUserID(db, userID)
@@ -105,7 +109,7 @@ func updateEcoAdventure(w http.ResponseWriter, r *http.Request) {
 			//Check if the user exists in the db
 			for _, item := range scores {
 				if item.UserID == updated.UserID {
-					updatedCoins := item.Coins + updated.HighScoreGame1.Coins
+					updatedCoins := updated.Coins + updated.HighScoreGame1.Coins
 					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updatedCoins, HighScoreGame1: updated.HighScoreGame1}
 					updateScore(db, updatedScore)
 					break
@@ -157,6 +161,7 @@ func updateCrossword(w http.ResponseWriter, r *http.Request) {
 	}
 	var updated PersonalScore
 	_ = json.NewDecoder(r.Body).Decode(&updated)
+	log.Printf("Decoded PersonalScore struct: %+v\n", updated)
 	db := connectToDB()
 	if db != nil {
 		scores, err := getUserID(db, userID)
@@ -166,7 +171,7 @@ func updateCrossword(w http.ResponseWriter, r *http.Request) {
 			//Check if User exists
 			for _, item := range scores {
 				if item.UserID == updated.UserID {
-					updatedScore := PersonalScore{UserID: updated.UserID, HighScoreGame2: updated.HighScoreGame2}
+					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updated.Coins, HighScoreGame3: updated.HighScoreGame3}
 					updateScore(db, updatedScore)
 					break
 				}
@@ -196,7 +201,7 @@ func UpdateQuiz1Score(w http.ResponseWriter, r *http.Request) {
 			//Check if User exists
 			for _, item := range users {
 				if item.UserID == userID {
-					updatedScore := PersonalScore{UserID: updated.UserID, HighScoreQuiz1: updated.HighScoreQuiz1}
+					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updated.Coins, HighScoreQuiz1: updated.HighScoreQuiz1}
 					updateScore(db, updatedScore)
 					break
 				}
@@ -322,6 +327,7 @@ func insertCrosswordCompletion(w http.ResponseWriter, r *http.Request) {
 	}
 	var newCrossword Crossword
 	_ = json.NewDecoder(r.Body).Decode(&newCrossword)
+
 	db := connectToDB()
 	if db != nil {
 
@@ -357,6 +363,7 @@ func updateScore(db *sql.DB, updated PersonalScore) (int64, error) {
 		return -1, err
 	}
 	rowsChanged, err := rows.RowsAffected()
+	fmt.Printf("%d", rowsChanged)
 	if err != nil {
 		return -1, err
 	}
@@ -369,24 +376,24 @@ func updateScore(db *sql.DB, updated PersonalScore) (int64, error) {
 		modified, check = db.ExecContext(ctx, qSQL, updated.HighScoreGame1.Score, updated.UserID)
 		//CityScape Updated
 	} else if updated.HighScoreGame2 != nil {
-		qSQL := (`UPDATE dbo.Cityscape SET Population = @p1, Funds = @p2, Happiness = @p3, Pollution = @p4, Education = @p5, Poverty = @p6, EnergyQuota = @p7,PopulationChange = @p8, PollutionChange = @p9, FundsChange = @p10, EducationChange = @p11, PovertyChange = @p12, EnergyQuotaChange = @p13, HappinessChange = @p14, where userID = @p5`)
-		modified, check = db.ExecContext(ctx, qSQL, updated.HighScoreGame2.Population, updated.HighScoreGame2.Funds, updated.HighScoreGame2.Happiness, updated.HighScoreGame2.Pollution, updated.HighScoreGame2.Education, updated.HighScoreGame2.Poverty, updated.HighScoreGame2.EnergyQuota, updated.HighScoreGame2.PopulationChange, updated.HighScoreGame2.PollutionChange, updated.HighScoreGame2.PovertyChange, updated.HighScoreGame2.EnergyQuotaChange, updated.HighScoreGame2.HappinessChange, updated.UserID)
+		qSQL := (`UPDATE dbo.Cityscape SET Population = @p1, Funds = @p2, Happiness = @p3, Pollution = @p4, Education = @p5, Poverty = @p6, EnergyQuota = @p7, PopulationChange = @p8, PollutionChange = @p9, FundsChange = @p10, EducationChange = @p11, PovertyChange = @p12, EnergyQuotaChange = @p13, HappinessChange = @p14 where userID = @p15`)
+		modified, check = db.ExecContext(ctx, qSQL, updated.HighScoreGame2.Population, updated.HighScoreGame2.Funds, updated.HighScoreGame2.Happiness, updated.HighScoreGame2.Pollution, updated.HighScoreGame2.Education, updated.HighScoreGame2.Poverty, updated.HighScoreGame2.EnergyQuota, updated.HighScoreGame2.PopulationChange, updated.HighScoreGame2.PollutionChange, updated.HighScoreGame2.FundsChange, updated.HighScoreGame2.EducationChange, updated.HighScoreGame2.PovertyChange, updated.HighScoreGame2.EnergyQuotaChange, updated.HighScoreGame2.HappinessChange, updated.UserID)
 		//CrossWord updated
 	} else if updated.HighScoreGame3 != nil {
 		qSQL := (`UPDATE dbo.Crossword SET HasCompleted = @p1 where userID = @p2 and crossWordID = @p3`)
 		modified, check = db.ExecContext(ctx, qSQL, updated.HighScoreGame3.HasCompleted, updated.UserID, updated.HighScoreGame3.CrosswordID)
 		//Highscore quiz updated
 	} else if updated.HighScoreQuiz1 != 0 {
-		fmt.Printf("Check")
-		qSQL := (`UPDATE dbo.Users SET quiz1HighScore = @p1 where UserID = @p2`)
+
+		qSQL := (`UPDATE dbo.Users SET quizOneHighScore = @p1 where UserID = @p2`)
 		modified, check = db.ExecContext(ctx, qSQL, updated.HighScoreQuiz1, updated.UserID)
 		//Highscore quiz 2 updated
 	} else if updated.HighScoreQuiz2 != 0 {
-		qSQL := (`UPDATE dbo.Users SET quiz2HighSCore = @p1 where UserID = @p2`)
+		qSQL := (`UPDATE dbo.Users SET quizTwoHighSCore = @p1 where UserID = @p2`)
 		modified, check = db.ExecContext(ctx, qSQL, updated.HighScoreQuiz2, updated.UserID)
 	} else {
 		//Highscore quiz 3 updated
-		qSQL := (`UPDATE dbo.Users SET quiz3HighScore = @p1 where UserID = @p2`)
+		qSQL := (`UPDATE dbo.Users SET quizThreeHighScore = @p1 where UserID = @p2`)
 		modified, check = db.ExecContext(ctx, qSQL, updated.HighScoreQuiz3, updated.UserID)
 	}
 	if check != nil {
@@ -481,13 +488,13 @@ func ReadCityScapeDB(db *sql.DB, userID int) (PersonalScore, error) {
 
 	//Scans every row and converts it into a struct to be returned
 	for rows.Next() {
-		var uID, cID, userBalance, population, funds, happiness, pollution, poverty, energyQuota, populationChange, fundsChange, happinessChange, pollutionChange, povertyChange, energyQuotaChange int
+		var uID, cID, education, educationChange, userBalance, population, funds, happiness, pollution, poverty, energyQuota, populationChange, fundsChange, happinessChange, pollutionChange, povertyChange, energyQuotaChange int
 
-		err := rows.Scan(&uID, &cID, &userBalance, &population, &funds, &happiness, &pollution, &poverty, &energyQuota, &populationChange, &fundsChange, &happinessChange, &pollutionChange, &povertyChange, &energyQuotaChange)
+		err := rows.Scan(&uID, &cID, &userBalance, &population, &funds, &happiness, &pollution, &poverty, &energyQuota, &populationChange, &fundsChange, &happinessChange, &pollutionChange, &povertyChange, &energyQuotaChange, &education, &educationChange)
 		if err != nil {
 			return PersonalScore{}, err
 		}
-		cityScape := CityScape{Population: population, Funds: funds, Happiness: happiness, Pollution: pollution, Poverty: poverty, EnergyQuota: energyQuota, PopulationChange: populationChange, FundsChange: fundsChange, HappinessChange: happinessChange, PollutionChange: pollutionChange, EnergyQuotaChange: energyQuotaChange}
+		cityScape := CityScape{Population: population, Funds: funds, Happiness: happiness, Education: education, Pollution: pollution, Poverty: poverty, EnergyQuota: energyQuota, PopulationChange: populationChange, FundsChange: fundsChange, HappinessChange: happinessChange, PollutionChange: pollutionChange, EnergyQuotaChange: energyQuotaChange, EducationChange: educationChange}
 		newScore := PersonalScore{UserID: uID, Coins: userBalance, HighScoreGame2: &cityScape}
 
 		return newScore, nil
@@ -603,7 +610,7 @@ func createScoreDB(db *sql.DB, userID int) (int64, error) {
 		return -1, err
 	}
 
-	cityScape := "INSERT INTO dbo.CityScape(userID,  population, funds, pollution, happiness, education, poverty, energyQuota, populationChange, fundChange, pollutionChange, happinessChange, educationChange. povertyChange) VALUES (@p1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)"
+	cityScape := "INSERT INTO dbo.CityScape(userID)"
 	insertCity, err := db.ExecContext(ctx, cityScape, userID)
 	if err != nil {
 		fmt.Printf("Execution error")
