@@ -33,25 +33,8 @@ class Level extends Phaser.Scene {
 		this.events.emit("scene-awake");
 
 		// Input structure {puzzleId, targetWords, descriptions}
-		// Not too sure how this looks in the database but should be fine
-
-		// Need to implement a grid generator to make a grid from the target words array
-		this.lettersArray = [
-			["T", "O", "I", "R", "L", "K", "E", "N", "N", "J", "G", "T", "A", "G"],
-			["N", "O", "T", "E", "A", "J", "N", "P", "K", "O", "D", "N" ,"O", "O"],
-			["E", "E", "O", "N", "J", "S", "L", "A", "O", "G", "N", "E", "R", "O"],
-			["M", "N", "N", "E", "P", "O", "E", "I", "O", "R", "N", "M", "J", "R"],
-			["P", "O", "I", "E", "A", "R", "R", "R", "N", "L", "O", "N", "D", "D"],
-			["O", "E", "E", "Y", "O", "T", "M", "D", "M", "N", "P", "O", "E", "E"],
-			["L", "M", "D", "T", "M", "E", "T", "N", "A", "R", "F", "R", "T", "V"],
-			["E", "L", "T", "E", "K", "O", "N", "O", "O", "N", "I", "I", "O", "E"],
-			["V", "O", "I", "I", "E", "P", "N", "J", "D", "A", "L", "V", "R", "L"],
-			["E", "O", "C", "C", "E", "C", "E", "O", "E", "E", "I", "N", "E", "B"],
-			["D", "E", "M", "O", "O", "C", "T", "E", "C", "E", "P", "E", "T", "O"],
-			["G", "V", "L", "S", "T", "R", "E", "O", "O", "E", "P", "M", "O", "R"],
-			["I", "E", "L", "R", "T", "C", "C", "E", "V", "C", "V", "V", "E", "O"],
-			["I", "E", "O", "D", "P", "E", "V", "V", "R", "A", "S", "R", "E", "N"]
-		];
+	
+		this.lettersArray = this.createWordSearch(this.targetWords);
 
 		this.createTargetWordsList();
 		this.createDescriptionPopups();
@@ -76,6 +59,129 @@ class Level extends Phaser.Scene {
 		});
 		this.foundWords = [];
 		this.createWordSearchGrid(this.lettersArray);
+	}
+
+	createWordSearch(words) {
+		const gridSize = 14;
+		const grid = [];
+	
+		// Initialize grid with spaces
+		for (let i = 0; i < gridSize; i++) {
+			grid[i] = [];
+			for (let j = 0; j < gridSize; j++) {
+				grid[i][j] = ' ';
+			}
+		}
+	
+		const directions = [
+			[1, 0],
+			[-1, 0],
+			[0, 1],
+			[0, -1],
+			[1, -1],
+			[-1, -1],
+			[1, 1],
+			[-1, 1],
+		];
+	
+		const wordPositions = []; // To keep track of the positions of placed words
+	
+		for (let word of words) {
+			word = word.toUpperCase();
+	
+			// Randomly reverse the word
+			if (Math.random() < 0.5) {
+				word = word.split('').reverse().join('');
+			}
+	
+			let placed = false;
+			let attempts = 0;
+	
+			while (!placed && attempts < 1000) {
+				attempts++;
+	
+				// Random direction
+				const dirIndex = Math.floor(Math.random() * directions.length);
+				const dx = directions[dirIndex][0];
+				const dy = directions[dirIndex][1];
+	
+				// Random starting point
+				const x = Math.floor(Math.random() * gridSize);
+				const y = Math.floor(Math.random() * gridSize);
+	
+				// Check if word fits
+				const wordLength = word.length;
+				const endX = x + dx * (wordLength - 1);
+				const endY = y + dy * (wordLength - 1);
+	
+				if (endX >= 0 && endX < gridSize && endY >= 0 && endY < gridSize) {
+					// Check if word can be placed without invalidating existing words
+					let canPlace = true;
+					let xx = x;
+					let yy = y;
+					const positions = [];
+	
+					for (let i = 0; i < wordLength; i++) {
+						const c = word[i];
+						const existingChar = grid[yy][xx];
+	
+						// If there's an existing letter
+						if (existingChar !== ' ') {
+							// Check if overwriting it would break any existing words
+							if (!isValidOverwrite(xx, yy, c, wordPositions)) {
+								canPlace = false;
+								break;
+							}
+						}
+	
+						positions.push({ x: xx, y: yy, letter: c });
+						xx += dx;
+						yy += dy;
+					}
+	
+					if (canPlace) {
+						// Place the word
+						for (let pos of positions) {
+							grid[pos.y][pos.x] = pos.letter;
+						}
+						wordPositions.push(positions);
+						placed = true;
+					}
+				}
+			}
+	
+			if (!placed) {
+				console.log(`Failed to place word: ${word}`);
+			}
+		}
+	
+		// Fill empty cells with random letters
+		const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	
+		for (let i = 0; i < gridSize; i++) {
+			for (let j = 0; j < gridSize; j++) {
+				if (grid[i][j] === ' ') {
+					grid[i][j] = letters.charAt(Math.floor(Math.random() * letters.length));
+				}
+			}
+		}
+	
+		return grid;
+	
+		// Helper function to check if overwriting a letter is valid
+		function isValidOverwrite(x, y, newChar, wordPositions) {
+			for (let wordPos of wordPositions) {
+				for (let pos of wordPos) {
+					if (pos.x === x && pos.y === y) {
+						// If the new character is different, overwriting it would invalidate the existing word
+						if (pos.letter !== newChar) {
+							return false;
+						}
+					}
+				}
+			}
+			return true;
+		}
 	}
 
 	createTargetWordsList() {
