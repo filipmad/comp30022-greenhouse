@@ -585,7 +585,7 @@ class Level extends Phaser.Scene {
 
     // Move a plant to a new position
     movePlant(plant, targetPosition) {
-        originalPosition = plant.position;
+        const originalPosition = plant.position;
         console.log(`Moving plant ${plant.name} from position ${plant.position} to position ${targetPosition}.`);
         plant.position = targetPosition;
         this.updatePlantPosition(plant);
