@@ -164,7 +164,7 @@ func DeletePlant(w http.ResponseWriter, r *http.Request) {
 // Gets the Garden
 func getGarden(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	userID, err := strconv.Atoi(params["userID"])
+	userID, err := strconv.Atoi(params["UserID"])
 	if err != nil {
 		log.Fatal(err.Error())
 	}
