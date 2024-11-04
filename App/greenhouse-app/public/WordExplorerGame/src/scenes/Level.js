@@ -1,47 +1,25 @@
 class Level extends Phaser.Scene {
 	constructor() {
 		super("Level");
-		this.foundWords = [];
 	}
+	
+	create() {
 
-	preload() {
+		window.addEventListener('message', this.handleMessage.bind(this));
+
+		this.puzzles = this.cache.json.get("puzzles", "assets/puzzles.json");
+		this.getRandomPuzzle();
+
 		this.mainGroup = this.add.group();
 		const background = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0xffffff);
 		background.setOrigin(0, 0);
 		background.setDepth(1);
 		this.mainGroup.add(background);
-
-
-		this.events.emit("scene-awake");
-
-		// Input target words from database (10 Words)
-		this.targetWords = ['GOALS', 'SOCIETY', 'DEVELOPMENT', 'ENVIRONMENT', 'PROJECT', 
-			'ECONOMY', 'LEO', 'JORDAN', 'FILIP', 'KEN'];
-
-		// Input grid of letters from database (generate using target words in a word search maker)
-		// Need to make grid size variable based on what the external generator spits out
-		// For now its just an example
-		this.lettersArray = [
-			["T", "O", "I", "R", "L", "K", "E", "N", "N", "J", "G", "T", "A", "G"],
-			["N", "O", "T", "E", "A", "J", "N", "P", "K", "O", "D", "N" ,"O", "O"],
-			["E", "E", "O", "N", "J", "S", "L", "A", "O", "G", "N", "E", "R", "O"],
-			["M", "N", "N", "E", "P", "O", "E", "I", "O", "R", "N", "M", "J", "R"],
-			["P", "O", "I", "E", "A", "R", "R", "R", "N", "L", "O", "N", "D", "D"],
-			["O", "E", "E", "Y", "O", "T", "M", "D", "M", "N", "P", "O", "E", "E"],
-			["L", "M", "D", "T", "M", "E", "T", "N", "A", "R", "F", "R", "T", "V"],
-			["E", "L", "T", "E", "K", "O", "N", "O", "O", "N", "I", "I", "O", "E"],
-			["V", "O", "I", "I", "E", "P", "N", "J", "D", "A", "L", "V", "R", "L"],
-			["E", "O", "C", "C", "E", "C", "E", "O", "E", "E", "I", "N", "E", "B"],
-			["D", "E", "M", "O", "O", "C", "T", "E", "C", "E", "P", "E", "T", "O"],
-			["G", "V", "L", "S", "T", "R", "E", "O", "O", "E", "P", "M", "O", "R"],
-			["I", "E", "L", "R", "T", "C", "C", "E", "V", "C", "V", "V", "E", "O"],
-			["I", "E", "O", "D", "P", "E", "V", "V", "R", "A", "S", "R", "E", "N"]
-		];
+	
+		this.lettersArray = this.createWordSearch(this.targetWords);
 
 		this.createTargetWordsList();
-	}
-	
-	create() {
+		this.createDescriptionPopups();
 
 		// Start with a black rectangle covering the screen for fade-in
 		const fadeRectangle = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000);
@@ -58,7 +36,139 @@ class Level extends Phaser.Scene {
         		fadeRectangle.destroy();
     		}
 		});
+		this.foundWords = [];
 		this.createWordSearchGrid(this.lettersArray);
+	}
+
+	getRandomPuzzle() {
+		const randomID = Math.ceil(Math.random() * this.puzzles.length);
+		const puzzle = this.puzzles.find(puzzle => puzzle.id === randomID)
+        this.targetWords = puzzle.words;
+		this.descriptions = puzzle.descriptions;
+		this.puzzleID = randomID;
+    }
+
+	createWordSearch(words) {
+		const gridSize = 14;
+		const grid = [];
+	
+		// Initialize grid with spaces
+		for (let i = 0; i < gridSize; i++) {
+			grid[i] = [];
+			for (let j = 0; j < gridSize; j++) {
+				grid[i][j] = ' ';
+			}
+		}
+	
+		const directions = [
+			[1, 0],
+			[-1, 0],
+			[0, 1],
+			[0, -1],
+			[1, -1],
+			[-1, -1],
+			[1, 1],
+			[-1, 1],
+		];
+	
+		const wordPositions = []; // To keep track of the positions of placed words
+	
+		for (let word of words) {
+			word = word.toUpperCase();
+	
+			// Randomly reverse the word
+			if (Math.random() < 0.5) {
+				word = word.split('').reverse().join('');
+			}
+	
+			let placed = false;
+			let attempts = 0;
+	
+			while (!placed && attempts < 1000) {
+				attempts++;
+	
+				// Random direction
+				const dirIndex = Math.floor(Math.random() * directions.length);
+				const dx = directions[dirIndex][0];
+				const dy = directions[dirIndex][1];
+	
+				// Random starting point
+				const x = Math.floor(Math.random() * gridSize);
+				const y = Math.floor(Math.random() * gridSize);
+	
+				// Check if word fits
+				const wordLength = word.length;
+				const endX = x + dx * (wordLength - 1);
+				const endY = y + dy * (wordLength - 1);
+	
+				if (endX >= 0 && endX < gridSize && endY >= 0 && endY < gridSize) {
+					// Check if word can be placed without invalidating existing words
+					let canPlace = true;
+					let xx = x;
+					let yy = y;
+					const positions = [];
+	
+					for (let i = 0; i < wordLength; i++) {
+						const c = word[i];
+						const existingChar = grid[yy][xx];
+	
+						// If there's an existing letter
+						if (existingChar !== ' ') {
+							// Check if overwriting it would break any existing words
+							if (!isValidOverwrite(xx, yy, c, wordPositions)) {
+								canPlace = false;
+								break;
+							}
+						}
+	
+						positions.push({ x: xx, y: yy, letter: c });
+						xx += dx;
+						yy += dy;
+					}
+	
+					if (canPlace) {
+						// Place the word
+						for (let pos of positions) {
+							grid[pos.y][pos.x] = pos.letter;
+						}
+						wordPositions.push(positions);
+						placed = true;
+					}
+				}
+			}
+	
+			if (!placed) {
+				console.log(`Failed to place word: ${word}`);
+			}
+		}
+	
+		// Fill empty cells with random letters
+		const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	
+		for (let i = 0; i < gridSize; i++) {
+			for (let j = 0; j < gridSize; j++) {
+				if (grid[i][j] === ' ') {
+					grid[i][j] = letters.charAt(Math.floor(Math.random() * letters.length));
+				}
+			}
+		}
+	
+		return grid;
+	
+		// Helper function to check if overwriting a letter is valid
+		function isValidOverwrite(x, y, newChar, wordPositions) {
+			for (let wordPos of wordPositions) {
+				for (let pos of wordPos) {
+					if (pos.x === x && pos.y === y) {
+						// If the new character is different, overwriting it would invalidate the existing word
+						if (pos.letter !== newChar) {
+							return false;
+						}
+					}
+				}
+			}
+			return true;
+		}
 	}
 
 	createTargetWordsList() {
@@ -74,6 +184,39 @@ class Level extends Phaser.Scene {
 			this.targetWordsText.push(text);
 		});
 	}
+
+	// Create popups (start invisible)
+	createDescriptionPopups() {
+		this.descriptionPopups = [];
+		const startX = 650;
+		const startY = 200;
+	
+		this.targetWords.forEach((word, index) => {
+			// Create a semi-transparent background for the popup
+			const popupBackground = this.add.rectangle(
+				startX + 200,
+				startY,
+				220,
+				150,
+				0x000000,
+				0.8
+			).setOrigin(0, 0.5).setVisible(false).setDepth(3);
+	
+			// Create the description text
+			const popupText = this.add.text(
+				startX + 205,
+				startY,
+				this.descriptions[index],
+				{ fontSize: '18px', color: '#ffffff', wordWrap: { width: 190 } }
+			).setOrigin(0, 0.5).setVisible(false).setDepth(4);
+	
+			this.mainGroup.add(popupBackground);
+			this.mainGroup.add(popupText);
+	
+			this.descriptionPopups.push({ background: popupBackground, text: popupText });
+		});
+	}
+	
 	
 	createWordSearchGrid(lettersArray) {
 		const gridSize = 14;
@@ -266,10 +409,13 @@ class Level extends Phaser.Scene {
 		if (targetWordIndex !== -1) {
 			this.targetWordsText[targetWordIndex].setStyle({
 				fontSize: '24px', // Increase font size
-				backgroundColor: '#00ff00' // Add black background
+				backgroundColor: '#00ff00' // Add green background
 			});
 			this.targetWordsText[targetWordIndex].setFontStyle('bold'); // Make font bold
 		}
+
+        // Show the description popup
+        this.showDescriptionPopup(targetWordIndex);
 
 		// Check if all target words have been found
 		if (this.foundWords.length === this.targetWords.length) {
@@ -277,6 +423,36 @@ class Level extends Phaser.Scene {
 		}
 
 	}
+
+	showDescriptionPopup(index) {
+		const popup = this.descriptionPopups[index];
+		if (popup) {
+			// Make the popup visible
+			popup.background.setVisible(true);
+			popup.text.setVisible(true);
+	
+			this.tweens.add({
+				targets: [popup.background, popup.text],
+				alpha: { from: 0, to: 1 },
+				duration: 500,
+				onComplete: () => {
+					// Hide the popup after 5 seconds
+					this.time.delayedCall(5000, () => {
+						this.tweens.add({
+							targets: [popup.background, popup.text],
+							alpha: { from: 1, to: 0 },
+							duration: 500,
+							onComplete: () => {
+								popup.background.setVisible(false);
+								popup.text.setVisible(false);
+							}
+						});
+					});
+				}
+			});
+		}
+	}
+	
 	
 	calculateDirection(startTile, currentTile) {
 		const rowDiff = currentTile.row - startTile.row;
@@ -293,9 +469,6 @@ class Level extends Phaser.Scene {
 
 	    // Disable input to prevent further selection of letters
 		this.input.enabled = false;
-
-		// Send comfirmation to the server that the game is complete
-		this.events.emit("game-complete");
 		
 		// Create a semi-transparent black background
 		const overlay = this.add.rectangle(
@@ -366,7 +539,8 @@ class Level extends Phaser.Scene {
 			duration: 1000,
 		});
 
-		this.addCoins();
+		this.puzzleComplete()
+
 
 		// Delay a little to show the congratulations message
 		this.time.delayedCall(3000, () => {
@@ -383,8 +557,39 @@ class Level extends Phaser.Scene {
 	
 	}
 
+	puzzleComplete() {
+        window.parent.postMessage({type: "complete", id: this.puzzleID}, '*');
+
+		// Check if the puzzle has already been completed by the player
+		return this.complete;
+    }
+
 	addCoins() {
 		// Add coins to the player's account
-		console.log("+100 coins");
+		window.parent.postMessage({type: "addCoins", coins: 100}, '*');
 	}
+
+
+
+	handleMessage(event) {
+        // Security check: Verify the origin of the message
+        if (event.origin !== window.location.origin) {
+            console.warn('Unknown origin:', event.origin);
+            return;
+        }
+    
+        const data = event.data;
+    
+        if (data.type === 'completeResponse') {
+            console.log("Received completeResponse message:", data);
+
+			if (data.complete == false) {
+				this.addCoins();
+			}
+    
+
+        } else {
+            console.warn('Unknown message type:', data.type);
+        }
+    }
 }

@@ -1,0 +1,117 @@
+[
+	{
+		"id": 1,
+		"name": "Climate Change",
+		"description": "A drought has caused significant water loss in the city.",
+		"statChange": {
+			"population": 50,
+			"funds": -100,
+			"happiness": -0.5,
+			"pollution": 0.5,
+			"education": 0,
+			"poverty": 0,
+			"energyQuota": 0
+		},
+		"hiddenStatChange": {
+			"populationChange": 50,
+			"fundsChange": -100,
+			"happinessChange": -0.5,
+			"pollutionChange": 0.5,
+			"educationChange": 0,
+			"povertyChange": 0,
+			"energyQuotaChange": 0
+		}
+	},
+	{
+		"id": 2,
+		"name": "Climate Change2",
+		"description": "A drought has caused significant water loss in the city.",
+		"statChange": {
+			"population": 50,
+			"funds": -100,
+			"happiness": -0.5,
+			"pollution": 0.5,
+			"education": 0,
+			"poverty": 0,
+			"energyQuota": 0
+		},
+		"hiddenStatChange": {
+			"populationChange": 50,
+			"fundsChange": -100,
+			"happinessChange": -0.5,
+			"pollutionChange": 0.5,
+			"educationChange": 0,
+			"povertyChange": 0,
+			"energyQuotaChange": 0
+		}
+	},
+	{
+		"id": 3,
+		"name": "Climate Change",
+		"description": "A drought has caused significant water loss in the city.",
+		"statChange": {
+			"population": 50,
+			"funds": -100,
+			"happiness": -0.5,
+			"pollution": 0.5,
+			"education": 0,
+			"poverty": 0,
+			"energyQuota": 0
+		},
+		"hiddenStatChange": {
+			"populationChange": 50,
+			"fundsChange": -100,
+			"happinessChange": -0.5,
+			"pollutionChange": 0.5,
+			"educationChange": 0,
+			"povertyChange": 0,
+			"energyQuotaChange": 0
+		}
+	},
+	{
+		"id": 4,
+		"name": "Climate Change4",
+		"description": "A drought has caused significant water loss in the city.",
+		"statChange": {
+			"population": 50,
+			"funds": -100,
+			"happiness": -0.5,
+			"pollution": 0.5,
+			"education": 0,
+			"poverty": 0,
+			"energyQuota": 0
+		},
+		"hiddenStatChange": {
+			"populationChange": 50,
+			"fundsChange": -100,
+			"happinessChange": -0.5,
+			"pollutionChange": 0.5,
+			"educationChange": 0,
+			"povertyChange": 0,
+			"energyQuotaChange": 0
+		}
+	},
+	{
+		"id": 5,
+		"name": "Climate Change5",
+		"description": "A drought has caused significant water loss in the city.",
+		"statChange": {
+			"population": 50,
+			"funds": -100,
+			"happiness": -0.5,
+			"pollution": 0.5,
+			"education": 0,
+			"poverty": 0,
+			"energyQuota": 0
+		},
+		"hiddenStatChange": {
+			"populationChange": 50,
+			"fundsChange": -100,
+			"happinessChange": -0.5,
+			"pollutionChange": 0.5,
+			"educationChange": 0,
+			"povertyChange": 0,
+			"energyQuotaChange": 0
+		}
+	}
+]

@@ -1,0 +1,77 @@
+[
+    {
+        "id": 1,
+        "words": ["HEALTH", "WATER", "JOBS", "PEACE", "ENERGY", "GROWTH", "EQUITY", "CLIMATE", "FOOD", "JUSTICE"],
+		"descriptions": [
+			"Promoting well-being and access to quality healthcare for all",
+			"Ensuring availability of clean and safe water resources",
+			"Providing decent work opportunities and economic growth",
+			"Fostering peaceful societies and reducing violence",
+			"Supporting access to affordable, sustainable energy sources",
+			"Encouraging economic progress that benefits everyone",
+			"Achieving fairness and equal opportunities for all",
+			"Addressing climate change and its impacts",
+			"Ensuring food security and promoting sustainable agriculture",
+			"Upholding rights and access to fair legal systems"]
+    },
+    {
+        "id": 2,
+        "words": ["HOUSING", "SAFETY", "ACCESS", "RIGHTS", "NATURE", "INCOME", "EQUALITY", "OCEANS", "WASTE", "DIVERSITY"],
+		"descriptions": [
+			"Providing safe and affordable living conditions",
+			"Ensuring secure environments free from harm and danger",
+			"Guaranteeing availability of essential services and opportunities",
+			"Protecting basic human rights and freedoms",
+			"Preserving and restoring natural ecosystems",
+			"Supporting fair wages and financial stability",
+			"Promoting gender and social equality",
+			"Safeguarding marine life and sustainable use of ocean resources",
+			"Reducing waste through recycling and responsible management",
+			"Embracing cultural, social, and biological diversity"]
+    },
+    {
+        "id": 3,
+        "words": ["EDUCATION", "HEALTH", "EQUALITY", "CLEAN", "SUPPORT", "AIR", "EMPOWER", "REDUCE", "PROTECT", "GREEN"],
+		"descriptions": [
+			"Ensuring inclusive and quality learning for all",
+			"Enhancing healthcare and wellness",
+			"Achieving equal rights and opportunities",
+			"Ensuring pollution-free environments",
+			"Providing aid and assistance to communities",
+			"Maintaining clean and breathable air quality",
+			"Strengthening individuals to reach their potential",
+			"Cutting down waste and consumption",
+			"Safeguarding resources and vulnerable groups",
+			"Promoting eco-friendly and sustainable practices"]
+    },
+    {
+        "id": 4,
+        "words": ["JUSTICE", "ACCESS", "SAFETY", "RIGHTS", "RENEW", "HUNGER", "FINANCE", "INNOVATE", "CLEANSE", "SHELTER"],
+		"descriptions": [
+			"Ensuring fair treatment and legal equality",
+			"Providing availability to essential resources and services",
+			"Maintaining secure living and working conditions",
+			"Upholding fundamental human rights for all",
+			"Fostering the use of renewable resources and practices",
+			"Eradicating food insecurity and malnutrition",
+			"Promoting economic stability and fair financial practices",
+			"Encouraging new solutions for sustainable growth",
+			"Reducing pollution and purifying environments",
+			"Providing safe and secure housing for everyone"]
+    },
+	{
+        "id": 5,
+        "words": ["EQUITY", "THRIVE", "PROTECT", "CONNECT", "RESCUE", "DIGNITY", "PRESERVE", "TRANSFORM", "BALANCE", "EMPATHY"],
+		"descriptions": [
+			"Ensuring fairness across different societal groups",
+			"Supporting communities to grow and prosper",
+			"Defending the environment and vulnerable species",
+			"Building inclusive networks and partnerships",
+			"Providing aid in emergencies and crises",
+			"Maintaining respect and self-worth for all individuals",
+			"Keeping natural resources intact for future use",
+			"Creating positive change in systems and communities",
+			"Achieving sustainable harmony between needs and resources",
+			"Promoting understanding and compassion within communities"]
+    }
+]

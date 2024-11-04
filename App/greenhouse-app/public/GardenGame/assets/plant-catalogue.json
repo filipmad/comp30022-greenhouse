@@ -1,0 +1,26 @@
+[
+    {
+        "name": "Basic Bud",
+        "size": "small",
+        "value": 10,
+        "description": "A simple plant."
+    },
+    {
+        "name": "Rare Bud",
+        "size": "small",
+        "value": 50,
+        "description": "A rare find!"
+    },
+    {
+        "name": "Regular Bush",
+        "size": "medium",
+        "value": 30,
+        "description": "Just a regular bush."
+    },
+    {
+        "name": "Baby Tree",
+        "size": "large",
+        "value": 100,
+        "description": "A young tree."
+    }
+]

@@ -1,10 +1,7 @@
-import axios from 'axios';
-
 class Level extends Phaser.Scene {
 
     constructor() {
         super("Level");
-        this.highScore = 0; // Initialize the high score (from the database)
     }
 
     initValues() {
@@ -24,10 +21,12 @@ class Level extends Phaser.Scene {
         this.scrollOffset = 0;     // Track the total scroll offset
         this.nextSpawnTime = 0;    // Track time until the next tree spawn
 		this.distanceScore = 0;    // Initialize the distance score
+        window.addEventListener('message', this.handleMessage.bind(this));
+        this.getHighScore();
+        this.coinsGained = 0;
     }
 
     create() {
-
         // Need to call this in create() to reset the values when restarting the game from EndScreen
         this.initValues();
 
@@ -196,15 +195,6 @@ class Level extends Phaser.Scene {
             this.velocityY = -this.jumpSpeed;
             this.character.play('jump');
         }
-        axios.post('https://your-api-url.com/highscores', {
-            highScore: score
-        })
-        .then(response => {
-            console.log('High score successfully sent:', response.data);
-        })
-        .catch(error => {
-            console.error('Error sending high score:', error);
-        });
     }
 
     hitTree(character, tree) {
@@ -227,7 +217,7 @@ class Level extends Phaser.Scene {
 
     hitCollectible(character, collectible) {
         collectible.destroy();
-        this.addCoin();
+        this.coinsGained++;
     }
 
     spawnTree(xPosition) {
@@ -325,6 +315,8 @@ class Level extends Phaser.Scene {
 
         // Send high score to the database
         this.sendHighScoreToDatabase(this.highScore);
+        // Add coins to the database after round
+        this.addCoins();
 
 		// Delay a little to show the game over message
 		this.time.delayedCall(3000, () => {
@@ -341,20 +333,40 @@ class Level extends Phaser.Scene {
 	
 	}
 
-    // highScore, addedCoins
-
-    // NEED TO CHANGE TO SEND HIGH SCORE AT END OF GAME
     sendHighScoreToDatabase(score) {
-        // Send the high score to the database
-        console.log('High score: ' + score);
+        // Send data to react container
+        window.parent.postMessage({ type: 'highScore', score: score }, '*');
     }
 
 
-    // NEED TO CHANGE TO ADD COINS AT END OF GAME
-    addCoin() {
-        // Add coins to the database
-        console.log('Coin collected!');
+    addCoins() {
+        // Send data to react container
+        window.parent.postMessage({ type: 'addCoins', coins: this.coinsGained }, '*');
     }
+
+    getHighScore() {
+        // Retrieve the high score from the database
+        window.parent.postMessage({ type: 'getHighScore', score: this.highScore}, '*');
+    }
+
+    handleMessage(event) {
+        // Security check: Verify the origin of the message
+        if (event.origin !== window.location.origin) {
+            console.warn('Unknown origin:', event.origin);
+            return;
+        }
+    
+        const data = event.data;
+    
+        if (data.type === 'highScoreResponse') {
+            console.log("Received highScoreResponse message:", data);
+            this.highScore = data.score;
+    
+        } else {
+            console.warn('Unknown message type:', data.type);
+        }
+    }
+    
 }
 
 

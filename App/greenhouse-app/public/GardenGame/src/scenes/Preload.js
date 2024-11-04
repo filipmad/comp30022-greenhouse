@@ -53,6 +53,7 @@ class Preload extends Phaser.Scene {
 		});
 
 		this.load.pack("asset-pack", "assets/asset-pack.json");
+		this.load.json("plant-catalogue", "assets/plant-catalogue.json");
 	}
 
 	create() {

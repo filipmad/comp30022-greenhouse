@@ -39,9 +39,11 @@ class Shop extends Phaser.Scene {
 		smallPopup.visible = false;
 		mediumPopup.visible = false;
 		largePopup.visible = false;
+
+		this.plants = this.getShopPlants();
 	
 
-		const addItemToPopup = (popup, yPosition, iconKey, description, price) => {
+		const addItemToPopup = (popup, yPosition, iconKey, description, price, name) => {
 			// Plant icon on the left
 			const icon = this.add.image(45, yPosition, iconKey);
 			icon.displayWidth = 50;
@@ -65,27 +67,49 @@ class Shop extends Phaser.Scene {
 			popup.add(priceText);
 	
 
-			const buyButton = this.add.rectangle(500, yPosition - 5, 50, 20, 0x00ff00).setInteractive();
+			const buyButton = this.add.rectangle(500, yPosition - 5, 50, 20, 0x00ff00).setInteractive({useHandCursor: true});
 			const buyText = this.add.text(490, yPosition - 13, "Buy", {
 				fontFamily: "Arial",
 				fontSize: "12px",
 				color: "#ffffff",
 			});
 			buyButton.on("pointerdown", () => {
-				console.log(`Bought ${description} for $${price}`);
+				this.purchasePlant(name, price, description);
 			});
 			popup.add(buyButton);
 			popup.add(buyText);
 		};
-	
-		addItemToPopup(smallPopup, 50, "SmallBud", "The Basic Bud", 10);
-		addItemToPopup(smallPopup, 150, "SmallBud1", "Rare Bud", 50);
-		addItemToPopup(mediumPopup, 50, "MediumBud", "Regular Bush", 30);
-		addItemToPopup(largePopup, 50, "LargeBud", "Baby Tree", 100);
+
+		let smallCount = 0;
+		let mediumCount = 0;
+		let largeCount = 0;
+		for (const plant of this.plants) {
+			switch (plant.size) {
+				case "small": {
+					addItemToPopup(smallPopup, 50 + 100 * smallCount, plant.name, plant.name, plant.value, plant.name);
+					smallCount++;
+                    break;
+                }
+				case "medium": {
+                    addItemToPopup(mediumPopup, 50 + 100 * mediumCount, plant.name, plant.name, plant.value, plant.name);
+					mediumCount++;
+                    break;
+                }
+				case "large": {
+                    addItemToPopup(largePopup, 50 + 100 * largeCount, plant.name, plant.name, plant.value, plant.name);
+					largeCount++;
+                    break;
+                }
+				default: {
+                    console.error(`Invalid plant size: ${plant.size}`);
+                }
+			}
+		}
+
 	
 		// Hit rectangles for shop signs
 		const hitRect1 = this.add.rectangle(270, 20, 185, 100).setOrigin(0, 0);
-		hitRect1.setInteractive();
+		hitRect1.setInteractive({useHandCursor: true});
 		hitRect1.on('pointerdown', () => {
 			smallPopup.visible = true;
 			mediumPopup.visible = false;
@@ -93,7 +117,7 @@ class Shop extends Phaser.Scene {
 		});
 	
 		const hitRect2 = this.add.rectangle(475, 20, 190, 100).setOrigin(0, 0);
-		hitRect2.setInteractive();
+		hitRect2.setInteractive({useHandCursor: true});
 		hitRect2.on('pointerdown', () => {
 			smallPopup.visible = false;
 			mediumPopup.visible = true;
@@ -101,7 +125,7 @@ class Shop extends Phaser.Scene {
 		});
 	
 		const hitRect3 = this.add.rectangle(685, 20, 185, 100).setOrigin(0, 0);
-		hitRect3.setInteractive();
+		hitRect3.setInteractive({useHandCursor: true});
 		hitRect3.on('pointerdown', () => {
 			smallPopup.visible = false;
 			mediumPopup.visible = false;
@@ -109,7 +133,7 @@ class Shop extends Phaser.Scene {
 		});
 	
 		const hitRect4 = this.add.rectangle(725, 135, 110, 40).setOrigin(0, 0);
-		hitRect4.setInteractive();
+		hitRect4.setInteractive({useHandCursor: true});
 		hitRect4.on('pointerdown', () => {
 			this.scene.start("Level");
 		});
@@ -120,6 +144,100 @@ class Shop extends Phaser.Scene {
 			smallPopup.visible = false;
 			mediumPopup.visible = false;
 			largePopup.visible = false;
+		});
+	}
+
+	getShopPlants() {
+		const plantCatalogue = this.cache.json.get('plant-catalogue');
+		return plantCatalogue;
+	}
+
+	async purchasePlant(name, price, description) {
+		try {
+			const coins = await this.getPlayersCoins();
+			if (coins >= price) {
+				const added = await this.addPlantToGarden(name);
+				if (added) {
+					await this.setPlayersCoins(coins - price);
+					console.log(`Bought ${description} for $${price}`);
+				} else {
+					console.log("Failed to add plant to garden.");
+				}
+			} else {
+				console.log("Not enough coins to buy this plant.");
+			}
+		} catch (error) {
+			console.error('Error purchasing plant:', error);
+		}
+	}
+
+	getPlayersCoins() {
+		return new Promise((resolve, reject) => {
+			const handleMessage = (event) => {
+				if (event.origin !== window.location.origin) {
+					console.warn('Unknown origin:', event.origin);
+					return;
+				}
+	
+				const data = event.data;
+	
+				if (data.type === 'getCoinsResponse') {
+					window.removeEventListener('message', handleMessage);
+					console.log(data.coins);
+					resolve(data.coins);
+				}
+			};
+	
+			window.addEventListener('message', handleMessage);
+			window.parent.postMessage({ type: 'getCoins' }, '*');
+		});
+	}
+
+	setPlayersCoins(coins) {
+		return new Promise((resolve, reject) => {
+			// Optional: Wait for a confirmation message from React
+			const handleMessage = (event) => {
+				if (event.origin !== window.location.origin) {
+					console.warn('Unknown origin:', event.origin);
+					return;
+				}
+	
+				const data = event.data;
+	
+				if (data.type === 'updateCoinsResponse') {
+					window.removeEventListener('message', handleMessage);
+					resolve();
+				}
+			};
+	
+			window.addEventListener('message', handleMessage);
+	
+			window.parent.postMessage({ type: 'updateCoins', coins: coins }, '*');
+		});
+	}
+
+	addPlantToGarden(name) {
+		return new Promise((resolve, reject) => {
+			const handleMessage = (event) => {
+				if (event.origin !== window.location.origin) {
+					console.warn('Unknown origin:', event.origin);
+					return;
+				}
+	
+				const data = event.data;
+	
+				if (data.type === 'addPlantResponse') {
+					window.removeEventListener('message', handleMessage);
+					if (data.success) {
+						resolve(true);
+					} else {
+						resolve(false);
+					}
+				}
+			};
+	
+			window.addEventListener('message', handleMessage);
+			window.parent.postMessage({ type: 'addPlant', plant: name }, '*');
 		});
 	}
 }
