@@ -2,12 +2,10 @@ class Level extends Phaser.Scene {
 	constructor() {
 		super("Level");
 	}
-
-	preload() {
-
-	}
 	
 	create() {
+
+		window.addEventListener('message', this.handleMessage.bind(this));
 
 		this.puzzles = this.cache.json.get("puzzles", "assets/puzzles.json");
 		this.getRandomPuzzle();
@@ -192,7 +190,6 @@ class Level extends Phaser.Scene {
 		this.descriptionPopups = [];
 		const startX = 650;
 		const startY = 200;
-		const spacing = 30;
 	
 		this.targetWords.forEach((word, index) => {
 			// Create a semi-transparent background for the popup
@@ -208,7 +205,7 @@ class Level extends Phaser.Scene {
 			// Create the description text
 			const popupText = this.add.text(
 				startX + 205,
-				startY + index * spacing,
+				startY,
 				this.descriptions[index],
 				{ fontSize: '18px', color: '#ffffff', wordWrap: { width: 190 } }
 			).setOrigin(0, 0.5).setVisible(false).setDepth(4);
@@ -542,11 +539,7 @@ class Level extends Phaser.Scene {
 			duration: 1000,
 		});
 
-		window.parent.postMessage('complete', '*');
-
-		if(!this.puzzleComplete()) {
-			this.addCoins();
-		}
+		this.puzzleComplete()
 
 
 		// Delay a little to show the congratulations message
@@ -564,16 +557,39 @@ class Level extends Phaser.Scene {
 	
 	}
 
-	addCoins() {
-		// Add coins to the player's account
-
-		window.parent.postMessage(100, '*');
-	}
-
 	puzzleComplete() {
-        window.parent.postMessage(this.puzzleID, '*');
+        window.parent.postMessage({type: "complete", id: this.puzzleID}, '*');
 
 		// Check if the puzzle has already been completed by the player
-		return false;
+		return this.complete;
+    }
+
+	addCoins() {
+		// Add coins to the player's account
+		window.parent.postMessage({type: "addCoins", coins: 100}, '*');
+	}
+
+
+
+	handleMessage(event) {
+        // Security check: Verify the origin of the message
+        if (event.origin !== window.location.origin) {
+            console.warn('Unknown origin:', event.origin);
+            return;
+        }
+    
+        const data = event.data;
+    
+        if (data.type === 'completeResponse') {
+            console.log("Received completeResponse message:", data);
+
+			if (data.complete == false) {
+				this.addCoins();
+			}
+    
+
+        } else {
+            console.warn('Unknown message type:', data.type);
+        }
     }
 }

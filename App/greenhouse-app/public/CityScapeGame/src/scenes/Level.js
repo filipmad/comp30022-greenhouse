@@ -3,8 +3,26 @@ class Level extends Phaser.Scene {
     constructor() {
         super("Level");
 
-		//initialize stats from the database
-        this.loadStats()
+        // Initialize stats with default values to allow for stats to be updated
+        this.stats = {
+            population: 0,
+            funds: 0,
+            happiness: 50,
+            pollution: 50,
+            education: 50,
+            poverty: 50,
+            energyQuota: 50,
+        };
+
+        this.hiddenStats = {
+            populationChange: 0,
+            fundsChange: 0,
+            happinessChange: 0,
+            pollutionChange: 0,
+            educationChange: 0,
+            povertyChange: 0,
+            energyQuotaChange: 0,
+        };
 
 		// Track the last time income was added
         this.lastIncomeTime = 0;
@@ -14,9 +32,16 @@ class Level extends Phaser.Scene {
     }
 
     create() {
+
+        window.addEventListener('message', this.handleMessage.bind(this));
+
+		//initialize stats from the database
+        this.loadStats()
+
         this.sceneStartTime = this.time.now;
 
         this.randomEvents = this.cache.json.get("random-events", "assets/random-events.json");
+
 
 		// Start with a black rectangle covering the screen for fade-in
 		const fadeRectangle = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000000);
@@ -78,6 +103,29 @@ class Level extends Phaser.Scene {
         }
     }
 
+    handleMessage(event) {
+        // Security check: Verify the origin of the message
+        if (event.origin !== window.location.origin) {
+            console.warn('Unknown origin:', event.origin);
+            return;
+        }
+    
+        const data = event.data;
+    
+        if (data.type === 'loadStatsResponse') {
+            console.log("Received loadStatsResponse message:", data);
+            this.stats = data.stats;
+            this.hiddenStats = data.hiddenStats;
+    
+            // Update stats text
+            this.updateStatText();
+    
+            // Any additional logic needed after loading stats
+        } else {
+            console.warn('Unknown message type:', data.type);
+        }
+    }
+
     // Also need to add changes to stats as population increases (not implemented yet)
     updateStats() {
         this.updateStat('funds', this.hiddenStats.fundsChange);
@@ -105,6 +153,7 @@ class Level extends Phaser.Scene {
             coins += 1;
         }
         console.log("Coins added:", coins);
+        window.parent.postMessage({ type: 'addCoins', coins: coins }, '*');
     }
 
     // Need to change to manually make the buttons so the positions are distributed more evenly based on text size
@@ -287,34 +336,14 @@ class Level extends Phaser.Scene {
 
     saveStats() {
         // Send data to react container
-        window.parent.postMessage([this.stats, this.hiddenStats], '*');
+        window.parent.postMessage({ type: 'saveStats', stats: this.stats, hiddenStats: this.hiddenStats }, '*');
     }
 
     loadStats() {
         // Implement loading logic
         console.log("Loading stats..."); // Currently just logging the message to the console
-        // Format: Stats, Hidden Stats
 
-        // Example:
-        this.stats = {
-            population: 1000,
-            funds: 5000,            
-            happiness: 75,
-            pollution: 10,
-            education: 80,
-            poverty: 10,
-            energyQuota: 90
-        };
-
-        this.hiddenStats = {
-            populationChange: 10,
-            fundsChange: 10,
-            happinessChange: -0.1,
-            pollutionChange: 0.1,
-            educationChange: 0,
-            povertyChange: 0.1,
-            energyQuotaChange: -0.1
-        };
+        window.parent.postMessage({ type: 'loadStats'}, '*');
     }
 
     loadRandomEvent() {

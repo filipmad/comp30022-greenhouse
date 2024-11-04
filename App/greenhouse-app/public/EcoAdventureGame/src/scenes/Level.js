@@ -2,8 +2,6 @@ class Level extends Phaser.Scene {
 
     constructor() {
         super("Level");
-        this.highScore = this.getHighScore();
-        this.coinsGained = 0;
     }
 
     initValues() {
@@ -23,10 +21,12 @@ class Level extends Phaser.Scene {
         this.scrollOffset = 0;     // Track the total scroll offset
         this.nextSpawnTime = 0;    // Track time until the next tree spawn
 		this.distanceScore = 0;    // Initialize the distance score
+        window.addEventListener('message', this.handleMessage.bind(this));
+        this.getHighScore();
+        this.coinsGained = 0;
     }
 
     create() {
-
         // Need to call this in create() to reset the values when restarting the game from EndScreen
         this.initValues();
 
@@ -335,18 +335,36 @@ class Level extends Phaser.Scene {
 
     sendHighScoreToDatabase(score) {
         // Send data to react container
-        window.parent.postMessage(score, '*');
+        window.parent.postMessage({ type: 'highScore', score: score }, '*');
     }
 
 
     addCoins() {
         // Send data to react container
-        window.parent.postMessage(this.coinsGained, '*');
+        window.parent.postMessage({ type: 'addCoins', coins: this.coinsGained }, '*');
     }
 
     getHighScore() {
         // Retrieve the high score from the database
-        return 0;
+        window.parent.postMessage({ type: 'getHighScore', score: this.highScore}, '*');
+    }
+
+    handleMessage(event) {
+        // Security check: Verify the origin of the message
+        if (event.origin !== window.location.origin) {
+            console.warn('Unknown origin:', event.origin);
+            return;
+        }
+    
+        const data = event.data;
+    
+        if (data.type === 'highScoreResponse') {
+            console.log("Received highScoreResponse message:", data);
+            this.highScore = data.score;
+    
+        } else {
+            console.warn('Unknown message type:', data.type);
+        }
     }
     
 }

@@ -152,54 +152,92 @@ class Shop extends Phaser.Scene {
 		return plantCatalogue;
 	}
 
-	purchasePlant(name, price, description) {
-
-        window.parent.postMessage('buy', '*');
-
-		const coins = this.getPlayersCoins();
-		if (coins >= price) {
-
-			
-            // Add the plant to the player's garden (need to query the database to find the next available position or give the user a message if there's no available position)
-			if(this.addPlantToGarden(name)) {
-				// Remove coins from player's account
-            	this.setPlayersCoins(coins - price);
-
-				console.log(`Bought ${description} for $${price}`);
+	async purchasePlant(name, price, description) {
+		try {
+			const coins = await this.getPlayersCoins();
+			if (coins >= price) {
+				const added = await this.addPlantToGarden(name);
+				if (added) {
+					await this.setPlayersCoins(coins - price);
+					console.log(`Bought ${description} for $${price}`);
+				} else {
+					console.log("Failed to add plant to garden.");
+				}
+			} else {
+				console.log("Not enough coins to buy this plant.");
 			}
-
-
+		} catch (error) {
+			console.error('Error purchasing plant:', error);
 		}
-		else {
-            // Display a message to the player saying they don't have enough coins.
-            console.log("Not enough coins to buy this plant.");
-        }
-		window.parent.postMessage('complete', '*');
 	}
 
 	getPlayersCoins() {
-        // Get the current number of coins the player has from the database.
-
-		// Handle input from container
-
-		const coins = 120;
-        return coins;
-    }
+		return new Promise((resolve, reject) => {
+			const handleMessage = (event) => {
+				if (event.origin !== window.location.origin) {
+					console.warn('Unknown origin:', event.origin);
+					return;
+				}
+	
+				const data = event.data;
+	
+				if (data.type === 'getCoinsResponse') {
+					window.removeEventListener('message', handleMessage);
+					console.log(data.coins);
+					resolve(data.coins);
+				}
+			};
+	
+			window.addEventListener('message', handleMessage);
+			window.parent.postMessage({ type: 'getCoins' }, '*');
+		});
+	}
 
 	setPlayersCoins(coins) {
-        // Update the current number of coins the player has in the database.
-		window.parent.postMessage(coins, '*');
-    }
+		return new Promise((resolve, reject) => {
+			// Optional: Wait for a confirmation message from React
+			const handleMessage = (event) => {
+				if (event.origin !== window.location.origin) {
+					console.warn('Unknown origin:', event.origin);
+					return;
+				}
+	
+				const data = event.data;
+	
+				if (data.type === 'updateCoinsResponse') {
+					window.removeEventListener('message', handleMessage);
+					resolve();
+				}
+			};
+	
+			window.addEventListener('message', handleMessage);
+	
+			window.parent.postMessage({ type: 'updateCoins', coins: coins }, '*');
+		});
+	}
 
 	addPlantToGarden(name) {
-        // Add the plant to the player's garden
-        console.log(`Added plant ${name} to the garden.`);
-
-		// Send data to react container
-		window.parent.postMessage(name, '*');
-
-		// recieve conformation from react container or else failure to add plant in which case a message will be displayed.
-
-		return true;
-    }
+		return new Promise((resolve, reject) => {
+			const handleMessage = (event) => {
+				if (event.origin !== window.location.origin) {
+					console.warn('Unknown origin:', event.origin);
+					return;
+				}
+	
+				const data = event.data;
+	
+				if (data.type === 'addPlantResponse') {
+					window.removeEventListener('message', handleMessage);
+					if (data.success) {
+						resolve(true);
+					} else {
+						resolve(false);
+					}
+				}
+			};
+	
+			window.addEventListener('message', handleMessage);
+			window.parent.postMessage({ type: 'addPlant', plant: name }, '*');
+		});
+	}
 }

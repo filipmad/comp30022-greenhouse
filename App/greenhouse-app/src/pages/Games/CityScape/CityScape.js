@@ -13,7 +13,6 @@ const GameComponent = () => {
 
       const data = event.data;
 
-      // Log for now until we add the connection
       console.log('Data received from iframe:', data);
 
       sendDataToDatabase(data);
@@ -30,6 +29,40 @@ const GameComponent = () => {
 
   function sendDataToDatabase(data) {
     // we need to implement the logic to send data to the database
+
+    // Depending on the data type, perform specific actions
+    if(data.type === 'addCoins') {
+      // Send coins to database
+    }
+    else if(data.type === 'saveStats') {
+      // Save the player's stats to the database
+    }
+    else if(data.type === 'loadStats') {
+      // Fetch the player's stats from the database
+
+      // sample:
+      const initialStats = {
+        population: 1000,
+        funds: 5000,            
+        happiness: 75,
+        pollution: 10,
+        education: 80,
+        poverty: 10,
+        energyQuota: 90
+    };
+
+    const initialHiddenStats = {
+        populationChange: 10,
+        fundsChange: 10,
+        happinessChange: -0.1,
+        pollutionChange: 0.1,
+        educationChange: 0,
+        povertyChange: 0.1,
+        energyQuotaChange: -0.1
+    };
+
+      iframeRef.current.contentWindow.postMessage({ type: 'loadStatsResponse', stats: initialStats, hiddenStats: initialHiddenStats }, window.location.origin);
+    }
   }
 
   return (

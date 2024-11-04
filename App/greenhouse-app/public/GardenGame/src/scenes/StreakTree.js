@@ -2,7 +2,8 @@ class StreakTree extends Phaser.Scene {
 
 	constructor() {
 		super("StreakTree");
-		this.streak = this.getStreak();
+		window.addEventListener('message', this.handleMessage.bind(this));
+		this.getStreak();
 	}
 
 	create() {
@@ -109,11 +110,23 @@ class StreakTree extends Phaser.Scene {
 
 	getStreak() {
 
-        window.parent.postMessage('streak', '*');
-
-		// Handle response from the iframe
-
-		// sample
-		return 20;
+        window.parent.postMessage({type: "streak"}, '*');
 	}
+
+	handleMessage(event) {
+        // Security check: Verify the origin of the message
+        if (event.origin !== window.location.origin) {
+            console.warn('Unknown origin:', event.origin);
+            return;
+        }
+    
+        const data = event.data;
+    
+        if (data.type === 'streakResponse') {
+            console.log("Received streakResponse message:", data);
+            this.streak = data.streak;
+        } else {
+            console.warn('Unknown message type:', data.type);
+        }
+    }
 }

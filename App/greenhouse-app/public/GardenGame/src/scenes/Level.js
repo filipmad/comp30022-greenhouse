@@ -16,6 +16,7 @@ class Level extends Phaser.Scene {
     }
 
     create() {
+        this.plantsInput = null;
         const background = this.add.image(-1, 0, "GardenBackground").setOrigin(0, 0);
         background.displayWidth = 1068;
         background.displayHeight = 600;
@@ -28,11 +29,6 @@ class Level extends Phaser.Scene {
         this.plantCatalogue = this.cache.json.get('plant-catalogue');
 
         this.initializePlants();
-        
-
-        for (const plant of this.plants) {
-            this.addPlant(plant);
-        }
 
         const frames = [];
         for (let i = 1; i <= 60; i++) {
@@ -569,12 +565,7 @@ class Level extends Phaser.Scene {
         console.log(`Swapped positions: ${plant1.name} is now at ${plant1.position}, ${plant2.name} is now at ${plant2.position}`);
 
         // Send data to react container
-        window.parent.postMessage('swap', '*');
-        window.parent.postMessage([plant1.position, plant2.position], '*');
-
-        // Update the plants in the database (not sure again on specific implementation)
-        this.updatePlantPosition(plant1);
-        this.updatePlantPosition(plant2);
+        window.parent.postMessage({ type: "swap", position1: plant1.position, position2: plant2.position}, '*');
 
         // Update the display
         this.updatePlantDisplay(plant1);
@@ -588,18 +579,12 @@ class Level extends Phaser.Scene {
         const originalPosition = plant.position;
         console.log(`Moving plant ${plant.name} from position ${plant.position} to position ${targetPosition}.`);
         plant.position = targetPosition;
-        this.updatePlantPosition(plant);
         this.updatePlantDisplay(plant);
 
         // Send data to react container
-        window.parent.postMessage('move', '*');
-        window.parent.postMessage([originalPosition, targetPosition], '*');
+        window.parent.postMessage({ type: "move", original: originalPosition, target: targetPosition }, '*');
     }
 
-    // Update plant position in the database for the database (need to implement but just gonna log for now)
-    updatePlantPosition(plant) {
-        console.log(`Updated plant ${plant.name} to position ${plant.position} in the database.`);
-    }
 
     // Update the plant's sprite position on the screen
     updatePlantDisplay(plant) {
@@ -639,27 +624,25 @@ class Level extends Phaser.Scene {
     
 
     getPlayerPlants() {
-
-        // Ask react container for player plants
-        window.parent.postMessage('get', '*');
-        // Handle response from react container (need to implement)
-
-        // sample data
-        return [
-            { position: 1, name: "Basic Bud" },
-            { position: 2, name: "Rare Bud" },
-            { position: 3, name: "Regular Bush" },
-            { position: 6, name: "Basic Bud" },
-            { position: 7, name: "Rare Bud" },
-            { position: 10, name: "Baby Tree" },
-            { position: 11, name: "Regular Bush" },
-            { position: 12, name: "Basic Bud" },
-            { position: 13, name: "Rare Bud" },
-            { position: 15, name: "Rare Bud" },
-            { position: 17, name: "Basic Bud" },
-            { position: 18, name: "Rare Bud" }
-        ];
-
+        return new Promise((resolve, reject) => {
+            const handleMessage = (event) => {
+                // Security check
+                if (event.origin !== window.location.origin) {
+                    console.warn('Unknown origin:', event.origin);
+                    return;
+                }
+    
+                const data = event.data;
+    
+                if (data.type === 'getPlantsResponse') {
+                    window.removeEventListener('message', handleMessage);
+                    resolve(data.plants);
+                }
+            };
+    
+            window.addEventListener('message', handleMessage);
+            window.parent.postMessage({ type: 'getPlants' }, '*');
+        });
     }
     
 
@@ -704,12 +687,10 @@ class Level extends Phaser.Scene {
         console.log("Coins added: " + amount);
 
         // Send data to react container
-        window.parent.postMessage(amount, '*');
+        window.parent.postMessage({type: "updateCoins", coins: amount}, '*');
     }
     
     sellPlant(plant) {
-        // notify that next 2 messages to react container are selling the plant
-        window.parent.postMessage('sell', '*');
 
         // Remove the plant's sprite from the scene
         if (plant.sprite) {
@@ -723,7 +704,7 @@ class Level extends Phaser.Scene {
         console.log(`Removed plant ${plant.name} from position ${plant.position} in the database.`);
 
         // Send position to database to remove the plant on the server side
-        window.parent.postMessage(plant.position, '*');
+        window.parent.postMessage({type: "sellPlant", position: plant.position}, '*');
     
         // Add coins to the user
         this.addCoins(plant.value * 0.5);
@@ -732,28 +713,37 @@ class Level extends Phaser.Scene {
         console.log(`Sold plant ${plant.name} for ${plant.value * 0.5} coins.`);
     }
 
-    initializePlants() {
-        // Get player plants data
-        const playerPlantsData = this.getPlayerPlants();
+    async initializePlants() {
+        try {
+            // Wait for getPlayerPlants to resolve
+            const playerPlantsData = await this.getPlayerPlants();
     
-        // Merge player plants with catalogue data
-        this.plants = playerPlantsData.map(playerPlant => {
-            // Find the plant details in the catalogue
-            const plantDetails = this.plantCatalogue.find(plant => plant.name === playerPlant.name);
+            // Merge player plants with catalogue data
+            this.plants = playerPlantsData.map(playerPlant => {
+                // Find the plant details in the catalogue
+                const plantDetails = this.plantCatalogue.find(plant => plant.name === playerPlant.name);
     
-            if (!plantDetails) {
-                console.error(`Plant with ID ${playerPlant.name} not found in the catalogue.`);
-                return null;
+                if (!plantDetails) {
+                    console.error(`Plant with name ${playerPlant.name} not found in the catalogue.`);
+                    return null;
+                }
+    
+                // Merge the data
+                return {
+                    ...plantDetails,
+                    position: playerPlant.position,
+                    sprite: null,
+                };
+            }).filter(plant => plant !== null); // Filter out any null entries due to missing data
+    
+            for (const plant of this.plants) {
+                this.addPlant(plant);
             }
-    
-            // Merge the data
-            return {
-                ...plantDetails,
-                position: playerPlant.position,
-                sprite: null,
-            };
-        }).filter(plant => plant !== null); // Filter out any null entries due to missing data
+        } catch (error) {
+            console.error('Error initializing plants:', error);
+        }
     }
+    
     
     
     

@@ -13,7 +13,6 @@ const GameComponent = () => {
 
       const data = event.data;
 
-      // Log for now until we add the connection
       console.log('Data received from iframe:', data);
 
       sendDataToDatabase(data);
@@ -30,6 +29,21 @@ const GameComponent = () => {
 
   function sendDataToDatabase(data) {
     // we need to implement the logic to send data to the database
+
+    // Depending on the data type, perform specific actions
+    if(data.type === 'addCoins') {
+      // Send coins to database
+    }
+    else if(data.type === 'complete') {
+      // Fetch the players completion status of the puzzle ID from the database
+      // if it is complete, send true back to the iframe
+      // if it is not complete, send false back to the iframe and update the completion status in the database to complete
+
+      // sample:
+      const completeStatus = false;
+
+      iframeRef.current.contentWindow.postMessage({ type: 'completeResponse', complete: completeStatus }, window.location.origin);
+    }
   }
 
   return (

@@ -13,7 +13,6 @@ const GameComponent = () => {
 
       const data = event.data;
 
-      // Log for now until we add the connection
       console.log('Data received from iframe:', data);
 
       sendDataToDatabase(data);
@@ -30,6 +29,22 @@ const GameComponent = () => {
 
   function sendDataToDatabase(data) {
     // we need to implement the logic to send data to the database
+
+    // Depending on the data type, perform specific actions
+    if(data.type === 'addCoins') {
+      // Send coins to database
+    }
+    else if(data.type === 'highScore') {
+      // Save high score to database
+    }
+    else if(data.type === 'getHighScore') {
+      // Fetch the player's high score from the database
+
+      // sample:
+      const initialHighScore = 0
+
+      iframeRef.current.contentWindow.postMessage({ type: 'highScoreResponse', score: initialHighScore }, window.location.origin);
+    }
   }
 
   return (

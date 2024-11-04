@@ -176,7 +176,7 @@ class SocialQuiz extends Phaser.Scene {
 		// Add coins to user
 		console.log("Coins added: " + coins);
 
-        window.parent.postMessage(coins, '*');
+        window.parent.postMessage({type: "addCoins", coins: coins}, '*');
 	}
 
 	addBonusCoins() {
@@ -185,7 +185,7 @@ class SocialQuiz extends Phaser.Scene {
 		// Add bonus coins to user for completing the quiz
         console.log(coins + " Bonus coins added!");
 
-        window.parent.postMessage(coins, '*');
+        window.parent.postMessage({type: "addCoins", coins: coins}, '*');
 	}
 }
 
