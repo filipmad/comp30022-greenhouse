@@ -35,6 +35,7 @@ func getPlants(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err.Error())
 		} else {
+			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(plants)
 		}
 
@@ -49,17 +50,18 @@ func getPlantByPlantID(w http.ResponseWriter, r *http.Request) {
 	if db != nil {
 		plants, err := readPlantsDB(db)
 		if err != nil {
-			log.Fatal(err.Error())
+			http.Error(w, "Failed to get plant", http.StatusInternalServerError)
 
 		}
 		//For Every plant
 		for _, item := range plants {
 			if strconv.Itoa(item.PlantID) == params["PlantID"] {
+				w.Header().Set("Content-Type", "application/json")
 				json.NewEncoder(w).Encode(item)
 				return
 			}
 		}
-
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(&Plant{})
 	}
 }
@@ -71,11 +73,12 @@ func getPlantByGardenID(w http.ResponseWriter, r *http.Request) {
 	if db != nil {
 		plants, err := readPlantsDB(db)
 		if err != nil {
-			log.Fatal(err.Error())
+			http.Error(w, "Failed to get plant", http.StatusInternalServerError)
 
 		}
 		for _, item := range plants {
 			if strconv.Itoa(item.GardenID) == params["GardenID"] {
+				w.Header().Set("Content-Type", "application/json")
 				json.NewEncoder(w).Encode(item)
 
 			}
@@ -93,12 +96,13 @@ func createPlant(w http.ResponseWriter, r *http.Request) {
 	db := connectToDB()
 	if db != nil {
 
-		check, err := createPlantsDB(newPlant, db)
+		_, err := createPlantsDB(newPlant, db)
 		if err != nil {
-			log.Fatal(err.Error())
+			http.Error(w, "Failed to create plant", http.StatusInternalServerError)
 		}
-		fmt.Print(check)
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(newPlant)
+
 	}
 
 }
@@ -111,7 +115,7 @@ func updatePlant(w http.ResponseWriter, r *http.Request) {
 	if db != nil {
 		plants, err := readPlantsDB(db)
 		if err != nil {
-			log.Fatal(err.Error())
+			http.Error(w, "Failed to read plant", http.StatusInternalServerError)
 		}
 		for _, item := range plants {
 			if item.PlantID == updatedPlant.PlantID {
@@ -119,19 +123,15 @@ func updatePlant(w http.ResponseWriter, r *http.Request) {
 				age := updatedPlant.Age
 				name := updatedPlant.Name
 				position := updatedPlant.Position
-				if err != nil {
-					log.Fatal(err.Error())
-				}
 				updatedPlant := Plant{PlantID: ID, Age: age, Name: name, Position: position}
-				changed, err := updatePlantsDB(updatedPlant, db)
+				_, err := updatePlantsDB(updatedPlant, db)
 				if err != nil {
-					fmt.Errorf(err.Error())
+					http.Error(w, "Failed to update Plant", http.StatusInternalServerError)
 				}
-				fmt.Print(changed)
 			}
-
 		}
-		json.NewEncoder(w).Encode(plants)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(updatedPlant)
 	}
 }
 
@@ -142,17 +142,22 @@ func DeletePlant(w http.ResponseWriter, r *http.Request) {
 	if db != nil {
 		plants, err := readPlantsDB(db)
 		if err != nil {
-			log.Fatal(err.Error())
+			http.Error(w, "Failed to read plant", http.StatusInternalServerError)
 		}
 		for _, item := range plants {
 			if strconv.Itoa(item.PlantID) == params["PlantID"] {
 				ID, err := strconv.Atoi(params["PlantID"])
 
 				if err != nil {
-					log.Fatal(err.Error())
+					http.Error(w, "Empty ID", http.StatusBadRequest)
 				}
 
-				deletePlantDB(ID, db)
+				_, error := deletePlantDB(ID, db)
+				if error != nil {
+					http.Error(w, "Failed to delete plant", http.StatusInternalServerError)
+				}
+				w.WriteHeader(http.StatusOK)
+				json.NewEncoder(w).Encode(map[string]bool{"success": true})
 				break
 			}
 
@@ -172,8 +177,9 @@ func getGarden(w http.ResponseWriter, r *http.Request) {
 	if db != nil {
 		gardens, err := readGardenDB(db, userID)
 		if err != nil {
-			log.Fatal(err.Error())
+			http.Error(w, "Failed to read garden", http.StatusInternalServerError)
 		}
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(gardens)
 	}
 }
@@ -186,11 +192,11 @@ func createGarden(w http.ResponseWriter, r *http.Request) {
 	db := connectToDB()
 	if db != nil {
 
-		check, err := createGardenDB(newGarden, db)
+		_, err := createGardenDB(newGarden, db)
 		if err != nil {
-			log.Fatal(err.Error())
+			http.Error(w, "Failed to create garden", http.StatusInternalServerError)
 		}
-		fmt.Printf("%d", check)
+
 	}
 
 }
@@ -202,11 +208,14 @@ func deleteGarden(w http.ResponseWriter, r *http.Request) {
 	if db != nil {
 		ID, err := strconv.Atoi(params["UserID"])
 		if err != nil {
-			log.Fatal(err.Error())
+			http.Error(w, "Missing ID", http.StatusBadRequest)
 		}
-
-		deleteGardenDB(ID, db)
-
+		_, err = deleteGardenDB(ID, db)
+		if err != nil {
+			http.Error(w, "Failed to delete garden", http.StatusInternalServerError)
+		}
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]bool{"success": true})
 	}
 }
 
@@ -227,14 +236,21 @@ func updateGarden(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for _, item := range gardens {
-
 			if item.UserID == updateGarden.UserID {
+
+				_, err = updateGardenDB(updateGarden, db)
 				if err != nil {
-					log.Fatal(err.Error())
+					http.Error(w, "Failed to update Garden", http.StatusInternalServerError)
 				}
-				updateGardenDB(updateGarden, db)
+				response := map[string]interface{}{
+					"success": true,
+					"message": "Updated responses updated successfully",
+				}
+				w.Header().Set("Content-Type", "application/json")
+				json.NewEncoder(w).Encode(response)
 				break
 			}
+
 		}
 
 	}

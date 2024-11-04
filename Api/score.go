@@ -63,19 +63,15 @@ func getScores(w http.ResponseWriter, r *http.Request) {
 		var userScore PersonalScore
 		var err error
 		if params["gameType"] == "EcoAdventure" {
-
 			userScore, err = ReadEcoAdventureDB(db, userID)
 		} else if params["gameType"] == "CityScape" {
 			userScore, err = ReadCityScapeDB(db, userID)
 		} else if params["gameType"] == "Crossword" {
-			crosswordID, err := strconv.Atoi(params["CrosswordID"])
-			if err != nil {
-				log.Fatal(err.Error())
+			crosswordID, readErr := strconv.Atoi(params["CrosswordID"])
+			if readErr != nil {
+				http.Error(w, "Invalid Crossword ID", http.StatusInternalServerError)
 			}
 			userScore, err = ReadCrosswordDB(db, userID, crosswordID)
-			if err != nil {
-				log.Fatal(err.Error())
-			}
 
 		} else if params["gameType"] == "Quiz" {
 			userScore, err = ReadQuizDB(db, userID)
@@ -83,7 +79,7 @@ func getScores(w http.ResponseWriter, r *http.Request) {
 			userScore = PersonalScore{}
 		}
 		if err != nil {
-			log.Fatal(err.Error())
+			http.Error(w, "Failed to read game", http.StatusInternalServerError)
 		}
 		json.NewEncoder(w).Encode(userScore)
 	}
@@ -111,7 +107,12 @@ func updateEcoAdventure(w http.ResponseWriter, r *http.Request) {
 				if item.UserID == updated.UserID {
 					updatedCoins := updated.Coins + updated.HighScoreGame1.Coins
 					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updatedCoins, HighScoreGame1: updated.HighScoreGame1}
-					updateScore(db, updatedScore)
+					_, err := updateScore(db, updatedScore)
+					if err != nil {
+						http.Error(w, "Failed to update EcoAdventure", http.StatusInternalServerError)
+					}
+					w.WriteHeader(http.StatusOK)
+					json.NewEncoder(w).Encode(map[string]bool{"success": true})
 					break
 				}
 
@@ -141,7 +142,12 @@ func updateCityScape(w http.ResponseWriter, r *http.Request) {
 			for _, item := range scores {
 				if item.UserID == userID {
 					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updated.Coins, HighScoreGame2: updated.HighScoreGame2}
-					updateScore(db, updatedScore)
+					_, err := updateScore(db, updatedScore)
+					if err != nil {
+						http.Error(w, "Failed to update CityScape", http.StatusInternalServerError)
+					}
+					w.WriteHeader(http.StatusOK)
+					json.NewEncoder(w).Encode(map[string]bool{"success": true})
 					break
 				}
 
@@ -172,7 +178,12 @@ func updateCrossword(w http.ResponseWriter, r *http.Request) {
 			for _, item := range scores {
 				if item.UserID == updated.UserID {
 					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updated.Coins, HighScoreGame3: updated.HighScoreGame3}
-					updateScore(db, updatedScore)
+					_, err := updateScore(db, updatedScore)
+					if err != nil {
+						http.Error(w, "Failed to update Crossword", http.StatusInternalServerError)
+					}
+					w.WriteHeader(http.StatusOK)
+					json.NewEncoder(w).Encode(map[string]bool{"success": true})
 					break
 				}
 
@@ -202,7 +213,12 @@ func UpdateQuiz1Score(w http.ResponseWriter, r *http.Request) {
 			for _, item := range users {
 				if item.UserID == userID {
 					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updated.Coins, HighScoreQuiz1: updated.HighScoreQuiz1}
-					updateScore(db, updatedScore)
+					_, err := updateScore(db, updatedScore)
+					if err != nil {
+						http.Error(w, "Failed to update Quiz 1 score", http.StatusInternalServerError)
+					}
+					w.WriteHeader(http.StatusOK)
+					json.NewEncoder(w).Encode(map[string]bool{"success": true})
 					break
 				}
 
@@ -232,7 +248,12 @@ func UpdateQuiz2Score(w http.ResponseWriter, r *http.Request) {
 			for _, item := range users {
 				if item.UserID == userID {
 					updatedScore := PersonalScore{UserID: updated.UserID, HighScoreQuiz2: updated.HighScoreQuiz2}
-					updateScore(db, updatedScore)
+					_, err := updateScore(db, updatedScore)
+					if err != nil {
+						http.Error(w, "Failed to update Quiz 2 Score", http.StatusInternalServerError)
+					}
+					w.WriteHeader(http.StatusOK)
+					json.NewEncoder(w).Encode(map[string]bool{"success": true})
 					break
 				}
 
@@ -262,7 +283,12 @@ func UpdateQuiz3Score(w http.ResponseWriter, r *http.Request) {
 			for _, item := range users {
 				if item.UserID == userID {
 					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updated.Coins, HighScoreQuiz3: updated.HighScoreQuiz3}
-					updateScore(db, updatedScore)
+					_, err := updateScore(db, updatedScore)
+					if err != nil {
+						http.Error(w, "Failed to update Quiz 3 Score", http.StatusInternalServerError)
+					}
+					w.WriteHeader(http.StatusOK)
+					json.NewEncoder(w).Encode(map[string]bool{"success": true})
 					break
 				}
 
@@ -333,11 +359,10 @@ func insertCrosswordCompletion(w http.ResponseWriter, r *http.Request) {
 
 		check, err := createCrosswordDB(db, newCrossword, userID)
 		if err != nil {
-			log.Fatal(err.Error())
+			http.Error(w, "Failed to insert Crossword", http.StatusInternalServerError)
 		}
 		fmt.Print(check)
 	}
-
 	json.NewEncoder(w).Encode(newCrossword)
 }
 
