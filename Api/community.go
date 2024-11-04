@@ -1,3 +1,4 @@
+// Greenhouse Community Back End
 package main
 
 import (
@@ -5,9 +6,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-
-	//"fmt"
-	//"log"
 	"net/http"
 	"time"
 
@@ -16,7 +14,10 @@ import (
 
 var db *sql.DB
 
-// Poll struct to map poll data
+
+
+
+// Data Structs 
 type Poll struct {
 	PollID             int    `json:"pollID"`
 	Title              string `json:"title"`

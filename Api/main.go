@@ -92,9 +92,15 @@ func main() {
 	r.HandleFunc("/create-comment", uploadComment(db)).Methods("POST")
 	r.HandleFunc("/get-comments", getComments(db))
 
+	r.HandleFunc("/update-milestones-progress", updateProgressForVisitedSite(db)).Methods("POST")
+	r.HandleFunc("/get-milestones", getAllCommunityMilestones(db))
+	r.HandleFunc("/create-milestone", createCommunityMilestone(db)).Methods("POST")
+	r.HandleFunc("/delete-milestone", deleteCommunityMilestone(db))
+
+
 	// Set up CORS to allow requests from the React frontend
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"}, // Frontend origin
+		AllowedOrigins:   []string{"http://localhost:3000" , "https://greenhouse-app-deployment-f7avhccxfaa3ewhp.australiasoutheast-01.azurewebsites.net"}, // Frontend origin
 		AllowedMethods:   []string{"GET", "POST", "DELETE"},
 		AllowedHeaders:   []string{"Content-Type"},
 		AllowCredentials: true,

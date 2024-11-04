@@ -39,9 +39,10 @@ export default function PollManager() {
     const getPolls = async () => {
         try {
             const response = await axios.get('http://localhost:8000/get-polls');
-            setPolls(response.data);
+            setPolls(response.data || []);  // Set polls to an empty array if response.data is null or undefined
         } catch (error) {
             console.log('Error loading polls:', error);
+            setPolls([]); // Ensure polls is always an array
         }
     };
 
@@ -121,7 +122,7 @@ export default function PollManager() {
                         </tr>
                     </thead>
                     <tbody>
-                        {polls.map((poll) => (
+                        {polls?.map((poll) => (
                             <tr key={poll.pollID}>
                                 <td>{poll.title}</td>
                                 <td>{poll.text}</td>
@@ -136,7 +137,7 @@ export default function PollManager() {
                                     </Button>
                                 </td>
                             </tr>
-                        ))}
+                        )) || <tr><td colSpan="5">No polls available</td></tr>}
                     </tbody>
                 </Table>
 

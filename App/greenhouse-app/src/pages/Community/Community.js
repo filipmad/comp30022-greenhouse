@@ -10,12 +10,17 @@ import Poll from "./components/Poll";
 export default function Community() {
 	const [polls, setPolls] = useState([]);
 	const [forumPosts, setForumPosts] = useState([]); // State to hold forum posts
-	const [title, setTitle] = useState('');
-	const [author, setAuthor] = useState('');
-	const [text, setText] = useState('');
-	const [dateCreated, setDateCreated] = useState('');
+	const [milestones, setMilestones] = useState([]);
 
-	// Fetch the recent blog post
+	// Fetch the milestones
+	const fetchMilestones = async () => {
+		try {
+			const response = await axios.get('http://localhost:8000/get-milestones', { withCredentials: true });
+			setMilestones(response.data);
+		} catch (error) {
+			console.error('Error fetching milestones:', error);
+		}
+	};
 
 	// Fetch the polls data
 	const getPolls = async () => {
@@ -42,25 +47,32 @@ export default function Community() {
 		}
 	};
 
-	// Handle voting
 	const handleVote = async (pollId, option) => {
-		try {
-			// Find the poll that is being voted on
-			const pollToUpdate = polls.find(poll => poll.pollID === pollId);
+		// Check if user has already voted in this poll
+		const votedPolls = JSON.parse(localStorage.getItem('votedPolls')) || [];
+		if (votedPolls.includes(pollId)) {
 
-			// Create updated votes based on the option selected
+			return;
+		}
+
+		try {
+			// Update vote count locally
+			const pollToUpdate = polls.find(poll => poll.pollID === pollId);
 			const updatedPoll = option === 'one'
 				? { ...pollToUpdate, optionOneVotes: pollToUpdate.optionOneVotes + 1 }
 				: { ...pollToUpdate, optionTwoVotes: pollToUpdate.optionTwoVotes + 1 };
 
-			// Update the local state with the new vote count
 			setPolls(polls.map(poll => (poll.pollID === pollId ? updatedPoll : poll)));
 
-			// Send a request to the backend to update the vote count in the database
+			// Update vote in the backend
 			await axios.post('http://localhost:8000/update-poll-votes', {
 				pollID: pollId,
 				option: option,
 			});
+
+			// Store the poll ID to mark as voted
+			localStorage.setItem('votedPolls', JSON.stringify([...votedPolls, pollId]));
+
 		} catch (error) {
 			console.error('Error updating vote:', error);
 		}
@@ -69,6 +81,7 @@ export default function Community() {
 	useEffect(() => {
 		getPolls(); // Fetch polls when the component mounts
 		getForumPosts(); // Fetch forum posts when the component mounts
+		fetchMilestones();
 	}, []);
 
 	return (
@@ -110,16 +123,19 @@ export default function Community() {
 
 			<div className="section milestones">
 				<h2>Community Milestones</h2>
-				<CommunityMilestone
-					title={"Do This "}
-					text={"do it for the people"}
-					progress={31}
-				/>
-				<CommunityMilestone
-					title={"Do This "}
-					text={"do it for the people"}
-					progress={31}
-				/>
+				{milestones == null || milestones.length === 0 ? (
+					<p>No milestones available.</p>
+				) : (
+					milestones.map((milestone) => (
+						<CommunityMilestone
+							key={milestone.id} // Use milestone.id for a unique key for each CommunityMilestone
+							title={milestone.text} // Assuming text is the title you want to display
+							text={`Target: ${milestone.target}`} // Custom text formatting as needed
+							progress={milestone.progress} // Assuming you have a progress value in your milestone
+							target={milestone.target} // Pass the target value for the ProgressBar
+						/>
+					))
+				)}
 			</div>
 		</div>
 	);
