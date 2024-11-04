@@ -32,7 +32,7 @@ const Goal13 = () => {
                 </div>
 
                 <div className="goal-image">
-                    <img src="/path.jpg" alt="Climate Action" />
+                    <img src="/climate.jpg" alt="Climate Action" />
                 </div>
             </div>
 

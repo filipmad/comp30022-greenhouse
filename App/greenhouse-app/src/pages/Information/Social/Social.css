@@ -36,6 +36,10 @@
   .social-nav-button.environmental {
     background-color: #27ae60; 
   }
+
+  .social-nav-button.goal17 {
+    background-color: #4227ae; 
+  }
   
   .social-nav-button:hover {
     opacity: 0.9;
