@@ -8,28 +8,22 @@ export default function Home() {
   const [trendingArticles, setTrendingArticles] = useState([]);
 
   // Fetch trending articles 
-  // useEffect(() => {
-  //   async function fetchTrendingArticles() {
-  //     try {
-  //       // Use the same API key and URL as the news page
-  //       const API_KEY = 'f53a68759063421ea95f364052df870f'; 
-  //       const API_URL = `https://newsapi.org/v2/everything?q=sustainability+melbourne&apiKey=${API_KEY}`;
+  useEffect(() => {
+    async function fetchTrendingArticles() {
+      try {
+        // Use the same API key and URL as the news page
+        const API_KEY = 'f53a68759063421ea95f364052df870f'; 
+        const API_URL = `https://newsapi.org/v2/everything?q=sustainability+melbourne&apiKey=${API_KEY}`;
         
-  //       const response = await axios.get(API_URL, {
-  //         headers: {
-  //             'Content-Type': 'application/json',
-  //             'Accept': 'application/json',
-  //         }
-  //     });
-      
-  //       const articles = response.data.articles.slice(0, 2); 
-  //       setTrendingArticles(articles); 
-  //     } catch (error) {
-  //       console.error("Error fetching trending articles:", error);
-  //     }
-  //   }
-  //   fetchTrendingArticles();
-  // }, []);
+        const response = await axios.get(API_URL);
+        const articles = response.data.articles.slice(0, 2); 
+        setTrendingArticles(articles); 
+      } catch (error) {
+        console.error("Error fetching trending articles:", error);
+      }
+    }
+    fetchTrendingArticles();
+  }, []);
 
   return (
     <>
