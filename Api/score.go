@@ -73,11 +73,7 @@ func getScores(w http.ResponseWriter, r *http.Request) {
 		} else if params["gameType"] == "CityScape" {
 			userScore, err = ReadCityScapeDB(db, userID)
 		} else if params["gameType"] == "Crossword" {
-			crosswordID, readErr := strconv.Atoi(params["CrosswordID"])
-			if readErr != nil {
-				http.Error(w, "Invalid Crossword ID", http.StatusInternalServerError)
-			}
-			userScore, err = ReadCrosswordDB(db, userID, crosswordID)
+			userScore, err = ReadCrosswordDB(db, userID)
 
 		} else if params["gameType"] == "Quiz" {
 			userScore, err = ReadQuizDB(db, userID)
@@ -219,16 +215,21 @@ func updateCrossword(w http.ResponseWriter, r *http.Request) {
 
 // Update Quiz1 Score
 func UpdateQuiz1Score(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	userID, err := strconv.Atoi(params["userID"])
+	cookie, err := r.Cookie("userid")
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
+	userID, err := strconv.Atoi(cookie.Value)
 	if err != nil {
-		log.Fatal(err.Error())
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
 	}
 	var updated PersonalScore
 	_ = json.NewDecoder(r.Body).Decode(&updated)
 	db := connectToDB()
 	if db != nil {
-		users, err := getUserID(db, userID)
+		users, err := getUserID(db, updated.UserID)
 		if err != nil {
 			log.Fatal(err.Error())
 		} else {
@@ -238,7 +239,7 @@ func UpdateQuiz1Score(w http.ResponseWriter, r *http.Request) {
 					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updated.Coins, HighScoreQuiz1: updated.HighScoreQuiz1}
 					_, err := updateScore(db, updatedScore)
 					if err != nil {
-						http.Error(w, "Failed to update Quiz 1 score", http.StatusInternalServerError)
+						http.Error(w, "Failed to update Quiz 1 Score", http.StatusInternalServerError)
 					}
 					w.WriteHeader(http.StatusOK)
 					json.NewEncoder(w).Encode(map[string]bool{"success": true})
@@ -254,23 +255,28 @@ func UpdateQuiz1Score(w http.ResponseWriter, r *http.Request) {
 
 // Update Quiz 2 score
 func UpdateQuiz2Score(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	userID, err := strconv.Atoi(params["userID"])
+	cookie, err := r.Cookie("userid")
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
+	userID, err := strconv.Atoi(cookie.Value)
 	if err != nil {
-		log.Fatal(err.Error())
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
 	}
 	var updated PersonalScore
 	_ = json.NewDecoder(r.Body).Decode(&updated)
 	db := connectToDB()
 	if db != nil {
-		users, err := getUserID(db, userID)
+		users, err := getUserID(db, updated.UserID)
 		if err != nil {
 			log.Fatal(err.Error())
 		} else {
 			//Check if User exists
 			for _, item := range users {
 				if item.UserID == userID {
-					updatedScore := PersonalScore{UserID: updated.UserID, HighScoreQuiz2: updated.HighScoreQuiz2}
+					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updated.Coins, HighScoreQuiz2: updated.HighScoreQuiz3}
 					_, err := updateScore(db, updatedScore)
 					if err != nil {
 						http.Error(w, "Failed to update Quiz 2 Score", http.StatusInternalServerError)
@@ -544,7 +550,7 @@ func ReadCityScapeDB(db *sql.DB, userID int) (PersonalScore, error) {
 }
 
 // Read Crossword from DB
-func ReadCrosswordDB(db *sql.DB, userID int, crosswordID int) (PersonalScore, error) {
+func ReadCrosswordDB(db *sql.DB, userID int) (PersonalScore, error) {
 	ctx := context.Background()
 
 	// Check if database is alive.
@@ -565,7 +571,7 @@ func ReadCrosswordDB(db *sql.DB, userID int, crosswordID int) (PersonalScore, er
 	}
 
 	// Execute query
-	rows, err := db.QueryContext(ctx, tsql, userID, crosswordID)
+	rows, err := db.QueryContext(ctx, tsql, userID)
 	if err != nil {
 		return PersonalScore{}, err
 	}

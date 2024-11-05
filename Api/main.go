@@ -107,14 +107,14 @@ func main() {
 	r.HandleFunc("/Plant/{Type}", updatePlant).Methods("PATCH")
 	r.HandleFunc("/Plant", deletePlant).Methods("DELETE")
 
-	r.HandleFunc("/Game/{gameType}/{crosswordID}", getScores).Methods("GET")
+	r.HandleFunc("/Game/{gameType}", getScores).Methods("GET")
 	r.HandleFunc("/Game/EcoAdventure", updateEcoAdventure).Methods("PATCH")
-	r.HandleFunc("/Game/Crossword/{userID}", updateCrossword).Methods("PATCH")
-	r.HandleFunc("/Game/Crossword/{userID}", insertCrosswordCompletion).Methods("POST")
+	r.HandleFunc("/Game/Crossword", updateCrossword).Methods("PATCH")
+	r.HandleFunc("/Game/Crossword", insertCrosswordCompletion).Methods("POST")
 	r.HandleFunc("/Game/CityScape", updateCityScape).Methods("PATCH")
-	r.HandleFunc("/Game/Quiz1/{userID}", UpdateQuiz1Score).Methods("PATCH")
-	r.HandleFunc("/Game/Quiz2/{userID}", UpdateQuiz2Score).Methods("PATCH")
-	r.HandleFunc("/Game/Quiz3/{userID}", UpdateQuiz3Score).Methods("PATCH")
+	r.HandleFunc("/Game/Quiz1", UpdateQuiz1Score).Methods("PATCH")
+	r.HandleFunc("/Game/Quiz2", UpdateQuiz2Score).Methods("PATCH")
+	r.HandleFunc("/Game/Quiz3", UpdateQuiz3Score).Methods("PATCH")
 
 	// Set up CORS to allow requests from the React frontend
 	c := cors.New(cors.Options{

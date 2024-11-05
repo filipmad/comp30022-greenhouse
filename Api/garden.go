@@ -219,14 +219,22 @@ func createGarden(w http.ResponseWriter, r *http.Request) {
 
 // Deletes a Garden
 func deleteGarden(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
+	cookie, err := r.Cookie("userid")
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
+	var userID int
+
+	userID, err = strconv.Atoi(cookie.Value)
+
+	if err != nil {
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+	}
 	db := connectToDB()
 	if db != nil {
-		ID, err := strconv.Atoi(params["UserID"])
-		if err != nil {
-			http.Error(w, "Missing ID", http.StatusBadRequest)
-		}
-		_, err = deleteGardenDB(ID, db)
+		_, err = deleteGardenDB(userID, db)
 		if err != nil {
 			http.Error(w, "Failed to delete garden", http.StatusInternalServerError)
 		}
