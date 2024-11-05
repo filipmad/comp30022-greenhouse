@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import axios from 'axios';
 
 const GameComponent = () => {
   const iframeRef = useRef(null);
