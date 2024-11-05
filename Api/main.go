@@ -97,10 +97,19 @@ func main() {
 	r.HandleFunc("/create-milestone", createCommunityMilestone(db)).Methods("POST")
 	r.HandleFunc("/delete-milestone", deleteCommunityMilestone(db))
 
+	r.HandleFunc("/Garden", getGarden).Methods("GET")
+	r.HandleFunc("/Garden", createGarden).Methods("POST")
+	r.HandleFunc("/Garden", updateGarden).Methods("PUT")
+	r.HandleFunc("/Garden/{UserID}", deleteGarden).Methods("DELETE")
+
+	r.HandleFunc("/Plant", getPlantByGardenID).Methods("GET")
+	r.HandleFunc("/Plant", createPlant).Methods("POST")
+	r.HandleFunc("/Plant/{Type}", updatePlant).Methods("PATCH")
+	r.HandleFunc("/Plant/{Position}", deletePlant).Methods("DELETE")
 
 	// Set up CORS to allow requests from the React frontend
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000" , "https://greenhouse-app-deployment-f7avhccxfaa3ewhp.australiasoutheast-01.azurewebsites.net"}, // Frontend origin
+		AllowedOrigins:   []string{"http://localhost:3000", "https://greenhouse-app-deployment-f7avhccxfaa3ewhp.australiasoutheast-01.azurewebsites.net"}, // Frontend origin
 		AllowedMethods:   []string{"GET", "POST", "DELETE"},
 		AllowedHeaders:   []string{"Content-Type"},
 		AllowCredentials: true,
@@ -111,6 +120,6 @@ func main() {
 
 	log.Println("Starting server on :8000")
 	err = http.ListenAndServe(":8000", handler)
-        log.Fatal(err)
+	log.Fatal(err)
 
 }

@@ -52,11 +52,17 @@ type CityScape struct {
 // Gets Score relating to User
 func getScores(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-
+	cookie, err := r.Cookie("userid")
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
 	db := connectToDB()
-	userID, err := strconv.Atoi(params["UserID"])
+	var userID int
+	userID, err = strconv.Atoi(cookie.Value)
 	if err != nil {
-		log.Fatal(err.Error())
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
 	}
 	//Checks which game is selected
 	if db != nil {
@@ -88,8 +94,14 @@ func getScores(w http.ResponseWriter, r *http.Request) {
 
 // Updates EcoAdventure information
 func updateEcoAdventure(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	userID, err := strconv.Atoi(params["userID"])
+
+	cookie, err := r.Cookie("userid")
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
+	userID, err := strconv.Atoi(cookie.Value)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -105,8 +117,8 @@ func updateEcoAdventure(w http.ResponseWriter, r *http.Request) {
 			//Check if the user exists in the db
 			for _, item := range scores {
 				if item.UserID == updated.UserID {
-					updatedCoins := updated.Coins + updated.HighScoreGame1.Coins
-					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updatedCoins, HighScoreGame1: updated.HighScoreGame1}
+
+					updatedScore := PersonalScore{UserID: userID, Coins: updated.Coins, HighScoreGame1: updated.HighScoreGame1}
 					_, err := updateScore(db, updatedScore)
 					if err != nil {
 						http.Error(w, "Failed to update EcoAdventure", http.StatusInternalServerError)
@@ -125,10 +137,16 @@ func updateEcoAdventure(w http.ResponseWriter, r *http.Request) {
 
 // Update the values of CityScape
 func updateCityScape(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	userID, err := strconv.Atoi(params["userID"])
+
+	cookie, err := r.Cookie("userid")
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
+	userID, err := strconv.Atoi(cookie.Value)
 	if err != nil {
-		log.Fatal(err.Error())
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
 	}
 	var updated PersonalScore
 	_ = json.NewDecoder(r.Body).Decode(&updated)
@@ -160,14 +178,19 @@ func updateCityScape(w http.ResponseWriter, r *http.Request) {
 
 // Update the Value of Crossword
 func updateCrossword(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	userID, err := strconv.Atoi(params["userID"])
+	cookie, err := r.Cookie("userid")
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
+	userID, err := strconv.Atoi(cookie.Value)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	var updated PersonalScore
 	_ = json.NewDecoder(r.Body).Decode(&updated)
-	log.Printf("Decoded PersonalScore struct: %+v\n", updated)
+
 	db := connectToDB()
 	if db != nil {
 		scores, err := getUserID(db, userID)
@@ -177,7 +200,7 @@ func updateCrossword(w http.ResponseWriter, r *http.Request) {
 			//Check if User exists
 			for _, item := range scores {
 				if item.UserID == updated.UserID {
-					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updated.Coins, HighScoreGame3: updated.HighScoreGame3}
+					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updated.Coins}
 					_, err := updateScore(db, updatedScore)
 					if err != nil {
 						http.Error(w, "Failed to update Crossword", http.StatusInternalServerError)
@@ -266,10 +289,15 @@ func UpdateQuiz2Score(w http.ResponseWriter, r *http.Request) {
 
 // Update Quiz 3 Score
 func UpdateQuiz3Score(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	userID, err := strconv.Atoi(params["userID"])
+	cookie, err := r.Cookie("userid")
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
+	userID, err := strconv.Atoi(cookie.Value)
 	if err != nil {
-		log.Fatal(err.Error())
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
 	}
 	var updated PersonalScore
 	_ = json.NewDecoder(r.Body).Decode(&updated)
@@ -346,10 +374,15 @@ func getUserID(db *sql.DB, userID int) ([]PersonalScore, error) {
 
 // Insert a new record of the current completion of a crossword
 func insertCrosswordCompletion(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	userID, err := strconv.Atoi(params["userID"])
+	cookie, err := r.Cookie("userid")
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
+	userID, err := strconv.Atoi(cookie.Value)
 	if err != nil {
-		log.Fatal(err.Error())
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
 	}
 	var newCrossword Crossword
 	_ = json.NewDecoder(r.Body).Decode(&newCrossword)
@@ -382,7 +415,7 @@ func updateScore(db *sql.DB, updated PersonalScore) (int64, error) {
 		return -1, err
 	}
 	//Always update the userBalance
-	tsql := (`UPDATE dbo.Users SET userBalance = @p1 where userID = @p2`)
+	tsql := (`UPDATE dbo.Users SET userBalance = userBalance + (@p1) where userID = @p2`)
 	rows, err := db.ExecContext(ctx, tsql, updated.Coins, updated.UserID)
 	if err != nil {
 		return -1, err
@@ -404,24 +437,8 @@ func updateScore(db *sql.DB, updated PersonalScore) (int64, error) {
 		qSQL := (`UPDATE dbo.Cityscape SET Population = @p1, Funds = @p2, Happiness = @p3, Pollution = @p4, Education = @p5, Poverty = @p6, EnergyQuota = @p7, PopulationChange = @p8, PollutionChange = @p9, FundsChange = @p10, EducationChange = @p11, PovertyChange = @p12, EnergyQuotaChange = @p13, HappinessChange = @p14 where userID = @p15`)
 		modified, check = db.ExecContext(ctx, qSQL, updated.HighScoreGame2.Population, updated.HighScoreGame2.Funds, updated.HighScoreGame2.Happiness, updated.HighScoreGame2.Pollution, updated.HighScoreGame2.Education, updated.HighScoreGame2.Poverty, updated.HighScoreGame2.EnergyQuota, updated.HighScoreGame2.PopulationChange, updated.HighScoreGame2.PollutionChange, updated.HighScoreGame2.FundsChange, updated.HighScoreGame2.EducationChange, updated.HighScoreGame2.PovertyChange, updated.HighScoreGame2.EnergyQuotaChange, updated.HighScoreGame2.HappinessChange, updated.UserID)
 		//CrossWord updated
-	} else if updated.HighScoreGame3 != nil {
-		qSQL := (`UPDATE dbo.Crossword SET HasCompleted = @p1 where userID = @p2 and crossWordID = @p3`)
-		modified, check = db.ExecContext(ctx, qSQL, updated.HighScoreGame3.HasCompleted, updated.UserID, updated.HighScoreGame3.CrosswordID)
-		//Highscore quiz updated
-	} else if updated.HighScoreQuiz1 != 0 {
-
-		qSQL := (`UPDATE dbo.Users SET quizOneHighScore = @p1 where UserID = @p2`)
-		modified, check = db.ExecContext(ctx, qSQL, updated.HighScoreQuiz1, updated.UserID)
-		//Highscore quiz 2 updated
-	} else if updated.HighScoreQuiz2 != 0 {
-		qSQL := (`UPDATE dbo.Users SET quizTwoHighSCore = @p1 where UserID = @p2`)
-		modified, check = db.ExecContext(ctx, qSQL, updated.HighScoreQuiz2, updated.UserID)
-	} else {
-		//Highscore quiz 3 updated
-		qSQL := (`UPDATE dbo.Users SET quizThreeHighScore = @p1 where UserID = @p2`)
-		modified, check = db.ExecContext(ctx, qSQL, updated.HighScoreQuiz3, updated.UserID)
 	}
-	if check != nil {
+	if check != nil || modified == nil {
 		return -1, check
 		//Check whether any rows is affected
 	} else {
@@ -448,7 +465,7 @@ func ReadEcoAdventureDB(db *sql.DB, userID int) (PersonalScore, error) {
 
 	// Custom SQL Selection Query
 
-	tsql := ("SELECT [userID], [userBalance], [gameOneHighScore] FROM dbo.Users WHERE userID = @p1")
+	tsql := ("SELECT [userID], [gameOneHighScore] FROM dbo.Users WHERE userID = @p1")
 
 	// Check Validity of the db
 	if db == nil {
@@ -468,14 +485,14 @@ func ReadEcoAdventureDB(db *sql.DB, userID int) (PersonalScore, error) {
 	//Scans every row and converts it into a  struct to be returned
 	for rows.Next() {
 		var uID int
-		var score, totalcoins int
+		var score int
 
-		err := rows.Scan(&uID, &totalcoins, &score)
+		err := rows.Scan(&uID, &score)
 		if err != nil {
 			return PersonalScore{}, err
 		}
 		ecoAdventure := EcoAdventure{Score: score}
-		newScore := PersonalScore{UserID: uID, Coins: totalcoins, HighScoreGame1: &ecoAdventure}
+		newScore := PersonalScore{UserID: uID, HighScoreGame1: &ecoAdventure}
 		return newScore, nil
 
 	}
@@ -494,7 +511,7 @@ func ReadCityScapeDB(db *sql.DB, userID int) (PersonalScore, error) {
 
 	// Custom SQL Selection Query
 
-	tsql := (`SELECT dbo.Cityscape.*, dbo.Users.userBalance FROM dbo.Users INNER JOIN dbo.CityScape on dbo.Users.userID = dbo.CityScape.userID where dbo.Users.userID = @p1`)
+	tsql := (`SELECT dbo.Cityscape.* FROM dbo.CityScape where userID = @p1`)
 
 	// Check Validity of the db
 	if db == nil {
@@ -513,14 +530,13 @@ func ReadCityScapeDB(db *sql.DB, userID int) (PersonalScore, error) {
 
 	//Scans every row and converts it into a struct to be returned
 	for rows.Next() {
-		var uID, cID, education, educationChange, userBalance, population, funds, happiness, pollution, poverty, energyQuota, populationChange, fundsChange, happinessChange, pollutionChange, povertyChange, energyQuotaChange int
-
-		err := rows.Scan(&uID, &cID, &userBalance, &population, &funds, &happiness, &pollution, &poverty, &energyQuota, &populationChange, &fundsChange, &happinessChange, &pollutionChange, &povertyChange, &energyQuotaChange, &education, &educationChange)
+		var cID, uID, education, educationChange, population, funds, happiness, pollution, poverty, energyQuota, populationChange, fundsChange, happinessChange, pollutionChange, povertyChange, energyQuotaChange int
+		err := rows.Scan(&uID, &cID, &population, &funds, &happiness, &pollution, &poverty, &energyQuota, &populationChange, &fundsChange, &happinessChange, &pollutionChange, &povertyChange, &energyQuotaChange, &education, &educationChange)
 		if err != nil {
 			return PersonalScore{}, err
 		}
 		cityScape := CityScape{Population: population, Funds: funds, Happiness: happiness, Education: education, Pollution: pollution, Poverty: poverty, EnergyQuota: energyQuota, PopulationChange: populationChange, FundsChange: fundsChange, HappinessChange: happinessChange, PollutionChange: pollutionChange, EnergyQuotaChange: energyQuotaChange, EducationChange: educationChange}
-		newScore := PersonalScore{UserID: uID, Coins: userBalance, HighScoreGame2: &cityScape}
+		newScore := PersonalScore{UserID: uID, HighScoreGame2: &cityScape}
 
 		return newScore, nil
 	}
@@ -539,7 +555,7 @@ func ReadCrosswordDB(db *sql.DB, userID int, crosswordID int) (PersonalScore, er
 
 	// Custom SQL Selection Query
 
-	tsql := (`SELECT dbo.Users.userID, dbo.Users.userBalance, dbo.Crossword.hasCompleted, dbo.Crossword.crosswordID FROM dbo.Users INNER JOIN dbo.Crossword on dbo.Crossword.userID = dbo.Users.userID where dbo.Users.userID = @p1 and dbo.Crossword.crosswordID = @p2`)
+	tsql := (`SELECT dbo.Users.userID, dbo.Crossword.hasCompleted, dbo.Crossword.crosswordID FROM dbo.Users INNER JOIN dbo.Crossword on dbo.Crossword.userID = dbo.Users.userID where dbo.Users.userID = @p1 and dbo.Crossword.crosswordID = @p2`)
 
 	// Check Validity of the db
 	if db == nil {
@@ -558,10 +574,10 @@ func ReadCrosswordDB(db *sql.DB, userID int, crosswordID int) (PersonalScore, er
 
 	//Scans every row and converts it into a struct to be returned
 	for rows.Next() {
-		var uID, cwID, totalcoins int
+		var uID, cwID int
 		var completedcheck int
 		var hascompleted bool
-		err := rows.Scan(&uID, &totalcoins, &completedcheck, &cwID)
+		err := rows.Scan(&uID, &completedcheck, &cwID)
 		if err != nil {
 			return PersonalScore{}, err
 		}
@@ -572,7 +588,7 @@ func ReadCrosswordDB(db *sql.DB, userID int, crosswordID int) (PersonalScore, er
 			hascompleted = true
 		}
 		crossword := Crossword{HasCompleted: hascompleted, CrosswordID: cwID}
-		newScore := PersonalScore{UserID: uID, Coins: totalcoins, HighScoreGame3: &crossword}
+		newScore := PersonalScore{UserID: uID, HighScoreGame3: &crossword}
 
 		return newScore, nil
 	}
@@ -651,6 +667,7 @@ func createScoreDB(db *sql.DB, userID int) (int64, error) {
 
 }
 
+// Creates a crossword completion entry for user
 func createCrosswordDB(db *sql.DB, crossword Crossword, userID int) (int64, error) {
 
 	ctx := context.Background()
@@ -661,18 +678,18 @@ func createCrosswordDB(db *sql.DB, crossword Crossword, userID int) (int64, erro
 		return -1, err
 	}
 
-	cityScape := "INSERT INTO dbo.Crossword(userID, hasCompleted, crosswordID) VALUES (@p1, @p2, @p3)"
-	insertCity, err := db.ExecContext(ctx, cityScape, userID, crossword.HasCompleted, crossword.CrosswordID)
+	crosswordstat := "INSERT INTO dbo.Crossword(userID, hasCompleted, crosswordID) VALUES (@p1, @p2, @p3)"
+	insertCross, err := db.ExecContext(ctx, crosswordstat, userID, crossword.HasCompleted, crossword.CrosswordID)
 	if err != nil {
 		fmt.Printf("Execution error")
 		return -1, err
 
 	}
-	cityID, err := insertCity.RowsAffected()
+	crossID, err := insertCross.RowsAffected()
 	if err != nil {
 		return -1, err
 	}
 
-	return cityID, nil
+	return crossID, nil
 
 }

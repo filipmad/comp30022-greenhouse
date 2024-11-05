@@ -13,10 +13,9 @@ import (
 )
 
 type Garden struct {
-	GardenID    int `json:"GardenID"`
-	TreeAge     int `json:"TreeAge"`
-	UserID      int `json:"UserID"`
-	UserBalance int `json:"UserBalance"`
+	GardenID int `json:"GardenID"`
+	TreeAge  int `json:"TreeAge"`
+	UserID   int `json:"UserID"`
 }
 type Plant struct {
 	PlantID  int    `json:"PlantID"`
@@ -27,65 +26,36 @@ type Plant struct {
 	Position int    `json:"Position"`
 }
 
-// Gets all Plants
-func getPlants(w http.ResponseWriter, r *http.Request) {
-	db := connectToDB()
-	if db != nil {
-		plants, err := readPlantsDB(db)
-		if err != nil {
-			log.Fatal(err.Error())
-		} else {
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(plants)
-		}
+type MovePlant struct {
+	PositionOne int `json:"PositionOne"`
 
-	}
-
-}
-
-// Gets specific plant based on plant ID
-func getPlantByPlantID(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	db := connectToDB()
-	if db != nil {
-		plants, err := readPlantsDB(db)
-		if err != nil {
-			http.Error(w, "Failed to get plant", http.StatusInternalServerError)
-
-		}
-		//For Every plant
-		for _, item := range plants {
-			if strconv.Itoa(item.PlantID) == params["PlantID"] {
-				w.Header().Set("Content-Type", "application/json")
-				json.NewEncoder(w).Encode(item)
-				return
-			}
-		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(&Plant{})
-	}
+	PositionTwo int `json:"PositionTwo"`
 }
 
 // Get Plants by their garden ID
 func getPlantByGardenID(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
+	cookie, err := r.Cookie("gardenid")
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
 	db := connectToDB()
+	var gardenID int
+	gardenID, err = strconv.Atoi(cookie.Value)
+	if err != nil {
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+	}
 	if db != nil {
-		plants, err := readPlantsDB(db)
+		plants, err := readPlantsDB(db, gardenID)
 		if err != nil {
 			http.Error(w, "Failed to get plant", http.StatusInternalServerError)
 
 		}
-		for _, item := range plants {
-			if strconv.Itoa(item.GardenID) == params["GardenID"] {
-				w.Header().Set("Content-Type", "application/json")
-				json.NewEncoder(w).Encode(item)
 
-			}
-			return
-		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(plants)
 
-		json.NewEncoder(w).Encode(&Plant{})
 	}
 }
 
@@ -93,10 +63,19 @@ func getPlantByGardenID(w http.ResponseWriter, r *http.Request) {
 func createPlant(w http.ResponseWriter, r *http.Request) {
 	var newPlant Plant
 	_ = json.NewDecoder(r.Body).Decode(&newPlant)
+	gardenCookie, err := r.Cookie("gardenid")
+	userCookie, err := r.Cookie("userid")
+	if err != nil || gardenCookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
 	db := connectToDB()
+	var userID, gardenID int
+	gardenID, err = strconv.Atoi(gardenCookie.Value)
+	userID, err = strconv.Atoi(userCookie.Value)
 	if db != nil {
-
-		_, err := createPlantsDB(newPlant, db)
+		_, err := createPlantsDB(newPlant, db, userID, gardenID)
 		if err != nil {
 			http.Error(w, "Failed to create plant", http.StatusInternalServerError)
 		}
@@ -109,25 +88,42 @@ func createPlant(w http.ResponseWriter, r *http.Request) {
 
 // Updates data relating to the Plant
 func updatePlant(w http.ResponseWriter, r *http.Request) {
-	var updatedPlant Plant
+	params := mux.Vars(r)
+	var updatedPlant MovePlant
 	_ = json.NewDecoder(r.Body).Decode(&updatedPlant)
+	cookie, err := r.Cookie("gardenid")
+
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
+	var gardenID int
+	gardenID, err = strconv.Atoi(cookie.Value)
+
+	if err != nil {
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+	}
 	db := connectToDB()
 	if db != nil {
-		plants, err := readPlantsDB(db)
+		plants, err := readPlantsDB(db, gardenID)
 		if err != nil {
 			http.Error(w, "Failed to read plant", http.StatusInternalServerError)
 		}
 		for _, item := range plants {
-			if item.PlantID == updatedPlant.PlantID {
-				ID := updatedPlant.PlantID
-				age := updatedPlant.Age
-				name := updatedPlant.Name
-				position := updatedPlant.Position
-				updatedPlant := Plant{PlantID: ID, Age: age, Name: name, Position: position}
-				_, err := updatePlantsDB(updatedPlant, db)
-				if err != nil {
-					http.Error(w, "Failed to update Plant", http.StatusInternalServerError)
+			if item.Position == updatedPlant.PositionOne {
+				if params["Type"] == "Move" {
+					_, err := updatePlantsDB(updatedPlant, db, gardenID)
+					if err != nil {
+						http.Error(w, "Failed to update Plant", http.StatusInternalServerError)
+					}
+				} else if params["Type"] == "Swap" {
+					_, err := swapPlantsDB(updatedPlant, db, gardenID)
+					if err != nil {
+						http.Error(w, "Failed to update Plant", http.StatusInternalServerError)
+					}
 				}
+
 			}
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -136,24 +132,33 @@ func updatePlant(w http.ResponseWriter, r *http.Request) {
 }
 
 // Deletes a PLant
-func DeletePlant(w http.ResponseWriter, r *http.Request) {
+func deletePlant(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	db := connectToDB()
+	cookie, err := r.Cookie("gardenid")
+	userCookie, err := r.Cookie("userid")
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
+	var gardenID int
+	var userID int
+	gardenID, err = strconv.Atoi(cookie.Value)
+	userID, err = strconv.Atoi(userCookie.Value)
+	if err != nil {
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+	}
 	if db != nil {
-		plants, err := readPlantsDB(db)
+		plants, err := readPlantsDB(db, gardenID)
 		if err != nil {
 			http.Error(w, "Failed to read plant", http.StatusInternalServerError)
 		}
 		for _, item := range plants {
-			if strconv.Itoa(item.PlantID) == params["PlantID"] {
-				ID, err := strconv.Atoi(params["PlantID"])
+			if strconv.Itoa(item.PlantID) == params["Position"] {
 
+				_, err := deletePlantDB(item, db, userID, gardenID)
 				if err != nil {
-					http.Error(w, "Empty ID", http.StatusBadRequest)
-				}
-
-				_, error := deletePlantDB(ID, db)
-				if error != nil {
 					http.Error(w, "Failed to delete plant", http.StatusInternalServerError)
 				}
 				w.WriteHeader(http.StatusOK)
@@ -168,14 +173,22 @@ func DeletePlant(w http.ResponseWriter, r *http.Request) {
 
 // Gets the Garden
 func getGarden(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	userID, err := strconv.Atoi(params["UserID"])
+	cookie, err := r.Cookie("gardenid")
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
+	var gardenID int
+
+	gardenID, err = strconv.Atoi(cookie.Value)
+
 	if err != nil {
-		log.Fatal(err.Error())
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
 	}
 	db := connectToDB()
 	if db != nil {
-		gardens, err := readGardenDB(db, userID)
+		gardens, err := readGardenDB(db, gardenID)
 		if err != nil {
 			http.Error(w, "Failed to read garden", http.StatusInternalServerError)
 		}
@@ -187,6 +200,7 @@ func getGarden(w http.ResponseWriter, r *http.Request) {
 // Creates the Garden
 func createGarden(w http.ResponseWriter, r *http.Request) {
 	var newGarden Garden
+
 	_ = json.NewDecoder(r.Body).Decode(&newGarden)
 
 	db := connectToDB()
@@ -221,24 +235,25 @@ func deleteGarden(w http.ResponseWriter, r *http.Request) {
 
 // Update the Garden
 func updateGarden(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
+
+	cookie, err := r.Cookie("gardenid")
 	var updateGarden Garden
 	_ = json.NewDecoder(r.Body).Decode(&updateGarden)
-	userID, err := strconv.Atoi(params["UserID"])
+	gardenID, err := strconv.Atoi(cookie.Value)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	db := connectToDB()
 	if db != nil {
-		gardens, err := readGardenDB(db, userID)
+		gardens, err := readGardenDB(db, gardenID)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
 
 		for _, item := range gardens {
-			if item.UserID == updateGarden.UserID {
+			if item.GardenID == gardenID {
 
-				_, err = updateGardenDB(updateGarden, db)
+				_, err = updateGardenDB(updateGarden, db, gardenID)
 				if err != nil {
 					http.Error(w, "Failed to update Garden", http.StatusInternalServerError)
 				}
@@ -257,7 +272,7 @@ func updateGarden(w http.ResponseWriter, r *http.Request) {
 }
 
 // Reads information from the Garden
-func readGardenDB(db *sql.DB, userID int) ([]Garden, error) {
+func readGardenDB(db *sql.DB, gardenID int) ([]Garden, error) {
 	ctx := context.Background()
 
 	// Check if database is alive.
@@ -268,7 +283,7 @@ func readGardenDB(db *sql.DB, userID int) ([]Garden, error) {
 
 	// Custom SQL Selection Query
 	//Needs to put in server
-	tsql := (`SELECT Garden.gardenID, Garden.treeAge, Garden.userID, Users.userBalance FROM Garden INNER JOIN Users on Garden.userID = Users.userID where Users.userID = @p1`)
+	tsql := (`SELECT Garden.gardenID, Garden.treeAge, Garden.userID FROM Garden where Garden.gardenID = @p1`)
 
 	// Check Validity of the db
 	if db == nil {
@@ -278,7 +293,7 @@ func readGardenDB(db *sql.DB, userID int) ([]Garden, error) {
 	}
 
 	// Execute query
-	rows, err := db.QueryContext(ctx, tsql, userID)
+	rows, err := db.QueryContext(ctx, tsql, gardenID)
 	if err != nil {
 		return nil, err
 	}
@@ -287,13 +302,13 @@ func readGardenDB(db *sql.DB, userID int) ([]Garden, error) {
 
 	var garden []Garden
 	for rows.Next() {
-		var gID, tAge, uID, userBalance int
+		var gID, tAge, uID int
 		var newGarden Garden
-		err := rows.Scan(&gID, &tAge, &uID, &userBalance)
+		err := rows.Scan(&gID, &tAge, &uID)
 		if err != nil {
 			return nil, err
 		}
-		newGarden = Garden{GardenID: gID, TreeAge: tAge, UserID: uID, UserBalance: userBalance}
+		newGarden = Garden{GardenID: gID, TreeAge: tAge, UserID: uID}
 		garden = append(garden, newGarden)
 
 	}
@@ -326,7 +341,7 @@ func createGardenDB(garden Garden, db *sql.DB) (int64, error) {
 }
 
 // Modifies both a userID and age in the DB
-func updateGardenDB(updated Garden, db *sql.DB) (int64, error) {
+func updateGardenDB(updated Garden, db *sql.DB, gardenID int) (int64, error) {
 	ctx := context.Background()
 	// Check if database is alive.
 	err := db.PingContext(ctx)
@@ -335,20 +350,20 @@ func updateGardenDB(updated Garden, db *sql.DB) (int64, error) {
 	}
 	//Checks need to be implemented for both invalid values (negative vals, etc...)
 	//SQL statement
-	qsql := "UPDATE dbo.Users SET userBalance = @p1 WHERE Users.userID = @p2"
+
 	tsql := " UPDATE dbo.Garden SET treeAge = @p1 WHERE gardenID = @p2"
-	update, err := db.ExecContext(ctx, qsql, updated.UserBalance, updated.UserID)
-	modified, err := db.ExecContext(ctx, tsql, updated.TreeAge, updated.GardenID)
+
+	modified, err := db.ExecContext(ctx, tsql, updated.TreeAge, gardenID)
 	if err != nil {
 		return -1, err
 	}
-	checkBalance, err := update.RowsAffected()
+
 	check, err := modified.RowsAffected()
 	if err != nil {
 		return -1, err
 	}
 
-	return check + checkBalance, nil
+	return check, nil
 }
 
 // Deletes Garden from DB based on userID
@@ -371,22 +386,26 @@ func deleteGardenDB(userID int, db *sql.DB) (int64, error) {
 }
 
 // Deletes a Specific Plant
-func deletePlantDB(flowerID int, db *sql.DB) (int64, error) {
+func deletePlantDB(plantDelete Plant, db *sql.DB, userID int, gardenID int) (int64, error) {
 	ctx := context.Background()
 	// Check if database is alive.
 	err := db.PingContext(ctx)
 	if err != nil {
 		return -1, err
 	}
-	delete, err := db.ExecContext(ctx, "DELETE FROM Plant where plantID  = @p1", flowerID)
+	asql := (`UPDATE dbo.Users SET userBalance = userBalance + (@p1 * 0.5) where userID = @p2`)
+	rows, err := db.ExecContext(ctx, asql, plantDelete.Value, userID)
+	delete, err := db.ExecContext(ctx, "DELETE FROM Plant WHERE gardenID = @p1 AND position = @p2", gardenID, plantDelete.Position)
+
 	if err != nil {
 		return -1, err
 	}
 	check, err := delete.RowsAffected()
+	checkbalance, err := rows.RowsAffected()
 	if err != nil {
 		return -1, err
 	}
-	return check, nil
+	return check + checkbalance, nil
 }
 
 //Deletes All Plants within a garden
@@ -398,6 +417,7 @@ func deleteAllPlantDB(gardenID int, db *sql.DB) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
+
 	delete, err := db.ExecContext(ctx, "DELETE FROM Plant where gardenID = @p1", gardenID)
 	if err != nil {
 		return -1, err
@@ -410,7 +430,7 @@ func deleteAllPlantDB(gardenID int, db *sql.DB) (int64, error) {
 }
 
 // Read all plants from DB
-func readPlantsDB(db *sql.DB) ([]Plant, error) {
+func readPlantsDB(db *sql.DB, gardenID int) ([]Plant, error) {
 	ctx := context.Background()
 
 	// Check if database is alive.
@@ -421,7 +441,7 @@ func readPlantsDB(db *sql.DB) ([]Plant, error) {
 
 	// Custom SQL Selection Query
 	//Needs to put in server
-	tsql := (`SELECT [PlantID], [Age], [Name], [GardenID], [value], [position] FROM Plant`)
+	tsql := (`SELECT [PlantID], [Age], [Name], [GardenID], [value], [position] FROM Plant where GardenID = @p1`)
 
 	// Check Validity of the db
 	if db == nil {
@@ -431,7 +451,7 @@ func readPlantsDB(db *sql.DB) ([]Plant, error) {
 	}
 
 	// Execute query
-	rows, err := db.QueryContext(ctx, tsql)
+	rows, err := db.QueryContext(ctx, tsql, gardenID)
 	if err != nil {
 		return nil, err
 	}
@@ -457,7 +477,7 @@ func readPlantsDB(db *sql.DB) ([]Plant, error) {
 }
 
 // Create Plants within the Database
-func createPlantsDB(newPlant Plant, db *sql.DB) (int64, error) {
+func createPlantsDB(newPlant Plant, db *sql.DB, userID int, gardenID int) (int64, error) {
 	ctx := context.Background()
 	// Check if database is alive.
 	err := db.PingContext(ctx)
@@ -465,8 +485,36 @@ func createPlantsDB(newPlant Plant, db *sql.DB) (int64, error) {
 		return -1, err
 	}
 
+	asql := (`UPDATE dbo.Users SET userBalance = userBalance - (@p1) where userID = @p2`)
+	rows, err := db.ExecContext(ctx, asql, newPlant.Value, userID)
+	if err != nil {
+		return -1, err
+	}
 	tsql := "INSERT INTO dbo.Plant(age, name, gardenID, Value, Position) VALUES(1, @p1, @p2, @p3, @p4)"
-	insert, err := db.ExecContext(ctx, tsql, newPlant.Name, newPlant.GardenID, newPlant.Value, newPlant.Position)
+	insert, err := db.ExecContext(ctx, tsql, newPlant.Name, gardenID, newPlant.Value, newPlant.Position)
+	if err != nil {
+		return -1, err
+
+	}
+	check, err := insert.RowsAffected()
+	currencyCheck, err := rows.RowsAffected()
+	if err != nil {
+		return -1, err
+	}
+	return check + currencyCheck, nil
+
+}
+
+// Updates Plants within Database
+func updatePlantsDB(updatePlant MovePlant, db *sql.DB, gardenID int) (int64, error) {
+	ctx := context.Background()
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	tsql := "UPDATE dbo.Plant SET position = @p1 WHERE position = @p2 AND gardenID = @p3"
+	insert, err := db.ExecContext(ctx, tsql, updatePlant.PositionTwo, updatePlant.PositionOne, gardenID)
 	if err != nil {
 		return -1, err
 
@@ -479,24 +527,76 @@ func createPlantsDB(newPlant Plant, db *sql.DB) (int64, error) {
 
 }
 
-// Updates Plants within Database
-func updatePlantsDB(updatePlant Plant, db *sql.DB) (int64, error) {
+func swapPlantsDB(updatePlant MovePlant, db *sql.DB, gardenID int) (int64, error) {
 	ctx := context.Background()
 	// Check if database is alive.
 	err := db.PingContext(ctx)
 	if err != nil {
 		return -1, err
 	}
-	tsql := "UPDATE dbo.Plant SET age = @p1, name = @p2, position = @4 WHERE plantID = @p3"
-	insert, err := db.ExecContext(ctx, tsql, updatePlant.Age, updatePlant.Name, updatePlant.PlantID, updatePlant.Position)
+	setup := "UPDATE dbo.Plant SET position = -1 WHERE position = @p1 AND gardenID = @p2"
+	tsql := "UPDATE dbo.Plant SET position = @p1 WHERE position = @p2 AND gardenID = @p3"
+	insert, err := db.ExecContext(ctx, setup, updatePlant.PositionOne, gardenID)
+	insertTwo, err := db.ExecContext(ctx, tsql, updatePlant.PositionOne, updatePlant.PositionTwo, gardenID)
+	insertThree, err := db.ExecContext(ctx, tsql, updatePlant.PositionTwo, -1, gardenID)
 	if err != nil {
 		return -1, err
 
 	}
-	id, err := insert.LastInsertId()
+	checkIDOne, err := insert.LastInsertId()
+	checkIDTwo, err := insertTwo.LastInsertId()
+	checkIDThree, err := insertThree.LastInsertId()
 	if err != nil {
 
 	}
-	return id, nil
+	return checkIDOne + checkIDTwo + checkIDThree, nil
 
+}
+
+// Gets all the coins
+func fetchCoins(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("userid")
+	if err != nil || cookie.Value == "" {
+		// No cookie or cookie is empty, user is not authenticated
+		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
+		return
+	}
+	db := connectToDB()
+	var userid int
+	userid, err = strconv.Atoi(cookie.Value)
+
+	if db != nil {
+		userBalance, err := readUserBalanceDB(db, userid)
+		if err != nil {
+			http.Error(w, "User Balance couldn't be found", http.StatusInternalServerError)
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]interface{}{"UserBalance": userBalance})
+		}
+
+	}
+}
+
+// Reads user balance
+func readUserBalanceDB(db *sql.DB, userid int) (int, error) {
+	ctx := context.Background()
+	// Check if database is alive.
+	err := db.PingContext(ctx)
+	if err != nil {
+		return -1, err
+	}
+	var userBalance int
+	tsql := "`SELECT userBalance FROM users WHERE userID = @p1"
+	read, err := db.QueryContext(ctx, tsql, userid)
+
+	if err != nil {
+		return -1, err
+
+	}
+	err = read.Scan(&userBalance)
+	if err != nil {
+		return -1, err
+
+	}
+	return userBalance, nil
 }
