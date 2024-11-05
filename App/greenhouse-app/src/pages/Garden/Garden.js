@@ -6,7 +6,7 @@ const GameComponent = () => {
 
   const fetchStreak = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/fetch-streak', { withCredentials: true });
+      const response = await axios.get('http://localhost:8000/Garden', { withCredentials: true });
       iframeRef.current.contentWindow.postMessage({ type: 'streakResponse', streak: response.TreeAge }, window.location.origin);
     } catch (error) {
       console.error('Error fetching streak:', error);
@@ -14,57 +14,57 @@ const GameComponent = () => {
   };
   const fetchPlants = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/fetch-plants', { withCredentials: true });
-      iframeRef.current.contentWindow.postMessage({ type: 'getPlantsResponse', plants: response.Plants}, window.location.origin);
+      const response = await axios.get('http://localhost:8000/Plant', { withCredentials: true });
+      iframeRef.current.contentWindow.postMessage({ type: 'getPlantsResponse', plants: response.Plants }, window.location.origin);
     } catch (error) {
       console.error('Error fetching plants:', error);
     }
   };
   const swapPlants = async (position1, position2) => {
-		try {
-			await axios.post('http://localhost:8000/swap-plants', {
-				PositionOne: position1,
-        PositionTwo: position2,
-			}, { withCredentials: true });
+    try {
+      await axios.patch('http://localhost:8000/Plant/Swap', {
+        "PositionOne": position1,
+        "PositionTwo": position2,
+      }, { withCredentials: true });
 
-		} catch (error) {
-			console.error('Error swapping plants:', error);
-		}
-	};
+    } catch (error) {
+      console.error('Error swapping plants:', error);
+    }
+  };
   const movePlant = async (originalPosition, targetPosition) => {
-		try {
-			await axios.post('http://localhost:8000/move-plant', {
-				PositionOne: originalPosition,
-        PositionTwo: targetPosition,
-			}, { withCredentials: true });
+    try {
+      await axios.patch('http://localhost:8000/Plant/Move', {
+        "PositionOne": originalPosition,
+        "PositionTwo": targetPosition,
+      }, { withCredentials: true });
 
-		} catch (error) {
-			console.error('Error moving plant:', error);
-		}
-	};
+    } catch (error) {
+      console.error('Error moving plant:', error);
+    }
+  };
   const addPlant = async (name, position, value) => {
-		try {
-			await axios.post('http://localhost:8000/add-plant', {
-				Name: name,
-        Position: position,
-        Value: value,
-			}, { withCredentials: true });
+    try {
+      await axios.post('http://localhost:8000/Plant', {
+        "Name": name,
+        "Position": position,
+        "Value": value,
+      }, { withCredentials: true });
 
-		} catch (error) {
-			console.error('Error adding plant:', error);
-		}
-	};
+    } catch (error) {
+      console.error('Error adding plant:', error);
+    }
+  };
   const removePlant = async (position, value) => {
-		try {
-			await axios.post('http://localhost:8000/remove-plant', {
-				Position: position,
-        Value: value,
-			}, { withCredentials: true });
+    try {
+      await axios.delete('http://localhost:8000/Plant', {
+        "Position": position,
+        "Value": value,
+      }, { withCredentials: true });
 
-		} catch (error) {
-			console.error('Error removing plant:', error);
-		}
-	};
+    } catch (error) {
+      console.error('Error removing plant:', error);
+    }
+  };
 
 
 
@@ -96,22 +96,22 @@ const GameComponent = () => {
     // we need to implement the logic to send data to the database
 
     // Depending on the data type, perform specific actions
-    if(data.type === 'streak') {
+    if (data.type === 'streak') {
       fetchStreak();
     }
-    else if(data.type === 'swap') {
+    else if (data.type === 'swap') {
       swapPlants(data.position1, data.position2);
     }
-    else if(data.type === 'move') {
+    else if (data.type === 'move') {
       movePlant(data.original, data.target);
     }
-    else if(data.type === 'getPlants') {
+    else if (data.type === 'getPlants') {
       fetchPlants();
     }
-    else if(data.type === 'sellPlant') {
+    else if (data.type === 'sellPlant') {
       removePlant(data.position, data.value);
     }
-    else if(data.type === 'addPlant') {
+    else if (data.type === 'addPlant') {
       addPlant(data.name, data.position, data.value);
     }
   }

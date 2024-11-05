@@ -5,23 +5,23 @@ const GameComponent = () => {
 
   const fetchHighScore = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/get-score', { withCredentials: true });
-      iframeRef.current.contentWindow.postMessage({ type: 'highScoreResponse', score: response.EcoAdventure.Coins }, window.location.origin);
+      const response = await axios.get('http://localhost:8000/Game/EcoAdventure', { withCredentials: true });
+      iframeRef.current.contentWindow.postMessage({ type: 'highScoreResponse', score: response.EcoAdventure.Score }, window.location.origin);
     } catch (error) {
       console.error('Error fetching high score:', error);
     }
   };
   const updateEcoAdventure = async (score, addedCoins) => {
-		try {
-			await axios.post('http://localhost:8000/update-ecoadventure', {
-        Coins: addedCoins,
-        EcoAdventure: {Score: score},
-			}, { withCredentials: true });
+    try {
+      await axios.post('http://localhost:8000/Game/EcoAdventure', {
+        "Coins": addedCoins,
+        "EcoAdventure": { "Score": score },
+      }, { withCredentials: true });
 
-		} catch (error) {
-			console.error('Error saving high score:', error);
-		}
-	};
+    } catch (error) {
+      console.error('Error saving high score:', error);
+    }
+  };
 
   useEffect(() => {
     function handleMessage(event) {
@@ -51,10 +51,10 @@ const GameComponent = () => {
     // we need to implement the logic to send data to the database
 
     // Depending on the data type, perform specific actions
-    if(data.type === 'update') {
+    if (data.type === 'update') {
       updateEcoAdventure(data.score, data.coins);
     }
-    else if(data.type === 'getHighScore') {
+    else if (data.type === 'getHighScore') {
       fetchHighScore();
     }
   }

@@ -4,15 +4,15 @@ const GameComponent = () => {
   const iframeRef = useRef(null);
 
   const updateCoins = async (addedCoins) => {
-		try {
-			await axios.post('http://localhost:8000/update-coins', {
-				Coins: addedCoins,
-			}, {withCredentials: true });
+    try {
+      await axios.post('http://localhost:8000/Game/Crossword', {
+        "Coins": addedCoins,
+      }, { withCredentials: true });
 
-		} catch (error) {
-			console.error('Error updating coins:', error);
-		}
-	};
+    } catch (error) {
+      console.error('Error updating coins:', error);
+    }
+  };
 
   useEffect(() => {
     function handleMessage(event) {
@@ -41,7 +41,7 @@ const GameComponent = () => {
   function sendDataToDatabase(data) {
 
     // Depending on the data type, perform specific actions
-    if(data.type === 'addCoins') {
+    if (data.type === 'addCoins') {
       updateCoins(data.coins);
     }
   }

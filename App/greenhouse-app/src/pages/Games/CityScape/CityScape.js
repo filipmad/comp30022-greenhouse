@@ -5,7 +5,7 @@ const GameComponent = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/fetch-stats', { withCredentials: true });
+      const response = await axios.get('http://localhost:8000/Game/CityScape', { withCredentials: true });
 
       const stats = {
         population: response.CityScape.Population,
@@ -15,9 +15,9 @@ const GameComponent = () => {
         education: response.CityScape.Education,
         poverty: response.CityScape.Poverty,
         energyQuota: response.CityScape.EnergyQuota,
-    };
+      };
 
-    const hiddenStats = {
+      const hiddenStats = {
         populationChange: response.CityScape.PopulationChange,
         fundsChange: response.CityScape.FundsChange,
         happinessChange: response.CityScape.HappinessChange,
@@ -25,7 +25,7 @@ const GameComponent = () => {
         educationChange: response.CityScape.EducationChange,
         povertyChange: response.CityScape.PovertyChange,
         energyQuotaChange: response.CityScape.EnergyQuotaChange,
-    };
+      };
 
       iframeRef.current.contentWindow.postMessage({ type: 'loadStatsResponse', stats: stats, hiddenStats: hiddenStats }, window.location.origin);
     } catch (error) {
@@ -33,19 +33,21 @@ const GameComponent = () => {
     }
   };
   const patchStats = async (stats, hiddenStats, addedCoins) => {
-		try {
-			await axios.post('http://localhost:8000/patch-stats', {
+    try {
+      await axios.patch('http://localhost:8000/CityScape', {
         Coins: addedCoins,
-        CityScape: {Population: stats.population, Funds: stats.funds, Happiness: stats.happiness, Pollution: stats.pollution, 
-          Education: stats.education, Poverty: stats.poverty, EnergyQuota: stats.energyQuota, PopulationChange: hiddenStats.populationChange, 
-          FundsChange: hiddenStats.fundsChange, HappinessChange: hiddenStats.happinessChange, PollutionChange: hiddenStats.pollutionChange, 
-          EducationChange: hiddenStats.educationChange, PovertyChange: hiddenStats.povertyChange, EnergyQuotaChange: hiddenStats.energyQuotaChange }
-			}, { withCredentials: true });
+        CityScape: {
+          "Population": stats.population, "Funds": stats.funds, "Happiness": stats.happiness, "Pollution": stats.pollution,
+          "Education": stats.education, "Poverty": stats.poverty, "EnergyQuota": stats.energyQuota, "PopulationChange": hiddenStats.populationChange,
+          "FundsChange": hiddenStats.fundsChange, "HappinessChange": hiddenStats.happinessChange, "PollutionChange": hiddenStats.pollutionChange,
+          "EducationChange": hiddenStats.educationChange, "PovertyChange": hiddenStats.povertyChange, "EnergyQuotaChange": hiddenStats.energyQuotaChange
+        }
+      }, { withCredentials: true });
 
-		} catch (error) {
-			console.error('Error saving stats:', error);
-		}
-	};
+    } catch (error) {
+      console.error('Error saving stats:', error);
+    }
+  };
 
   useEffect(() => {
     function handleMessage(event) {
@@ -75,10 +77,10 @@ const GameComponent = () => {
     // we need to implement the logic to send data to the database
 
     // Depending on the data type, perform specific actions
-    if(data.type === 'saveStats') {
+    if (data.type === 'saveStats') {
       patchStats(data.stats, data.hiddenStats, data.coins);
     }
-    else if(data.type === 'loadStats') {
+    else if (data.type === 'loadStats') {
       fetchStats();
     }
   }
