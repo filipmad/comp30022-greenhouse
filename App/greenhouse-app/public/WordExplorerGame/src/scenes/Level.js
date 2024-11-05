@@ -539,7 +539,7 @@ class Level extends Phaser.Scene {
 			duration: 1000,
 		});
 
-		this.puzzleComplete()
+		this.addCoins();
 
 
 		// Delay a little to show the congratulations message
@@ -556,13 +556,6 @@ class Level extends Phaser.Scene {
 		this.scene.run('EndScreen');
 	
 	}
-
-	puzzleComplete() {
-        window.parent.postMessage({type: "complete", id: this.puzzleID}, '*');
-
-		// Check if the puzzle has already been completed by the player
-		return this.complete;
-    }
 
 	addCoins() {
 		// Add coins to the player's account

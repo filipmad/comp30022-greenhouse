@@ -3,33 +3,11 @@ import React, { useEffect, useRef } from 'react';
 const GameComponent = () => {
   const iframeRef = useRef(null);
 
-  const updateCompletion = async (puzzleID) => {
-    try {
-      await axios.post('http://localhost:8000/update-completion', {
-        puzzleID,
-      });
-
-    } catch (error) {
-      console.error('Error updating puzzle completion:', error);
-    }
-  };
-  const fetchCompletion = async (puzzleID) => {
-    try {
-      const response = await axios.get('http://localhost:8000/get-completion', { params: {puzzleID}, withCredentials: true });
-      iframeRef.current.contentWindow.postMessage({ type: 'completeResponse', complete: response.data }, window.location.origin);
-      if(response.data === false) {
-        updateCompletion(puzzleID);
-      }
-
-    } catch (error) {
-      console.error('Error fetching puzzle completion:', error);
-    }
-  };
-  const updateCoins = async (coins) => {
+  const updateCoins = async (addedCoins) => {
 		try {
 			await axios.post('http://localhost:8000/update-coins', {
-				addCoins: coins,
-			});
+				Coins: addedCoins,
+			}, {withCredentials: true });
 
 		} catch (error) {
 			console.error('Error updating coins:', error);
@@ -61,14 +39,10 @@ const GameComponent = () => {
   }, []);
 
   function sendDataToDatabase(data) {
-    // we need to implement the logic to send data to the database
 
     // Depending on the data type, perform specific actions
     if(data.type === 'addCoins') {
       updateCoins(data.coins);
-    }
-    else if(data.type === 'complete') {
-      fetchCompletion(data.puzzleID);
     }
   }
 
