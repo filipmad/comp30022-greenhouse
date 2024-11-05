@@ -199,8 +199,8 @@ func updateCrossword(w http.ResponseWriter, r *http.Request) {
 		} else {
 			//Check if User exists
 			for _, item := range scores {
-				if item.UserID == updated.UserID {
-					updatedScore := PersonalScore{UserID: updated.UserID, Coins: updated.Coins}
+				if item.UserID == userID {
+					updatedScore := PersonalScore{UserID: userID, Coins: updated.Coins}
 					_, err := updateScore(db, updatedScore)
 					if err != nil {
 						http.Error(w, "Failed to update Crossword", http.StatusInternalServerError)

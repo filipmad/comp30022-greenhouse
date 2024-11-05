@@ -131,10 +131,12 @@ func updatePlant(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Deletes a PLant
+// Deletes a Plant
 func deletePlant(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
+
 	db := connectToDB()
+	var deletePlant Plant
+	_ = json.NewDecoder(r.Body).Decode(&deletePlant)
 	cookie, err := r.Cookie("gardenid")
 	userCookie, err := r.Cookie("userid")
 	if err != nil || cookie.Value == "" {
@@ -142,6 +144,7 @@ func deletePlant(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.ErrNoCookie.Error(), http.StatusForbidden)
 		return
 	}
+	//Convert the values together
 	var gardenID int
 	var userID int
 	gardenID, err = strconv.Atoi(cookie.Value)
@@ -155,9 +158,8 @@ func deletePlant(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to read plant", http.StatusInternalServerError)
 		}
 		for _, item := range plants {
-			if strconv.Itoa(item.PlantID) == params["Position"] {
-
-				_, err := deletePlantDB(item, db, userID, gardenID)
+			if item.Position == deletePlant.Position {
+				_, err := deletePlantDB(deletePlant, db, userID, gardenID)
 				if err != nil {
 					http.Error(w, "Failed to delete plant", http.StatusInternalServerError)
 				}
