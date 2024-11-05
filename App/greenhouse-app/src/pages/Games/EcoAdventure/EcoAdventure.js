@@ -6,29 +6,20 @@ const GameComponent = () => {
   const fetchHighScore = async () => {
     try {
       const response = await axios.get('http://localhost:8000/get-score', { withCredentials: true });
-      iframeRef.current.contentWindow.postMessage({ type: 'highScoreResponse', score: response.data }, window.location.origin);
+      iframeRef.current.contentWindow.postMessage({ type: 'highScoreResponse', score: response.EcoAdventure.Coins }, window.location.origin);
     } catch (error) {
       console.error('Error fetching high score:', error);
     }
   };
-  const updateHighScore = async (score) => {
+  const updateEcoAdventure = async (score, addedCoins) => {
 		try {
-			await axios.post('http://localhost:8000/update-score', {
-				highScore: score
-			});
+			await axios.post('http://localhost:8000/update-ecoadventure', {
+        Coins: addedCoins,
+        EcoAdventure: {Score: score},
+			}, { withCredentials: true });
 
 		} catch (error) {
 			console.error('Error saving high score:', error);
-		}
-	};
-  const updateCoins = async (coins) => {
-		try {
-			await axios.post('http://localhost:8000/update-coins', {
-				addCoins: coins,
-			});
-
-		} catch (error) {
-			console.error('Error updating coins:', error);
 		}
 	};
 
@@ -60,11 +51,8 @@ const GameComponent = () => {
     // we need to implement the logic to send data to the database
 
     // Depending on the data type, perform specific actions
-    if(data.type === 'addCoins') {
-      updateCoins(data.coins);
-    }
-    else if(data.type === 'highScore') {
-      updateHighScore(data.score);
+    if(data.type === 'update') {
+      updateEcoAdventure(data.score, data.coins);
     }
     else if(data.type === 'getHighScore') {
       fetchHighScore();

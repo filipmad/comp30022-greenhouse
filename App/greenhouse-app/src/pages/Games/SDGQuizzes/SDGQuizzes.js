@@ -3,11 +3,11 @@ import React, { useEffect, useRef } from 'react';
 const GameComponent = () => {
   const iframeRef = useRef(null);
 
-  const updateCoins = async (coins) => {
+  const updateCoins = async (addedCoins) => {
 		try {
 			await axios.post('http://localhost:8000/update-coins', {
-				addCoins: coins,
-			});
+				Coins: addedCoins,
+			}, {withCredentials: true });
 
 		} catch (error) {
 			console.error('Error updating coins:', error);
@@ -39,7 +39,6 @@ const GameComponent = () => {
   }, []);
 
   function sendDataToDatabase(data) {
-    // we need to implement the logic to send data to the database
 
     // Depending on the data type, perform specific actions
     if(data.type === 'addCoins') {

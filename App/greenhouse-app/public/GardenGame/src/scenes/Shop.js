@@ -1,7 +1,14 @@
 class Shop extends Phaser.Scene {
 
 	constructor() {
-		super("Shop");
+		super({ key: "Shop" });
+		this.smallPositions = [1, 2, 4, 5, 6, 7, 12, 13, 14, 15, 17, 18];
+        this.mediumPositions = [3, 8, 11, 16];
+        this.largePositions = [9, 10];
+	}
+
+	init(availablePositions) {
+		this.availablePositions = availablePositions;
 	}
 
 	create() {
@@ -43,7 +50,7 @@ class Shop extends Phaser.Scene {
 		this.plants = this.getShopPlants();
 	
 
-		const addItemToPopup = (popup, yPosition, iconKey, description, price, name) => {
+		const addItemToPopup = (popup, yPosition, iconKey, description, price, name, size) => {
 			// Plant icon on the left
 			const icon = this.add.image(45, yPosition, iconKey);
 			icon.displayWidth = 50;
@@ -74,7 +81,7 @@ class Shop extends Phaser.Scene {
 				color: "#ffffff",
 			});
 			buyButton.on("pointerdown", () => {
-				this.purchasePlant(name, price, description);
+				this.purchasePlant(name, price, size);
 			});
 			popup.add(buyButton);
 			popup.add(buyText);
@@ -86,17 +93,17 @@ class Shop extends Phaser.Scene {
 		for (const plant of this.plants) {
 			switch (plant.size) {
 				case "small": {
-					addItemToPopup(smallPopup, 50 + 100 * smallCount, plant.name, plant.name, plant.value, plant.name);
+					addItemToPopup(smallPopup, 50 + 100 * smallCount, plant.name, plant.name, plant.value, plant.name, plant.size);
 					smallCount++;
                     break;
                 }
 				case "medium": {
-                    addItemToPopup(mediumPopup, 50 + 100 * mediumCount, plant.name, plant.name, plant.value, plant.name);
+                    addItemToPopup(mediumPopup, 50 + 100 * mediumCount, plant.name, plant.name, plant.value, plant.name, plant.size);
 					mediumCount++;
                     break;
                 }
 				case "large": {
-                    addItemToPopup(largePopup, 50 + 100 * largeCount, plant.name, plant.name, plant.value, plant.name);
+                    addItemToPopup(largePopup, 50 + 100 * largeCount, plant.name, plant.name, plant.value, plant.name, plant.size);
 					largeCount++;
                     break;
                 }
@@ -152,45 +159,42 @@ class Shop extends Phaser.Scene {
 		return plantCatalogue;
 	}
 
-	async purchasePlant(name, price, description) {
+	async purchasePlant(name, price, size) {
+		let positions;
+		let addPosition;
+		switch(size) {
+			case "small":
+				positions = this.smallPositions;
+                break;
+            case "medium":
+				positions = this.mediumPositions;
+                break;
+            case "large":
+                positions = this.largePositions;
+                break;
+        }
+		for(let position of this.availablePositions) {
+			
+			if(positions.includes(position)) {
+				addPosition = position;
+				break;
+			}
+		}
+		if(addPosition === undefined) {
+            console.log("No available positions in this size");
+            return;
+        }
 		try {
-			const coins = await this.getPlayersCoins();
-			if (coins >= price) {
-				const added = await this.addPlantToGarden(name);
-				if (added) {
-					await this.setPlayersCoins(coins - price);
-					console.log(`Bought ${description} for $${price}`);
-				} else {
-					console.log("Failed to add plant to garden.");
-				}
-			} else {
-				console.log("Not enough coins to buy this plant.");
+			const added = await this.addPlantToGarden(name, addPosition, price);
+			if (added) {
+				console.log(`Bought ${name} for $${price}`);
+			} 
+			else {
+				console.log("Not enough coins to buy this plant");
 			}
 		} catch (error) {
 			console.error('Error purchasing plant:', error);
 		}
-	}
-
-	getPlayersCoins() {
-		return new Promise((resolve, reject) => {
-			const handleMessage = (event) => {
-				if (event.origin !== window.location.origin) {
-					console.warn('Unknown origin:', event.origin);
-					return;
-				}
-	
-				const data = event.data;
-	
-				if (data.type === 'getCoinsResponse') {
-					window.removeEventListener('message', handleMessage);
-					console.log(data.coins);
-					resolve(data.coins);
-				}
-			};
-	
-			window.addEventListener('message', handleMessage);
-			window.parent.postMessage({ type: 'getCoins' }, '*');
-		});
 	}
 
 	setPlayersCoins(coins) {
@@ -216,7 +220,7 @@ class Shop extends Phaser.Scene {
 		});
 	}
 
-	addPlantToGarden(name) {
+	addPlantToGarden(name, position, value) {
 		return new Promise((resolve, reject) => {
 			const handleMessage = (event) => {
 				if (event.origin !== window.location.origin) {
@@ -237,7 +241,7 @@ class Shop extends Phaser.Scene {
 			};
 	
 			window.addEventListener('message', handleMessage);
-			window.parent.postMessage({ type: 'addPlant', plant: name }, '*');
+			window.parent.postMessage({ type: 'addPlant', name: name, position: position, value: value }, '*');
 		});
 	}
 }

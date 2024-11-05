@@ -2,7 +2,6 @@ class Level extends Phaser.Scene {
 
     constructor() {
         super("Level");
-        this.inventoryPosition = 0;
         this.smallPositions = [1, 2, 4, 5, 6, 7, 12, 13, 14, 15, 17, 18];
         this.mediumPositions = [3, 8, 11, 16];
         this.largePositions = [9, 10];
@@ -647,7 +646,7 @@ class Level extends Phaser.Scene {
     
 
     goToShop() {
-        this.scene.start("Shop");
+        this.scene.start("Shop", availablePositions);
     }
 
     goToStreakTree() {
@@ -681,15 +680,6 @@ class Level extends Phaser.Scene {
         this.plantGroup.add(plantImage);
     }
     
-
-    addCoins(amount) {
-        // Add coins to user in the database
-        console.log("Coins added: " + amount);
-
-        // Send data to react container
-        window.parent.postMessage({type: "updateCoins", coins: amount}, '*');
-    }
-    
     sellPlant(plant) {
 
         // Remove the plant's sprite from the scene
@@ -704,10 +694,7 @@ class Level extends Phaser.Scene {
         console.log(`Removed plant ${plant.name} from position ${plant.position} in the database.`);
 
         // Send position to database to remove the plant on the server side
-        window.parent.postMessage({type: "sellPlant", position: plant.position}, '*');
-    
-        // Add coins to the user
-        this.addCoins(plant.value * 0.5);
+        window.parent.postMessage({type: "sellPlant", position: plant.position, value: plant.value}, '*');
     
         // Optionally, show a message to the user (not sure how we want to do this)
         console.log(`Sold plant ${plant.name} for ${plant.value * 0.5} coins.`);

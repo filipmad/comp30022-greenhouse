@@ -313,10 +313,8 @@ class Level extends Phaser.Scene {
 			duration: 1000,
 		});
 
-        // Send high score to the database
-        this.sendHighScoreToDatabase(this.highScore);
-        // Add coins to the database after round
-        this.addCoins();
+        // Send high score and coins gained to the database
+        this.updateDatabase(this.highScore);
 
 		// Delay a little to show the game over message
 		this.time.delayedCall(3000, () => {
@@ -333,20 +331,14 @@ class Level extends Phaser.Scene {
 	
 	}
 
-    sendHighScoreToDatabase(score) {
+    updateDatabase(score) {
         // Send data to react container
-        window.parent.postMessage({ type: 'highScore', score: score }, '*');
-    }
-
-
-    addCoins() {
-        // Send data to react container
-        window.parent.postMessage({ type: 'addCoins', coins: this.coinsGained }, '*');
+        window.parent.postMessage({ type: 'update', score: score, coins: this.coinsGained }, '*');
     }
 
     getHighScore() {
         // Retrieve the high score from the database
-        window.parent.postMessage({ type: 'getHighScore', score: this.highScore}, '*');
+        window.parent.postMessage({ type: 'getHighScore'}, '*');
     }
 
     handleMessage(event) {

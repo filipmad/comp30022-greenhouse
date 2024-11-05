@@ -96,8 +96,8 @@ class Level extends Phaser.Scene {
             // Check if 60 seconds have passed since the last coin update
             if(time - this.lastCoinAdditionTime > 60000) {
                 this.determineRandomEvent();
-                this.saveStats();
-                this.addCoins();
+                let coins = this.addCoins();
+                this.saveStats(coins);
                 this.lastCoinAdditionTime = time;
             }
         }
@@ -153,7 +153,7 @@ class Level extends Phaser.Scene {
             coins += 1;
         }
         console.log("Coins added:", coins);
-        window.parent.postMessage({ type: 'addCoins', coins: coins }, '*');
+        return coins;
     }
 
     // Need to change to manually make the buttons so the positions are distributed more evenly based on text size
@@ -321,7 +321,7 @@ class Level extends Phaser.Scene {
             .setInteractive({ useHandCursor: true });
 
         saveButton.on('pointerdown', () => {
-            this.saveStats();
+            this.saveStats(0);
         });
 
         // Add hover effects for the save button
@@ -334,9 +334,9 @@ class Level extends Phaser.Scene {
         });
     }
 
-    saveStats() {
+    saveStats(coins) {
         // Send data to react container
-        window.parent.postMessage({ type: 'saveStats', stats: this.stats, hiddenStats: this.hiddenStats }, '*');
+        window.parent.postMessage({ type: 'saveStats', stats: this.stats, hiddenStats: this.hiddenStats, coins: coins }, '*');
     }
 
     loadStats() {
