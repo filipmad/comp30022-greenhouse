@@ -1,0 +1,129 @@
+.goal-container {
+    padding: 20px;
+    background-color: #F5F5DC;
+}
+
+.goal-nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.goal-nav-side-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-button {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    color: white;
+    background-color: #2196F3; 
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+    display: inline-block;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.nav-button:hover {
+    background-color: #1E88E5; 
+}
+
+.back-button {
+    background-color: #F44336;
+}
+
+.back-button:hover {
+    background-color: #E53935; 
+}
+
+.previous-button {
+    background-color: #FF9800;
+}
+
+.previous-button:hover {
+    background-color: #FB8C00; 
+}
+
+.next-button {
+    background-color: #4CAF50; 
+}
+
+.next-button:hover {
+    background-color: #45A049; 
+}
+
+.goal-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+}
+
+.goal-text {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.goal-text h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.goal-text p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.goal-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.goal-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.goal-targets, .goal-career {
+    margin-top: 40px;
+}
+
+.goal-targets h2, .goal-career h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.goal-targets ul, .goal-career ul {
+    list-style: none;
+    padding: 0;
+}
+
+.goal-targets ul li, .goal-career ul li {
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+.goal-targets ul li strong {
+    color: #2196F3;
+}
+
+.goal-career ul li strong {
+    color: #4CAF50;
+}
+
+.goal-career ul li a {
+    color: #2196F3;
+    text-decoration: none;
+}
+
+.goal-career ul li a:hover {
+    text-decoration: underline;
+}

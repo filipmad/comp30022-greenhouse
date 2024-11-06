@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/914cc03b-2d13-4252-9fdb-2b875e2508fb/resourceGroups/greenhouse-group/providers/Microsoft.Web/sites/greenhouse",
+    "appService.deploySubpath": "App\\greenhouse-app\\build"
+}

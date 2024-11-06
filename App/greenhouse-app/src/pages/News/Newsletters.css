@@ -1,0 +1,9 @@
+.newsletter-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth transition for transform and shadow */
+}
+
+.newsletter-card:hover {
+    transform: scale(1.05); /* Slightly increase the size */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+    cursor: pointer; /* Show pointer cursor */
+}
