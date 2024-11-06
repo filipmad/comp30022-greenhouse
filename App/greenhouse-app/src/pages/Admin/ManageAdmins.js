@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Button, Form, Container, Table } from 'react-bootstrap';
 import axios from 'axios';
 
+import config from '../../config';
+
 const AdminManagement = () => {
     const [admins, setAdmins] = useState([]);
     const [newAdminFirstName, setAdminFirstName] = useState('')
@@ -12,20 +14,9 @@ const AdminManagement = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
-
-    const universities = [
-        { value: '(The) University of Melboune', label: '(The) University of Melbourne' },
-        { value: '(The) University of Sydney', label: '(The) University of Sydney' },
-        { value: 'University of New South Wales', label: 'University of New South Wales' },
-        { value: 'RMIT University', label: 'RMIT University' },
-        { value: 'Swinburne University', label: 'Swinburne University' },
-        { value: 'Deakin University', label: 'Deakin University' },
-        // Add more universities as needed
-    ];
-
     const fetchAdmins = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-admin-profiles', { withCredentials: true });
+            const response = await axios.get(`${config.deploymentUrl}/get-admin-profiles`, { withCredentials: true });
             setAdmins(response.data);
         } catch (error) {
             console.error('Error fetching admins:', error);
@@ -43,7 +34,7 @@ const AdminManagement = () => {
     const handleCreateAdminProfile = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/create-profile', {
+            const response = await axios.post(`${config}.deploymentUrl/create-profile`, {
                 firstName: newAdminFirstName,
                 lastName: newAdminLastName,
                 email: newAdminEmail,

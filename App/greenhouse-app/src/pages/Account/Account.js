@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
-import { Form, Button, Container, Row, Col } from 'react-bootstrap';
-import Select from 'react-select';
-import './SignUp.css';
+import {useNavigate } from 'react-router-dom';
+
 import './Components/GeneralAccount';
 
 import AccountPage from './Components/GeneralAccount';
@@ -14,11 +12,13 @@ const UsernameCheck = () => {
     const [isAdmin, setIsAdmin] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+    var deployMent = "https://greenhouse-api-deployment-hyfmdxhse8c3gagh.australiasoutheast-01.azurewebsites.net"
+
     // Check authentication status on component mount
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/check-auth', {
+                const response = await axios.get(deployMent+'/check-auth', {
                     withCredentials: true,
                 });
 

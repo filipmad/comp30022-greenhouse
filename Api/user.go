@@ -60,10 +60,6 @@ func handleUsernameCheck(db *sql.DB) http.HandlerFunc {
 			print("db is nil")
 			return
 		}
-		// print("db is alive")
-
-		// print(input.Email)
-		// print(input.Password)
 
 		var gardenID, userID int
 		// QueryRow avoids SQL Injection attacks
@@ -86,8 +82,6 @@ func handleUsernameCheck(db *sql.DB) http.HandlerFunc {
 			}
 		}
 
-		//fmt.Println(userID);
-		//fmt.Print(gardenID);
 
 		var response ResponseMessage
 		if userID != -1 {
@@ -131,8 +125,8 @@ func handleUsernameCheck(db *sql.DB) http.HandlerFunc {
 
 		// Send the success/failure response back to the frontend
 		w.Header().Set("Content-Type", "application/json")
-		//w.Header().Set("Access-Control-Allow-Origin", "https://greenhouse-app-deployment-f7avhccxfaa3ewhp.australiasoutheast-01.azurewebsites.net")
-		//w.Header().Set("Access-Control-Allow-Credentials", "true")
+		// w.Header().Set("Access-Control-Allow-Origin", "https://greenhouse-app.azurewebsites.net/")
+		// w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 		json.NewEncoder(w).Encode(response)
 	}
@@ -287,7 +281,7 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 
 	// Optionally return a response to indicate the logout was successful
 	w.Header().Set("Content-Type", "application/json")
-	// w.Header().Set("Access-Control-Allow-Origin", "https://greenhouse-app-deployment-f7avhccxfaa3ewhp.australiasoutheast-01.azurewebsites.net")
+	// w.Header().Set("Access-Control-Allow-Origin", "https://greenhouse-app.azurewebsites.net/")
 	// w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"success": true, "message": "Logged out successfully"}`))
@@ -483,7 +477,7 @@ func handleProfileDetails(db *sql.DB) http.HandlerFunc {
 		userID := cookie.Value
 
 		// Query to retrieve user details
-		query := `SELECT firstName, lastName, email, university FROM Users WHERE userID = ?;`
+		query := `SELECT firstName, lastName, email, university, userBalance FROM Users WHERE userID = ?;`
 
 		// Execute the query
 		row := db.QueryRow(query, userID)
@@ -492,7 +486,7 @@ func handleProfileDetails(db *sql.DB) http.HandlerFunc {
 		var profile User
 
 		// Scan the result into the struct
-		err = row.Scan(&profile.FirstName, &profile.LastName, &profile.Email, &profile.University)
+		err = row.Scan(&profile.FirstName, &profile.LastName, &profile.Email, &profile.University, &profile.UserBalance)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				http.Error(w, "User not found", http.StatusNotFound)

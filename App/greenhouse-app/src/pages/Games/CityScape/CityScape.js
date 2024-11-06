@@ -5,7 +5,7 @@ const GameComponent = () => {
     <div style={{ textAlign: 'center' }}>
       <iframe
         title="phaser-game"
-        src={`${process.env.PUBLIC_URL}/CityScape/index.html`}
+        src={`${process.env.PUBLIC_URL}/CityScapeGame/index.html`}
         width="1067"
         height="600"
         frameBorder="0"

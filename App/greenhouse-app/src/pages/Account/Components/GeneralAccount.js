@@ -10,7 +10,10 @@ const AccountPage = ({ getAdmin }) => {
     const [lastName, setLastName] = useState('');
     const [university, setUniversity] = useState('');
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [password] = useState('');
+
+
+    var deployMent = "https://greenhouse-api-deployment-hyfmdxhse8c3gagh.australiasoutheast-01.azurewebsites.net"
 
     const navigate = useNavigate();
 
@@ -35,7 +38,8 @@ const AccountPage = ({ getAdmin }) => {
         // Fetch the current user details on component mount
         const fetchUserDetails = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/get-profile-details', { withCredentials: true });
+                const response = await axios.get(deployMent+'/get-profile-details', { withCredentials: true });
+                console.log(deployMent+'/get-data')
                 const userData = response.data;
                 setFirstName(userData.firstName);
                 setLastName(userData.lastName);
@@ -52,7 +56,7 @@ const AccountPage = ({ getAdmin }) => {
     const signOut = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:8000/logout', {}, { withCredentials: true });
+            await axios.post(deployMent+'/logout', {}, { withCredentials: true });
         } catch (error) {
             console.error('Error signing out:', error);
         } finally {
@@ -64,7 +68,7 @@ const AccountPage = ({ getAdmin }) => {
 
     const handleChange = async () => {
         try {
-            await axios.post('http://localhost:8000/update-user-details', {
+            await axios.post(deployMent+'/update-user-details', {
                 firstName,
                 lastName,
                 email,
@@ -94,11 +98,11 @@ const AccountPage = ({ getAdmin }) => {
 
     const handleDeleteAccountCheck = async () => {
         try {
-            const response = await axios.post('http://localhost:8000/check-username', {
+            const response = await axios.post(deployMent+'/check-username', {
                 email: emailDeletionGuard,
                 password: passwordDeletionGuard
             }, { withCredentials: true });
-            const { success, message } = response.data;
+            const { success } = response.data;
 
             if (success) {
                 handleDeleteAccount();
@@ -116,7 +120,7 @@ const AccountPage = ({ getAdmin }) => {
     const handleDeleteAccount = async () => {
         try {
             const response = await axios.post(
-                'http://localhost:8000/delete-profile',
+                deployMent+'/delete-profile',
                 { email: emailDeletionGuard, password: passwordDeletionGuard },
                 { withCredentials: true }
             );

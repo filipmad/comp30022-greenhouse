@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
+import config from '../../../config';
 
 
 
@@ -14,11 +15,13 @@ const Login = () => {
 
     const [result, setResult] = useState('');
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/check-username', { email, password }, { withCredentials: true });
+            //console.log("doing it")
+            //console.log("j")
+            console.log(`${config.deploymentUrl}/check-username`)
+            const response = await axios.post(`${config.deploymentUrl}/check-username`, { email, password }, { withCredentials: true });
             const { success, message } = response.data;
 
             if (success) {

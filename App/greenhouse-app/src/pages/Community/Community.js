@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import ProgressBar from 'react-bootstrap/ProgressBar';
 import axios from 'axios';
 import "./Community.css";
-import { Button } from "react-bootstrap";
 import ForumPost from "./components/ForumPosts";
 import CommunityMilestone from "./components/CommunityMilestone";
 import Poll from "./components/Poll";
+import config from "../../config";
 
 export default function Community() {
 	const [polls, setPolls] = useState([]);
@@ -15,7 +14,7 @@ export default function Community() {
 	// Fetch the milestones
 	const fetchMilestones = async () => {
 		try {
-			const response = await axios.get('http://localhost:8000/get-milestones', { withCredentials: true });
+			const response = await axios.get(`${config.deploymentUrl}/get-milestones`, { withCredentials: true });
 			setMilestones(response.data);
 		} catch (error) {
 			console.error('Error fetching milestones:', error);
@@ -25,7 +24,7 @@ export default function Community() {
 	// Fetch the polls data
 	const getPolls = async () => {
 		try {
-			const response = await axios.post('http://localhost:8000/get-polls');
+			const response = await axios.post(`${config.deploymentUrl}/get-polls`);
 			const pollsData = response.data;
 			if (Array.isArray(pollsData) && pollsData != null) {
 				setPolls(pollsData); // Update the polls state with the actual data
@@ -40,7 +39,7 @@ export default function Community() {
 	// Fetch forum posts
 	const getForumPosts = async () => {
 		try {
-			const response = await axios.get('http://localhost:8000/get-forumposts');
+			const response = await axios.get(`${config.deploymentUrl}/get-forumposts`);
 			setForumPosts(response.data); // Update forumPosts state with the fetched data
 		} catch (error) {
 			console.error('Error fetching forum posts:', error);
@@ -65,7 +64,7 @@ export default function Community() {
 			setPolls(polls.map(poll => (poll.pollID === pollId ? updatedPoll : poll)));
 
 			// Update vote in the backend
-			await axios.post('http://localhost:8000/update-poll-votes', {
+			await axios.post(`${config.deploymentUrl}/update-poll-votes`, {
 				pollID: pollId,
 				option: option,
 			});

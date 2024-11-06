@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Container, Table } from 'react-bootstrap';
 import axios from 'axios';
+import config from '../../../config';
 
 const CommunityMilestoneManager = () => {
     const [milestones, setMilestones] = useState([]);
@@ -12,7 +13,7 @@ const CommunityMilestoneManager = () => {
 
     const fetchMilestones = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-milestones', { withCredentials: true });
+            const response = await axios.get(`${config.deploymentUrl}/get-milestones`, { withCredentials: true });
             setMilestones(response.data);
         } catch (error) {
             console.error('Error fetching milestones:', error);
@@ -35,7 +36,7 @@ const CommunityMilestoneManager = () => {
                 status: '', // Add default status
                 progress: 0, // Initialize progress
             };
-            const response = await axios.post('http://localhost:8000/create-milestone', newMilestone, { withCredentials: true });
+            const response = await axios.post(`${config.deploymentUrl}/create-milestone`, newMilestone, { withCredentials: true });
             
             // Ensure response.data is the complete milestone object
             if (response.data) {
@@ -57,7 +58,7 @@ const CommunityMilestoneManager = () => {
     // Delete milestone
     const handleDeleteMilestone = async (milestoneId) => {
         try {
-            await axios.post(`http://localhost:8000/delete-milestone`, {milestoneId}, { withCredentials: true });
+            await axios.post(`${config.deploymentUrl}/delete-milestone`, {milestoneId}, { withCredentials: true });
             fetchMilestones()
             setSuccess('Milestone deleted successfully');
         } catch (error) {

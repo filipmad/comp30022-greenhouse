@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import axios from 'axios';
 import Tab from 'react-bootstrap/Tab';
+import config from '../../../config';
 
 
 
@@ -13,7 +14,7 @@ export default function AddNewsPostTab() {
     const handleCreateNewsPost = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/create-newspost', { title, author, text });
+            const response = await axios.post(`${config.deploymentUrl}/create-newspost`, { title, author, text });
             const { success, message } = response.data;
             if (success) {
                 console.log("success!")

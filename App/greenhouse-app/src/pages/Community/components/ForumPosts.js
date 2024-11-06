@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Container, Card, Row, Col, Image, Button, ListGroup, Form, InputGroup } from 'react-bootstrap';
 import { FaThumbsUp } from 'react-icons/fa';
 import axios from 'axios';
+import config from '../../../config';
 
 const ForumPost = ({ postID, title, datePosted, text, likes, commentsEnabled }) => {
   // State for comments and likes
@@ -12,7 +13,7 @@ const ForumPost = ({ postID, title, datePosted, text, likes, commentsEnabled }) 
   // Function to fetch all comments for the post
   const fetchComments = async () => {
     try {
-      const response = await axios.post(`http://localhost:8000/get-comments`, { id: postID }, { withCredentials: true });
+      const response = await axios.post(`${config.deploymentUrl}/get-comments`, { id: postID }, { withCredentials: true });
       // Ensure comments is always an array
       console.log("comments: ", response.data.comments)
       
@@ -29,7 +30,7 @@ const ForumPost = ({ postID, title, datePosted, text, likes, commentsEnabled }) 
 
   const checkComments = async () => {
     try {
-      const response = await axios.post('http://localhost:8000/check-comments', { postID: postID }, { withCredentials: true });
+      const response = await axios.post(`${config.deploymentUrl}/check-comments`, { postID: postID }, { withCredentials: true });
       return response.data.hasCommented;
     } catch (error) {
       console.log('Error checking comments', error);
@@ -44,7 +45,7 @@ const ForumPost = ({ postID, title, datePosted, text, likes, commentsEnabled }) 
       if (!hasCommented) {
         try {
           const commentData = { text: newComment, postID: postID };
-          const response = await axios.post('http://localhost:8000/create-comment', commentData, { withCredentials: true });
+          const response = await axios.post(`${config.deploymentUrl}/create-comment`, commentData, { withCredentials: true });
 
           // Update comments with the new comment
           setComments([...comments, { author: response.data.authorName, text: newComment }]);

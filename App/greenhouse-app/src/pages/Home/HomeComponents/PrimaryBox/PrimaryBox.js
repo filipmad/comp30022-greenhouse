@@ -18,8 +18,8 @@ export default function PrimaryBox({ page }) {
     className = "gamesBox";
   } 
   else if (page === "Garden") {
-    text = "Grow Your Garden";
-    linkTo = "/grow";
+    text = "Check the news";
+    linkTo = "/news";
     className = "gardenBox";
   }
   else if (page === "Community") {

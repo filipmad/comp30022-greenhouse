@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Container, Table, Modal } from 'react-bootstrap';
 import axios from 'axios';
+import config from '../../../config';
 
 const NewsletterManagement = () => {
     const [newsletters, setNewsletters] = useState([]);
@@ -16,7 +17,7 @@ const NewsletterManagement = () => {
 
     const fetchNewsletters = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-all-newsletters', { withCredentials: true });
+            const response = await axios.get(`${config.deploymentUrl}/get-all-newsletters`, { withCredentials: true });
             if (Array.isArray(response.data)) {
                 setNewsletters(response.data);
             } else {
@@ -40,7 +41,7 @@ const NewsletterManagement = () => {
     const handleCreateNewsletter = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/create-newsletter', 
+            const response = await axios.post(`${config.deploymentUrl}/create-newsletter`, 
                 { title: newTitle, text: newText },
                 { withCredentials: true }
             );
@@ -61,7 +62,7 @@ const NewsletterManagement = () => {
     // Function to delete a newsletter
     const handleDeleteNewsletter = async (newsletterId) => {
         try {
-            await axios.post(`http://localhost:8000/delete-newsletter`, {newsletterID: newsletterId}, { withCredentials: true });
+            await axios.post(`${config.deploymentUrl}/delete-newsletter`, {newsletterID: newsletterId}, { withCredentials: true });
             setNewsletters(newsletters.filter((newsletter) => newsletter.id !== newsletterId));
             setSuccess('Newsletter deleted successfully');
         } catch (error) {
@@ -82,7 +83,7 @@ const NewsletterManagement = () => {
     // Function to handle updating an existing newsletter
     const handleUpdateNewsletter = async () => {
         try {
-            const response = await axios.post(`http://localhost:8000/update-newsletter`, 
+            const response = await axios.post(`${config.deploymentUrl}/update-newsletter`, 
                 { id: newsletterID, title: newTitle, text: newText },
                 { withCredentials: true }
             );

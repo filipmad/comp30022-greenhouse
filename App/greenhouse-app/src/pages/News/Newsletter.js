@@ -3,6 +3,7 @@ import { Container, Card, Alert, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import config from '../../config';
 
 const Newsletter = () => {
     const { id } = useParams(); // Get the newsletter ID from the URL
@@ -12,7 +13,7 @@ const Newsletter = () => {
     useEffect(() => {
         const fetchNewsletter = async (ID) => {
             try {
-                const response = await axios.post(`http://localhost:8000/get-newsletter`, { id: parseInt(ID) }, { withCredentials: true });
+                const response = await axios.post(`${config.deploymentUrl}/get-newsletter`, { id: parseInt(ID) }, { withCredentials: true });
                 setNewsletter(response.data);
             } catch (error) {
                 console.error('Error fetching newsletter:', error);

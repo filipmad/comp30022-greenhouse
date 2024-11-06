@@ -16,7 +16,8 @@ const ProtectedRoute = ({ children }) => {
     const checkAuth = async () => {
       try {
         // Make an API call to check if the user is authenticated
-        const response = await axios.get('http://localhost:8000/check-auth', {
+        var deployment = "https://greenhouse-api-deployment-hyfmdxhse8c3gagh.australiasoutheast-01.azurewebsites.net"
+        const response = await axios.get(deployment+'/check-auth', {
           withCredentials: true, 
         });
 

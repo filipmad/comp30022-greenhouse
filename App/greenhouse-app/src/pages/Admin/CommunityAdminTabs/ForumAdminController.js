@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Table, Modal } from 'react-bootstrap';
 import axios from 'axios';
+import config from '../../../config';
 
 export default function ForumManager() {
     // State variables for creating a new forum post
@@ -23,7 +24,7 @@ export default function ForumManager() {
         e.preventDefault();
         try {
             const response = await axios.post(
-                'http://localhost:8000/create-forumpost',
+                `${config.deploymentUrl}/create-forumpost`,
                 {
                     title: newTitle,
                     text: newText,
@@ -53,7 +54,7 @@ export default function ForumManager() {
     // Fetch Forum Posts
     const getPosts = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-forumposts');
+            const response = await axios.get(`${config.deploymentUrl}/get-forumposts`);
             setPosts(response.data || []); // Set posts to empty array if response.data is null
         } catch (error) {
             console.log('Error loading forum posts:', error);
@@ -64,7 +65,7 @@ export default function ForumManager() {
     // Handle updating a post
     const handleUpdatePost = async () => {
         try {
-            await axios.post('http://localhost:8000/update-forumposts', {
+            await axios.post(`${config.deploymentUrl}/update-forumposts`, {
                 postID: editPostID,
                 title: editTitle,
                 text: editText,
@@ -82,7 +83,7 @@ export default function ForumManager() {
     // Handle deleting a post
     const handleDeletePost = async (postId) => {
         try {
-            await axios.post('http://localhost:8000/delete-forumpost', {
+            await axios.post(`${config.deploymentUrl}/delete-forumpost`, {
                 postID: postId,
             });
             console.log("Forum post deleted successfully!");

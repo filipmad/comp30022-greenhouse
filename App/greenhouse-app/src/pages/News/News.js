@@ -3,19 +3,20 @@ import axios from 'axios';
 import "./News.css";
 import { Container, Card, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import config from "../../config";
 
 export default function News() {
     const [title, setTitle] = useState('d');
     const [author, setAuthor] = useState('');
     const [text, setText] = useState('');
-    const [dateCreated, setDateCreated] = useState('');
+    const [dateCreated] = useState('');
     
     const [currentPage, setCurrentPage] = useState(0); // To track current page for "Other News"
     const articlesPerPage = 3; // Number of articles to display per page
 
     const getRecentBlog = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-recent-newspost', { title, author, text, dateCreated });
+            const response = await axios.get(`${config.deploymentUrl}/get-recent-newspost`, { title, author, text, dateCreated });
             setAuthor(response.data.author);
             setTitle(response.data.title);
             setText(response.data.text);

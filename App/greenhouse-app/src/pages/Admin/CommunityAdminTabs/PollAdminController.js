@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Table, Modal } from 'react-bootstrap';
 import axios from 'axios';
+import config from '../../../config';
 
 export default function PollManager() {
     const [newTitle, setNewTitle] = useState('');
@@ -19,7 +20,7 @@ export default function PollManager() {
     const handleCreatePoll = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/add-poll', {
+            const response = await axios.post(`${config.deploymentUrl}/add-poll`, {
                 title: newTitle,
                 text: newText,
                 optionOnetext: newOptionOneText,
@@ -38,7 +39,7 @@ export default function PollManager() {
     // Fetch polls
     const getPolls = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-polls');
+            const response = await axios.get(`${config.deploymentUrl}/get-polls`);
             setPolls(response.data || []);  // Set polls to an empty array if response.data is null or undefined
         } catch (error) {
             console.log('Error loading polls:', error);
@@ -49,7 +50,7 @@ export default function PollManager() {
     // Handle updating a poll
     const handleUpdatePoll = async () => {
         try {
-            await axios.post('http://localhost:8000/update-poll', {
+            await axios.post(`${config.deploymentUrl}/update-poll`, {
                 pollID: editPollID,
                 title: title,
                 text: text,
@@ -67,7 +68,7 @@ export default function PollManager() {
     // Handle deleting a poll
     const handleDeletePoll = async (pollId) => {
         try {
-            await axios.post('http://localhost:8000/delete-poll', {
+            await axios.post(`${config.deploymentUrl}/delete-poll`, {
                 pollID: pollId,
             });
             console.log("Poll deleted successfully!");

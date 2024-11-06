@@ -23,6 +23,11 @@ const Economical = () => {
         ) : (
           <Link to="/discover/environmental" className="economical-nav-button environmental">Environmental</Link>
         )}
+        {location.pathname === '/discover/goal17' ? (
+          <button className="social-nav-button">Environmental</button>
+        ) : (
+          <Link to="/discover/goal17" className="social-nav-button goal17">Goal 17</Link>
+        )}
       </div>
 
       <div className="economical-pillar-container">
@@ -45,6 +50,16 @@ const Economical = () => {
           <h2>Goal 12: Responsible Consumption and Production</h2>
           <p>Ensure sustainable consumption and production patterns.</p>
         </Link>
+
+        <Link
+          to="/discover/economical/goal17"
+          className="economical-pillar-item"
+          style={{ backgroundColor: 'red' }}
+        >
+          <h2>Goal 17: Partnerships for the Goals</h2>
+          <p>See how we are collaborating to support these goals</p>
+        </Link>
+
       </div>
     </div>
   );

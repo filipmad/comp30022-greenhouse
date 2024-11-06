@@ -1,6 +1,8 @@
-import React from "react";
+
 import { Link } from "react-router-dom";
 import "./SettingsSection.css";
+import React from 'react';
+
 
 function SettingsButton({ type }) {
   let img;
@@ -28,6 +30,7 @@ export default function SettingsSection() {
     <div className="settingsSection">
       
       <SettingsButton type="account" />
+      
     </div>
   );
 }

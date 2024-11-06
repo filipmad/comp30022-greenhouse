@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import Select from 'react-select';
 import './SignUp.css';
+import config from "../../config";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ export default function SignUp() {
     }
 
     try {
-      const response = await axios.post('http://localhost:8000/create-profile', { firstName, lastName, email, password, university });
+      const response = await axios.post(`${config.deploymentUrl}/create-profile`, { firstName, lastName, email, password, university });
       const { success, message } = response.data;
       setDisplayedError(message);
       if (success) {

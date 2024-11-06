@@ -3,6 +3,7 @@ import { Container, Card, Row, Col, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Newsletters.css'
+import config from '../../config';
 
 const NewsletterList = () => {
     const [newsletters, setNewsletters] = useState([]);
@@ -12,7 +13,7 @@ const NewsletterList = () => {
     useEffect(() => {
         const fetchNewsletters = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/get-all-newsletters', { withCredentials: true });
+                const response = await axios.get(`${config.deploymentUrl}/get-all-newsletters`, { withCredentials: true });
                 if (Array.isArray(response.data)) {
                     setNewsletters(response.data);
                 } else {

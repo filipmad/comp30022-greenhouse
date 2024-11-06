@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
+	"os"
 	"github.com/gorilla/mux"
 	//"github.com/gorilla/sessions"
 	_ "github.com/microsoft/go-mssqldb" // Postgres driver
@@ -97,10 +97,13 @@ func main() {
 	r.HandleFunc("/create-milestone", createCommunityMilestone(db)).Methods("POST")
 	r.HandleFunc("/delete-milestone", deleteCommunityMilestone(db))
 
+	r.HandleFunc("/get-ecoadventure-score", getEcoAdventureScore(db))
+	r.HandleFunc("/update-ecoadventure-score", updateEcoAdventureScore(db)).Methods("POST")
+
 
 	// Set up CORS to allow requests from the React frontend
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000" , "https://greenhouse-app-deployment-f7avhccxfaa3ewhp.australiasoutheast-01.azurewebsites.net"}, // Frontend origin
+		AllowedOrigins:   []string{"https://greenhouse-app.azurewebsites.net"}, // Frontend origin
 		AllowedMethods:   []string{"GET", "POST", "DELETE"},
 		AllowedHeaders:   []string{"Content-Type"},
 		AllowCredentials: true,
@@ -109,8 +112,15 @@ func main() {
 	// Use the CORS middleware with the router
 	handler := c.Handler(r)
 
-	log.Println("Starting server on :8000")
-	err = http.ListenAndServe(":8000", handler)
+	port := os.Getenv("HTTP_PLATFORM_PORT")
+
+	// default back to 8080 for local dev
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Println("Starting server on :" + port)
+	err = http.ListenAndServe(":" + port, handler)
         log.Fatal(err)
 
 }
