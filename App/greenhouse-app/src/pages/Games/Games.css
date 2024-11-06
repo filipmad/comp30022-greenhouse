@@ -1,0 +1,19 @@
+.gamesPageContainer {
+	display: flex;
+	flex-direction: column;
+	height: 75vh;
+	background-color: #F5F5DC;
+  }
+  
+.gamesContainer {
+	display: flex;
+	justify-content: space-around;
+	margin: 20px 0;
+	flex-grow: 1;
+  }
+  
+  .quizContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+  }

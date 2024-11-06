@@ -1,0 +1,381 @@
+{
+    "section1": {
+        "files": [
+            {
+                "url": "assets/dino.png",
+                "key": "dino",
+                "type": "image"
+            },
+            {
+                "url": "assets/Green Arrow 1/File1.png",
+                "type": "image",
+                "key": "File1"
+            },
+            {
+                "url": "assets/Green Arrow 1/File10.png",
+                "type": "image",
+                "key": "File10"
+            },
+            {
+                "url": "assets/Green Arrow 1/File11.png",
+                "type": "image",
+                "key": "File11"
+            },
+            {
+                "url": "assets/Green Arrow 1/File12.png",
+                "type": "image",
+                "key": "File12"
+            },
+            {
+                "url": "assets/Green Arrow 1/File13.png",
+                "type": "image",
+                "key": "File13"
+            },
+            {
+                "url": "assets/Green Arrow 1/File14.png",
+                "type": "image",
+                "key": "File14"
+            },
+            {
+                "url": "assets/Green Arrow 1/File15.png",
+                "type": "image",
+                "key": "File15"
+            },
+            {
+                "url": "assets/Green Arrow 1/File16.png",
+                "type": "image",
+                "key": "File16"
+            },
+            {
+                "url": "assets/Green Arrow 1/File17.png",
+                "type": "image",
+                "key": "File17"
+            },
+            {
+                "url": "assets/Green Arrow 1/File18.png",
+                "type": "image",
+                "key": "File18"
+            },
+            {
+                "url": "assets/Green Arrow 1/File19.png",
+                "type": "image",
+                "key": "File19"
+            },
+            {
+                "url": "assets/Green Arrow 1/File2.png",
+                "type": "image",
+                "key": "File2"
+            },
+            {
+                "url": "assets/Green Arrow 1/File20.png",
+                "type": "image",
+                "key": "File20"
+            },
+            {
+                "url": "assets/Green Arrow 1/File21.png",
+                "type": "image",
+                "key": "File21"
+            },
+            {
+                "url": "assets/Green Arrow 1/File22.png",
+                "type": "image",
+                "key": "File22"
+            },
+            {
+                "url": "assets/Green Arrow 1/File23.png",
+                "type": "image",
+                "key": "File23"
+            },
+            {
+                "url": "assets/Green Arrow 1/File24.png",
+                "type": "image",
+                "key": "File24"
+            },
+            {
+                "url": "assets/Green Arrow 1/File25.png",
+                "type": "image",
+                "key": "File25"
+            },
+            {
+                "url": "assets/Green Arrow 1/File26.png",
+                "type": "image",
+                "key": "File26"
+            },
+            {
+                "url": "assets/Green Arrow 1/File27.png",
+                "type": "image",
+                "key": "File27"
+            },
+            {
+                "url": "assets/Green Arrow 1/File28.png",
+                "type": "image",
+                "key": "File28"
+            },
+            {
+                "url": "assets/Green Arrow 1/File29.png",
+                "type": "image",
+                "key": "File29"
+            },
+            {
+                "url": "assets/Green Arrow 1/File3.png",
+                "type": "image",
+                "key": "File3"
+            },
+            {
+                "url": "assets/Green Arrow 1/File30.png",
+                "type": "image",
+                "key": "File30"
+            },
+            {
+                "url": "assets/Green Arrow 1/File31.png",
+                "type": "image",
+                "key": "File31"
+            },
+            {
+                "url": "assets/Green Arrow 1/File32.png",
+                "type": "image",
+                "key": "File32"
+            },
+            {
+                "url": "assets/Green Arrow 1/File33.png",
+                "type": "image",
+                "key": "File33"
+            },
+            {
+                "url": "assets/Green Arrow 1/File34.png",
+                "type": "image",
+                "key": "File34"
+            },
+            {
+                "url": "assets/Green Arrow 1/File35.png",
+                "type": "image",
+                "key": "File35"
+            },
+            {
+                "url": "assets/Green Arrow 1/File36.png",
+                "type": "image",
+                "key": "File36"
+            },
+            {
+                "url": "assets/Green Arrow 1/File37.png",
+                "type": "image",
+                "key": "File37"
+            },
+            {
+                "url": "assets/Green Arrow 1/File38.png",
+                "type": "image",
+                "key": "File38"
+            },
+            {
+                "url": "assets/Green Arrow 1/File39.png",
+                "type": "image",
+                "key": "File39"
+            },
+            {
+                "url": "assets/Green Arrow 1/File4.png",
+                "type": "image",
+                "key": "File4"
+            },
+            {
+                "url": "assets/Green Arrow 1/File40.png",
+                "type": "image",
+                "key": "File40"
+            },
+            {
+                "url": "assets/Green Arrow 1/File41.png",
+                "type": "image",
+                "key": "File41"
+            },
+            {
+                "url": "assets/Green Arrow 1/File42.png",
+                "type": "image",
+                "key": "File42"
+            },
+            {
+                "url": "assets/Green Arrow 1/File43.png",
+                "type": "image",
+                "key": "File43"
+            },
+            {
+                "url": "assets/Green Arrow 1/File44.png",
+                "type": "image",
+                "key": "File44"
+            },
+            {
+                "url": "assets/Green Arrow 1/File45.png",
+                "type": "image",
+                "key": "File45"
+            },
+            {
+                "url": "assets/Green Arrow 1/File46.png",
+                "type": "image",
+                "key": "File46"
+            },
+            {
+                "url": "assets/Green Arrow 1/File47.png",
+                "type": "image",
+                "key": "File47"
+            },
+            {
+                "url": "assets/Green Arrow 1/File48.png",
+                "type": "image",
+                "key": "File48"
+            },
+            {
+                "url": "assets/Green Arrow 1/File49.png",
+                "type": "image",
+                "key": "File49"
+            },
+            {
+                "url": "assets/Green Arrow 1/File5.png",
+                "type": "image",
+                "key": "File5"
+            },
+            {
+                "url": "assets/Green Arrow 1/File50.png",
+                "type": "image",
+                "key": "File50"
+            },
+            {
+                "url": "assets/Green Arrow 1/File51.png",
+                "type": "image",
+                "key": "File51"
+            },
+            {
+                "url": "assets/Green Arrow 1/File52.png",
+                "type": "image",
+                "key": "File52"
+            },
+            {
+                "url": "assets/Green Arrow 1/File53.png",
+                "type": "image",
+                "key": "File53"
+            },
+            {
+                "url": "assets/Green Arrow 1/File54.png",
+                "type": "image",
+                "key": "File54"
+            },
+            {
+                "url": "assets/Green Arrow 1/File55.png",
+                "type": "image",
+                "key": "File55"
+            },
+            {
+                "url": "assets/Green Arrow 1/File56.png",
+                "type": "image",
+                "key": "File56"
+            },
+            {
+                "url": "assets/Green Arrow 1/File57.png",
+                "type": "image",
+                "key": "File57"
+            },
+            {
+                "url": "assets/Green Arrow 1/File58.png",
+                "type": "image",
+                "key": "File58"
+            },
+            {
+                "url": "assets/Green Arrow 1/File59.png",
+                "type": "image",
+                "key": "File59"
+            },
+            {
+                "url": "assets/Green Arrow 1/File6.png",
+                "type": "image",
+                "key": "File6"
+            },
+            {
+                "url": "assets/Green Arrow 1/File7.png",
+                "type": "image",
+                "key": "File7"
+            },
+            {
+                "url": "assets/Green Arrow 1/File8.png",
+                "type": "image",
+                "key": "File8"
+            },
+            {
+                "url": "assets/Green Arrow 1/File9.png",
+                "type": "image",
+                "key": "File9"
+            },
+            {
+                "url": "assets/FullTree.webp",
+                "type": "image",
+                "key": "FullTree"
+            },
+            {
+                "url": "assets/GardenBackground.webp",
+                "type": "image",
+                "key": "GardenBackground"
+            },
+            {
+                "url": "assets/HalfTree.webp",
+                "type": "image",
+                "key": "HalfTree"
+            },
+            {
+                "url": "assets/LargeBud.png",
+                "type": "image",
+                "key": "Baby Tree"
+            },
+            {
+                "url": "assets/MediumBud.png",
+                "type": "image",
+                "key": "Regular Bush"
+            },
+            {
+                "url": "assets/StreakIcon.png",
+                "frameConfig": {
+                    "frameWidth": 32,
+                    "frameHeight": 32,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "StreakIcon"
+            },
+            {
+                "url": "assets/SeedTree.webp",
+                "type": "image",
+                "key": "SeedTree"
+            },
+            {
+                "url": "assets/ShopBackground.webp",
+                "type": "image",
+                "key": "ShopBackground"
+            },
+            {
+                "url": "assets/SmallBud.png",
+                "type": "image",
+                "key": "Basic Bud"
+            },
+            {
+                "url": "assets/SmallBud1.png",
+                "type": "image",
+                "key": "Rare Bud"
+            },
+            {
+                "url": "assets/SmallTree.webp",
+                "type": "image",
+                "key": "SmallTree"
+            },
+            {
+                "url": "assets/StreakTreeSign.png",
+                "type": "image",
+                "key": "StreakTreeSign"
+            }
+        ]
+    },
+    "meta": {
+        "app": "Phaser Editor 2D - Asset Pack Editor",
+        "contentType": "phasereditor2d.pack.core.AssetContentType",
+        "url": "https://phasereditor2d.com",
+        "version": 2,
+        "showAllFilesInBlocks": false
+    }
+}

@@ -1,0 +1,21 @@
+.gameLink {
+	display: block;
+	width: 550px;
+	height: 350px;
+	line-height: 350px;
+	background-color: #f0f0f0;
+	text-align: center;
+	text-decoration: none;
+	color: #000;
+	border: 1px solid #ccc;
+	border-radius: 10px;
+	transition: background-color 0.3s, transform 0.3s;
+	margin-top: 50px;
+	font-size: 50px;
+	font-weight: bold;
+  }
+  
+  .gameLink:hover {
+	background-color: #e0e0e0;
+	transform: scale(1.05);
+  }
